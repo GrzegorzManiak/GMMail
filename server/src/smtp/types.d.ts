@@ -1,0 +1,1 @@
+export type SocketType = 'TLS' | 'SSL' | 'NIL';

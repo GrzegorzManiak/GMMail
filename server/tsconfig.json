@@ -1,0 +1,19 @@
+{
+    "compilerOptions": {
+      "module": "ES2022",
+      "target": "ES6",
+      "lib": ["es5", "es6", "dom"],
+      "declaration": false,
+      "noImplicitAny": false,
+      "removeComments": true,
+      "inlineSourceMap": true,
+      "allowJs": true,
+      "moduleResolution": "node",
+      "types": [
+        "bun-types"
+      ]
+    },
+    "include": [
+      "src/**/*"
+    ],
+}

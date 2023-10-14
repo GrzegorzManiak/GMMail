@@ -1,0 +1,25 @@
+{
+  "HOST": "localhost",
+  "VENDOR": "GMMail",
+
+  "MAIL": {
+    "MAX_ATTACHMENT_SIZE": 50000,
+    "MAX_ATTACHMENT_COUNT": -1,
+    "MAX_SIZE_NIA": 10000
+  },
+  "SMTP_PORTS": {
+    "TLS": 587,
+    "SSL": 465,
+    "NIL": 2525
+  },
+  "SMTP": {
+    "TLS": true,
+    "SSL": true,
+    "NIL": true
+  },
+  "SMTP_MODE": {
+    "TLS": [ "SEND", "RECEIVE" ],
+    "SSL": [ "SEND", "RECEIVE" ],
+    "NIL": [ "SEND", "RECEIVE" ]
+  }
+}
