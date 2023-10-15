@@ -238,8 +238,14 @@ commands_map.set('MAIL FROM', (socket, email, _, command) => {
  * RCPT TO: < ... >
  */
 commands_map.set('RCPT TO', (socket, email, _, command) => {
-    // -- We can have alot of RCPT TO commands, so we don't need 
-    //    to ensure that we only received one command
+    // -- This command has to be sent after MAIL FROM
+    if (!email.has_marker('MAIL FROM')) {
+        const error = CODE(503, 'Bad sequence of commands');
+        email.push_message('send', error);
+        email.close(false);
+        socket.write(error);
+        return;
+    }
 
 
     // -- Parse the MAIL FROM
@@ -258,7 +264,7 @@ commands_map.set('RCPT TO', (socket, email, _, command) => {
     // -- Unlock the email
     const message = CODE(250);
     email.push_message('send', message);
-    email.marker = 'MAIL FROM';
+    email.marker = 'RCPT TO';
     socket.write(message);
     email.locked = false;
 });
@@ -269,8 +275,37 @@ commands_map.set('RCPT TO', (socket, email, _, command) => {
  * @name DATA
  * @description Processes the DATA command
  * DATA ... CRLF . CRLF
+ * 
+ * https://www.ibm.com/docs/en/zvm/7.2?topic=commands-data
  */
-commands_map.set('DATA', (socket, email) => {
+commands_map.set('DATA', (socket, email, words) => {
+    // -- Ensure that there is only the DATA command
+    //    HELO/EHLO and RCPT TO have to be sent before DATA
+    if (
+        email.has_marker('DATA') ||
+        !email.has_marker('RCPT TO') ||
+        !(
+            email.has_marker('HELO') ||
+            email.has_marker('EHLO')
+        )
+    ) {
+        const error = CODE(503);
+        email.push_message('send', error);
+        email.close(false);
+        socket.write(error);
+        return;
+    }
+
+
+    // -- Ensure that theres no parameters
+    if (words.length > 1) {
+        const error = CODE(501);
+        email.push_message('send', error);
+        email.close(false);
+        socket.write(error);
+        return;
+    }
+
 
     // -- Push the data message
     const message = CODE(354);
@@ -433,7 +468,7 @@ commands_map.set('VRFY', (socket, email, words, raw_data) => {
             constructed_message += ` ${message}\r\n`;
         });
 
-        
+
         // -- Push the message
         email.push_message('send', constructed_message);
         socket.write(constructed_message);

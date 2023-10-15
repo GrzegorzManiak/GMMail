@@ -38,7 +38,6 @@ try:
     all_recipients = [receiver_email] + cc_emails
 
     server.sendmail(sender_email, all_recipients, msg.as_string(), 
-        mail_options=['VRFY']
     )
     print("Email sent successfully!")
 except Exception as e:

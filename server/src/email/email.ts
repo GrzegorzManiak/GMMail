@@ -34,6 +34,17 @@ export default class Email {
     public constructor() {}
 
 
+
+    /**
+     * @name push_message
+     * @description Pushes a message to the message sequence, this sequence
+     * is usefull for debugging and logging
+     * 
+     * @param {MessageType} type - The type of message, recv or send
+     * @param {string} content - The content of the message
+     * 
+     * @returns {void} Nothing
+     */
     public push_message(
         type: MessageType,
         content: string,
@@ -57,6 +68,54 @@ export default class Email {
 
     public set marker(marker: string) { this._markers.set(marker, marker); }
     public has_marker(marker: string): boolean { return this._markers.has(marker); }
+    
+
+
+    /**
+     * @name ensure_sequence
+     * @description Ensures that the message sequence is in the correct order
+     * by looking at the last x messages
+     * 
+     * @param {string} marker - The marker to look for
+     * @param {Array<string>} ignore - Markers to ignore
+     * 
+     * @example
+     * 
+     * 
+     * sequence = [ 'EHLO', 'MAIL FROM', 'RCPT TO', 'RCPT TO' ];
+     * const ignore = [ 'RCPT TO' ];
+     * 
+     * const result = ensure_sequence('MAIL FROM', ignore); // true
+     * 
+     * 
+     * sequence = [ 'EHLO', 'MAIL FROM', 'RCPT TO',  'OTHER' ];
+     * const ignore = [ 'RCPT TO' ];
+     * 
+     * const result = ensure_sequence('MAIL FROM', ignore); // false
+     * 
+     * 
+     * @returns {boolean} Whether the sequence is in the correct order
+     */
+    public ensure_sequence(
+        marker: string,
+        ignore: Array<string> = []
+    ): boolean {
+        // -- Get the last 5 messages
+        const last_messages = this._message_sequence.slice(-5);
+
+        // -- Check if any of the messages are in the ignore list
+        const ignore_messages = last_messages.filter(message => ignore.includes(message.content));
+        if (ignore_messages.length > 0) return true;
+
+        // -- Check if the marker is in the last 5 messages
+        const marker_messages = last_messages.filter(message => message.content === marker);
+        if (marker_messages.length > 0) return true;
+
+        // -- Return false
+        return false;
+    }
+
+
 
     public set from_domain(from_domain: string) { this._from_domain = from_domain; }
     public get from_domain(): string { return this._from_domain; }
