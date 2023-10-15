@@ -1,4 +1,3 @@
-import Configuration from '../../config';
 import SMTP from '../smtp';
 
 /**
@@ -10,14 +9,12 @@ import SMTP from '../smtp';
  */
 export default (
 ): string[] => {
-    const config = Configuration.get_instance(),
-        host = config.get<string>('HOST'),
-        vendor = config.get<string>('VENDOR'),
-        date = new Date();
 
     // -- Construct the message
     const features = SMTP.get_instance()
         .supported_features.map(feature => '250-' + feature.toUpperCase() + '\r\n');
     features.push('250 HELP\r\n');
+
+    // -- Return our features
     return features;
 }
