@@ -32,14 +32,13 @@ export default (commands_map: CommandMap) =>
         return;
     }
 
-
     
     // -- Build the extension data
     const extension_data: IExtensionData = {
         log, email, socket,
         words, raw_data,
         smtp: SMTP.get_instance(),
-        type: 'QUIT',
+        type: 'RSET',
     };
 
 
@@ -54,6 +53,7 @@ export default (commands_map: CommandMap) =>
     const message = CODE(250);
     email.push_message('send', message);
     email.close(false);
+    const old_mode = email.mode;
 
 
     // -- Create the email object
@@ -64,5 +64,8 @@ export default (commands_map: CommandMap) =>
 
     // -- Send the message
     socket.write(message);
-    email.locked = false;
+    new_email.locked = false;
+    new_email.mode = old_mode;
+    new_email.marker = old_mode;
+    new_email.marker = 'RSET';
 });

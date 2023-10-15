@@ -51,7 +51,7 @@ export default (commands_map: CommandMap) =>  commands_map.set('HELO',
 
 
     // -- Push the greeting
-    const greetings = CODE(2501);
+    const greetings = CODE(2502);
     email.push_message('send', greetings);
     socket.write(greetings);
 

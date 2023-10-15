@@ -31,14 +31,24 @@ msg['Subject'] = subject
 # Attach the message to the email
 msg.attach(MIMEText(message, 'plain'))
 
-# Send the email
+# Determine whether to use EHLO or regular HELO
+use_ehlo = True  # Set this to False to use regular HELO instead
+
+# Send the email using the appropriate protocol
 try:
-    server = smtplib.SMTP(smtp_server, smtp_port)
+    if use_ehlo:
+        server = smtplib.SMTP(smtp_server, smtp_port)
+    else:
+        server = smtplib.SMTP(smtp_server, smtp_port)
+
+    server.ehlo()
+    server.rset()
+
+
     # server.set_debuglevel(1)  # Set the debug level to 1 to print the SMTP response
     all_recipients = [receiver_email] + cc_emails
 
-    server.sendmail(sender_email, all_recipients, msg.as_string(), 
-    )
+    server.sendmail(sender_email, all_recipients, msg.as_string())
     print("Email sent successfully!")
 except Exception as e:
     print(f"Failed to send email. Error: {e}")

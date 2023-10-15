@@ -69,6 +69,8 @@ export default class RecvEmail {
             type,
             date: new Date(),
         });
+
+        console.log(`[${type}] ${content}`);
     }
 
 
