@@ -3,7 +3,6 @@ import SMTP from './smtp/smtp';
 import { log } from './log';
 
 
-
 log('INFO', 'Main', 'main', 'Starting server...');
 const config = Configuration.get_instance(import.meta.dir + '/../basic_config.json');
 

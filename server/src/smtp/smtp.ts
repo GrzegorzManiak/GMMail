@@ -10,6 +10,21 @@ export default class SMTP {
     private static _instance: SMTP;
     private _sockets: Socket[];
     private _config: Configuration;
+    private static _supported_features: string[] = [
+        'EHLO',
+        'DSN',
+        'VRFY',
+        'AUTH',
+        'STARTTLS',
+        '8BITMIME',
+        'SIZE',
+        'PIPELINING',
+        'CHUNKING',
+        'BINARYMIME',
+        'ENHANCEDSTATUSCODES',
+    ];
+
+
 
     private constructor() {
         log('DEBUG', 'SMTP', 'constructor', 'Creating SMTP sockets');
@@ -55,5 +70,19 @@ export default class SMTP {
             case 'TLS':
                 break;
         }
+    }
+
+
+
+    /**
+     * @name get_supported_features
+     * @description Static function to get the list of supported features
+     * in a format that can be sent to the client
+     * 
+     * @returns {string} The list of supported features
+     */
+    public static get_supported_features(): string {
+        const features = SMTP._supported_features.map(feature => `250-${feature}`);
+        return features.join('\r\n') + '\r\n250 HELP';
     }
 }
