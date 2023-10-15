@@ -45,11 +45,11 @@ export default class ExtensionManager {
     * Note: this is not a public function, and should only be 
     * called by the SMTP class or related processes
     * 
-    * @param {string} key - The extension key to get the group for
+    * @param {CommandExtension} key - The extension key to get the group for
     * 
     * @returns {Array<CommandCallback>} The extension group
     */
-   public _get_command_extension_group(key: string): Array<CommandCallback> {
+   public _get_command_extension_group(key: CommandExtension): Array<CommandCallback> {
          return this._command_extensions.get(key) || [];
     }
 

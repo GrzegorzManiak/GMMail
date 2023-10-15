@@ -2,7 +2,7 @@ import Configuration from './config';
 import SMTP from './smtp/smtp';
 import { log } from './log';
 import ExtensionManager from './extensions/main';
-import { IDATAExtensionData, IDATAExtensionDataCallback, IVRFYExtensionData, IVRFYExtensionDataCallback } from './extensions/types';
+import { IDATAExtensionData, IDATAExtensionDataCallback, IExtensionDataCallback, IVRFYExtensionData, IVRFYExtensionDataCallback } from './extensions/types';
 
 
 log('INFO', 'Main', 'main', 'Starting server...');
@@ -55,6 +55,17 @@ const config = Configuration.get_instance(import.meta.dir + '/../basic_config.js
         data.bypass_size_check = false;
         if (data.total_size > 1300) return 552;
         return 250
+    });
+
+
+
+    /**
+     * @name QUIT
+     * QUIT Listener, cant do much here bar maybe some custom desctruction
+     * logic
+     */
+    extensions.add_command_extension<IExtensionDataCallback>('QUIT', (data) => {
+        log('INFO', 'Main', 'main', 'Client disconnected');
     });
 
 })();

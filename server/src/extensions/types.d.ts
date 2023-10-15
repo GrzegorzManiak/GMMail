@@ -53,7 +53,8 @@ export type CommandCallback =
 export type CommandExtensionMap = Map<string, [CommandCallback]>;
 export type CommandExtension =
     'VRFY' |
-    'DATA';
+    'DATA' |
+    'QUIT' 
 
 
 
