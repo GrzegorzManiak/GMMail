@@ -46,7 +46,7 @@ export default class NilSocket extends Socket {
 
 
 
-            open(socket: BunSocket<any>) {
+            open(socket: BunSocket<unknown>) {
                 // -- Create the email object
                 const email = new RecvEmail();
                 socket.data = email;

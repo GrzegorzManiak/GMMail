@@ -13,7 +13,7 @@ import CODE from './CODE';
  * @name RSET
  * @description Processes the RSET command
  * which just resets everything to before
- * the client sent any commands
+ * the client sent unknown commands
  * 
  * https://www.ibm.com/docs/en/zvm/7.3?topic=commands-rset
  */

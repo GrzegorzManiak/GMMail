@@ -14,7 +14,7 @@ export default class SMTP {
     private static _instance: SMTP;
     private _extensions: ExtensionManager;
     private _commands_map = new Map<string, (
-        socket: BunSocket<any>, 
+        socket: BunSocket<unknown>, 
         email: RecvEmail,
         words: Array<string>,
         raw: string,
@@ -73,7 +73,7 @@ export default class SMTP {
     /**
      * @name get_instance
      * @description Returns the singleton instance of the SMTP class
-     * Should not be called by anything other than the root class
+     * Should not be called by unknownthing other than the root class
      * 
      * @returns {SMTP} The singleton instance of the SMTP class
      */

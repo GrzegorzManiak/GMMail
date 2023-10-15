@@ -134,8 +134,8 @@ export default class Configuration {
         // def_obj: is our reference to the default configuration
         // imported_obj: is the configuration that was imported
         const walk = (
-            def_obj: any, 
-            imported_obj: any, 
+            def_obj: unknown, 
+            imported_obj: unknown, 
             path: string[] = []
         ) => {
             
@@ -195,10 +195,10 @@ export default class Configuration {
         if (!this._config_loaded) throw new Error('Configuration file not loaded');
 
         // -- Loop through the keys
-        let value: any = this._config;
+        let value: unknown = this._config;
         key.forEach(k => value = value[k]);
 
         // -- Return the value
-        return value;
+        return value as T;
     };
 }

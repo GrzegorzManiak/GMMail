@@ -31,7 +31,7 @@ const config = Configuration.get_instance(import.meta.dir + '/../basic_config.js
     extensions.add_command_extension<IVrfyExtensionDataCallback>('VRFY', (data) => {
 
         // -- Custom response after you maybe looked up the user in a database
-        //    or a catchall, anything you want
+        //    or a catchall, unknownthing you want
         data.response({
             code: 250,
             username: 'Test',

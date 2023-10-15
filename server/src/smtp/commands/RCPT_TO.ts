@@ -87,7 +87,7 @@ export default (commands_map: CommandMap) => commands_map.set('RCPT TO',
     if (extension_data._returned) return;
     else if (allow_cc) {
         // -- Add the CC to the email
-        email.recipient = recipient;
+        email.rcpt_recipient = recipient;
 
         // -- Unlock the email
         const message = CODE(250);

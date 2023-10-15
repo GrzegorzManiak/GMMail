@@ -5,7 +5,7 @@ import Configuration from '../config';
 
 export default class Socket {
     protected _socket_type: SocketType;
-    protected _socket: TCPSocketListener<any>;
+    protected _socket: TCPSocketListener<unknown>;
     protected _port: number;
 
     protected _config: Configuration;

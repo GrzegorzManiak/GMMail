@@ -51,14 +51,14 @@ export const add_commands = (
  * 
  * @param {Array<string>} commands - The command sent by the client
  * @param {RecvEmail} email - The email object that the client is connected to
- * @param {BunSocket<any>} socket - The socket that the client is connected to
+ * @param {BunSocket<unknown>} socket - The socket that the client is connected to
  * 
  * @returns {void}
  */
 export default (
     commands: Array<string>,
     email: RecvEmail,
-    socket: BunSocket<any>,
+    socket: BunSocket<unknown>,
 ) => commands.forEach(command => {
     const commands_map = SMTP.get_instance().map;
 

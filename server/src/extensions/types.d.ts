@@ -10,7 +10,7 @@ export type IExtensionDataCallback = (data: IExtensionData) => void | number;
 export interface IExtensionData {
     log: (type: LogType, ...args: Array<unknown>) => void,
     email: RecvEmail,
-    socket: BunSocket<any>,
+    socket: BunSocket<unknown>,
     smtp: SMTP,
     raw_data: string,
     words: Array<string>,
