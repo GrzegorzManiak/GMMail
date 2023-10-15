@@ -12,6 +12,7 @@ import MAIL_FROM from './commands/MAIL_FROM';
 import QUIT from './commands/QUIT';
 import RCPT_TO from './commands/RCPT_TO';
 import VRFY from './commands/VRFY';
+import RSET from './commands/RSET';
 
 
 
@@ -37,6 +38,7 @@ export const add_commands = (
     QUIT(commands_map);
     RCPT_TO(commands_map);
     VRFY(commands_map);
+    RSET(commands_map);
 
     log('DEBUG', 'SMTP', 'add_commands', 'SMTP commands added');
 }
