@@ -54,7 +54,8 @@ export type CommandExtensionMap = Map<string, [CommandCallback]>;
 export type CommandExtension =
     'VRFY' |
     'DATA' |
-    'QUIT' 
+    'QUIT' |
+    'RSET' 
 
 
 

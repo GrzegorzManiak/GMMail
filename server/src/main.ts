@@ -68,4 +68,14 @@ const config = Configuration.get_instance(import.meta.dir + '/../basic_config.js
         log('INFO', 'Main', 'main', 'Client disconnected');
     });
 
+
+
+    /**
+     * @name RSET
+     * RSET Listener, cant do much here bar maybe some custom desctruction
+     * logic or logging
+     */
+    extensions.add_command_extension<IExtensionDataCallback>('RSET', (data) => {
+        log('INFO', 'Main', 'main', 'Client reset');
+    });
 })();
