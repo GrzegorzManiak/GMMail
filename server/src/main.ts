@@ -25,11 +25,16 @@ const config = Configuration.get_instance(import.meta.dir + '/../basic_config.js
 
     /**
      * @name VRFY
+     * 
+     * NOTE: CHANGE THIS INTERFACE, would be better if it there were no functions
+     * to call, eg just return the response code and set the username and address
+     * in the data object
+     * 
      * Adds a step to the VRFY command to allow the user
      * to set custom VRFY responses / rules
      */
     extensions.add_command_extension<IVRFYExtensionDataCallback>('VRFY', (data) => {
-
+        
         // -- Custom response after you maybe looked up the user in a database
         //    or a catchall, anything you want
         data.response({
@@ -66,9 +71,6 @@ const config = Configuration.get_instance(import.meta.dir + '/../basic_config.js
      */
     extensions.add_command_extension<IExtensionDataCallback>('QUIT', (data) => {
         log('INFO', 'Main', 'main', 'Client disconnected');
-    
-        // - Show the cc'd users
-        log('INFO', 'Main', 'main', 'CC\'d users', data.email.recipients);
     });
 
 
@@ -83,7 +85,7 @@ const config = Configuration.get_instance(import.meta.dir + '/../basic_config.js
     });
 
 
-    
+
     /**
      * @name RCPT TO
      * Custom RCPT TO listener, allows you to add custom checks eg, if you dont
