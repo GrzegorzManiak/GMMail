@@ -140,12 +140,14 @@ export default class RecvEmail {
 
 
     public get data_size(): number { return this._data_size; }
+
     public get sender(): IMailFrom { return this._mail_from; }
+    public set sender(sender: IMailFrom) { this._mail_from = sender; }
 
     public set recipient(address: IAddress) { this._recipients.push(address); }
     public get recipients(): Array<IAddress> { return this._recipients; }
     
-
+    
     /**
      * @name process_sender
      * @description Processes the sender information
@@ -153,33 +155,36 @@ export default class RecvEmail {
      * 
      * @param {string} sender - The sender information
      * 
-     * @returns {boolean} Whether the sender information is valid
+     * @returns {IMailFrom | null} Whether the sender information is valid
      */
     public process_sender(
         sender: string
-    ): boolean {
+    ): IMailFrom | null {
         // -- Check for a username :<address>
         const spit = sender.split(':');
-        if (spit.length !== 2) return false;
+        if (spit.length !== 2) return;
         const address_split = spit[1].split('>'),
             address = address_split[0].trim().replace('<', '');
             
 
         // -- Check if the sender information is valid
         const evaluater = new evp();
-        if (!evaluater.isValidAddress(address)) return false;
+        if (!evaluater.isValidAddress(address)) return;
         
 
         // -- Evalueate the parameters
-        const split_params = spit[1].split('>')[1].trim().split(' ');
+        const split_params = spit[1].split('>')[1].trim().split(' '),
+            split_address = address.split('@');
 
         // -- Check if the parameters are valid
-        this._mail_from = {
-            sender_path_address: address,
+        const sender_data: IMailFrom = {
+            user: split_address[0],
+            domain: split_address[1],
             size: 0,
             body: '8BITMIME',
         };
 
+        
 
         // -- Check if the parameters are valid
         split_params.forEach(param => {
@@ -188,31 +193,34 @@ export default class RecvEmail {
             const param_split = param.split('=');
             if (param_split.length !== 2) return;
 
+
             // -- Check if the param is valid
             const param_name = param_split[0].toUpperCase(),
                 param_value = param_split[1].toUpperCase();
 
+                
             // -- Check if the param is valid
             if (!VALID_PARAMS.includes(param_name)) return;
+
 
             // -- Check if the param is valid
             switch (param_name) {
                 case 'SIZE':
                     const size = parseInt(param_value);
                     if (isNaN(size) || size > SIZE_MAX) return;
-                    this._mail_from.size = size;
+                    sender_data.size = size;
                     break;
 
                 case 'BODY':
                     if (!VALID_BODY.includes(param_value)) return;
-                    this._mail_from.body = param_value as '7BIT' | '8BITMIME';
+                    sender_data.body = param_value as '7BIT' | '8BITMIME';
                     break;
             }
         });
 
 
         // -- Return true
-        return true;
+        return sender_data;
     }
 
 

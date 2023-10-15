@@ -2,7 +2,7 @@ import RecvEmail from '../email/recv';
 import { LogType } from '../log';
 import { Socket as BunSocket } from 'bun';
 import SMTP from '../smtp/smtp';
-import { DATAResponseCode, IVRFYResponse, RCPTTOResponseCode, VRFYResponseCode } from '../smtp/types';
+import { DATAResponseCode, IMailFrom, IVRFYResponse, RCPTTOResponseCode, VRFYResponseCode } from '../smtp/types';
 import { IAddress } from '../email/types';
 
 
@@ -18,7 +18,7 @@ export interface IExtensionData {
 }
 
 
-export type IVRFYExtensionDataCallback = (data: IVRFYExtensionData) => void | VRFYResponseCode;
+export type IVrfyExtensionDataCallback = (data: IVRFYExtensionData) => void | VRFYResponseCode;
 export interface IVRFYExtensionData extends IExtensionData {
     type: 'VRFY',
     _returned?: boolean,
@@ -26,7 +26,7 @@ export interface IVRFYExtensionData extends IExtensionData {
 }
 
 
-export type IDATAExtensionDataCallback = (data: IDATAExtensionData) => void | DATAResponseCode;
+export type IDataExtensionDataCallback = (data: IDATAExtensionData) => void | DATAResponseCode;
 export interface IDATAExtensionData extends IExtensionData {
     type: 'DATA',
     total_size: number,
@@ -36,7 +36,7 @@ export interface IDATAExtensionData extends IExtensionData {
 }
 
 
-export type IRCPTTOExtensionDataCallback = (data: IRCPTTOExtensionData) => void | RCPTTOResponseCode;
+export type IRcptToExtensionDataCallback = (data: IRCPTTOExtensionData) => void | RCPTTOResponseCode;
 export interface IRCPTTOExtensionData extends IExtensionData {
     type: 'RCPT TO',
     _returned?: boolean,
@@ -44,6 +44,13 @@ export interface IRCPTTOExtensionData extends IExtensionData {
     action: (action: 'ALLOW' | 'DENY') => void,
 }
 
+
+export type IMailFromExtensionDataCallback = (data: IMailFromExtensionData) => void | number;
+export interface IMailFromExtensionData extends IExtensionData {
+    type: 'MAIL FROM',
+    _returned?: boolean,
+    sender: IMailFrom,
+}
 
 
 /**
@@ -57,8 +64,8 @@ export type ExtensionDataUnion =
 
 export type CommandCallback =
     IExtensionDataCallback |
-    IVRFYExtensionDataCallback |
-    IDATAExtensionDataCallback;
+    IVrfyExtensionDataCallback |
+    IDataExtensionDataCallback;
 
 export type CommandExtensionMap = Map<string, [CommandCallback]>;
 export type CommandExtension =
@@ -66,7 +73,8 @@ export type CommandExtension =
     'DATA' |
     'QUIT' |
     'RSET' |
-    'RCPT TO' 
+    'RCPT TO' |
+    'MAIL FROM' 
 
 
 

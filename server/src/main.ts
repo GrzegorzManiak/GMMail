@@ -2,7 +2,7 @@ import Configuration from './config';
 import SMTP from './smtp/smtp';
 import { log } from './log';
 import ExtensionManager from './extensions/main';
-import { IDATAExtensionData, IDATAExtensionDataCallback, IExtensionDataCallback, IRCPTTOExtensionData, IRCPTTOExtensionDataCallback, IVRFYExtensionData, IVRFYExtensionDataCallback } from './extensions/types';
+import { IDATAExtensionData, IDataExtensionDataCallback, IExtensionDataCallback, IMailFromExtensionDataCallback, IRCPTTOExtensionData, IRcptToExtensionDataCallback, IVRFYExtensionData, IVrfyExtensionDataCallback } from './extensions/types';
 
 
 log('INFO', 'Main', 'main', 'Starting server...');
@@ -25,16 +25,11 @@ const config = Configuration.get_instance(import.meta.dir + '/../basic_config.js
 
     /**
      * @name VRFY
-     * 
-     * NOTE: CHANGE THIS INTERFACE, would be better if it there were no functions
-     * to call, eg just return the response code and set the username and address
-     * in the data object
-     * 
      * Adds a step to the VRFY command to allow the user
      * to set custom VRFY responses / rules
      */
-    extensions.add_command_extension<IVRFYExtensionDataCallback>('VRFY', (data) => {
-        
+    extensions.add_command_extension<IVrfyExtensionDataCallback>('VRFY', (data) => {
+
         // -- Custom response after you maybe looked up the user in a database
         //    or a catchall, anything you want
         data.response({
@@ -56,7 +51,7 @@ const config = Configuration.get_instance(import.meta.dir + '/../basic_config.js
      * to controll the DATA command, eg bypass limits
      * or add custom checks
      */
-    extensions.add_command_extension<IDATAExtensionDataCallback>('DATA', (data) => {
+    extensions.add_command_extension<IDataExtensionDataCallback>('DATA', (data) => {
         data.bypass_size_check = false;
         if (data.total_size > 1300) return 552;
         return 250
@@ -93,7 +88,22 @@ const config = Configuration.get_instance(import.meta.dir + '/../basic_config.js
      * 
      * or you can use it for logging, spam prevention, etc
      */
-    extensions.add_command_extension<IRCPTTOExtensionDataCallback>('RCPT TO', (data) => {
+    extensions.add_command_extension<IRcptToExtensionDataCallback>('RCPT TO', (data) => {
         if (data.recipient.local === 'cc_email3') data.action('DENY');
+    });
+
+
+
+    /**
+     * @name MAIL FROM
+     * Custom RCPT TO listener, allows you to add custom checks eg, if you dont
+     * want to pass CC'd users to the email, you can deny them here
+     * 
+     * or you can use it for logging, spam prevention, etc
+     */
+    extensions.add_command_extension<IMailFromExtensionDataCallback>('MAIL FROM', (data) => {
+        if (data.sender.domain === 'example2.com') return 541;
+        // -- You can return a 250, but thats the default
+        return 250;
     });
 })();

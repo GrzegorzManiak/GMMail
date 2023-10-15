@@ -11,13 +11,6 @@ export type VRFYResponseCode =
     550 | // -- Requested action not taken: mailbox unavailable
     551 | // -- User not local; please try <forward-path>
     553;  // -- Requested action not taken: mailbox name not allowed
-
-export interface IVRFYResponse {
-    username: string;
-    address: string;
-    code: VRFYResponseCode;
-}
-
 export type DATAResponseCode =
     250 | // -- OK
     450 | // -- Requested mail action not taken: mailbox unavailable
@@ -39,11 +32,27 @@ export type RCPTTOResponseCode =
     553 | // -- Requested action not taken: mailbox name not allowed
     555;  // -- MAIL FROM/RCPT TO parameters not recognized or not implemented
 
+export type MAILFROMResponseCode =
+    250 | // -- OK
+    451 | // -- Requested action aborted: local error in processing
+    452 | // -- Requested action not taken: insufficient system storage
+    455 | // -- Server unable to accommodate parameters
+    550 | // -- Requested action not taken: mailbox unavailable
+    552 | // -- Requested mail action aborted: exceeded storage allocation
+    553 | // -- Requested action not taken: mailbox name not allowed
+    555;  // -- MAIL FROM/RCPT TO parameters not recognized or not implemented
+
 export type CommandMap = Map<string, (socket: BunSocket<any>, email: RecvEmail, words: Array<string>, raw: string) => void>;
 
-
 export interface IMailFrom {
-    sender_path_address: string;
+    user: string;
+    domain: string;
     size: number;
     body: '7BIT' | '8BITMIME';
+}
+
+export interface IVRFYResponse {
+    username: string;
+    address: string;
+    code: VRFYResponseCode;
 }

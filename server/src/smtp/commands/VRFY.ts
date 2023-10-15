@@ -1,5 +1,5 @@
 import ExtensionManager from '../../extensions/main';
-import { IVRFYExtensionData, IVRFYExtensionDataCallback } from '../../extensions/types';
+import { IVRFYExtensionData, IVrfyExtensionDataCallback } from '../../extensions/types';
 import { log } from '../../log';
 import SMTP from '../smtp';
 import { CommandMap } from '../types';
@@ -79,7 +79,7 @@ export default (commands_map: CommandMap) => commands_map.set('VRFY',
 
     // -- Get the extensions
     const extensions = ExtensionManager.get_instance();
-    extensions._get_command_extension_group('VRFY').forEach((callback: IVRFYExtensionDataCallback) => {
+    extensions._get_command_extension_group('VRFY').forEach((callback: IVrfyExtensionDataCallback) => {
 
         // -- If other messages were sent, don't run the callback
         //    as only one non 250 message can be sent

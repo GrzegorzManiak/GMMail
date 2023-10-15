@@ -1,5 +1,5 @@
 import ExtensionManager from '../../extensions/main';
-import { IRCPTTOExtensionData, IRCPTTOExtensionDataCallback } from '../../extensions/types';
+import { IRCPTTOExtensionData, IRcptToExtensionDataCallback } from '../../extensions/types';
 import { log } from '../../log';
 import SMTP from '../smtp';
 import { CommandMap } from '../types';
@@ -61,7 +61,7 @@ export default (commands_map: CommandMap) => commands_map.set('RCPT TO',
 
     // -- Get the extensions
     const extensions = ExtensionManager.get_instance();
-    extensions._get_command_extension_group('RCPT TO').forEach((callback: IRCPTTOExtensionDataCallback) => {
+    extensions._get_command_extension_group('RCPT TO').forEach((callback: IRcptToExtensionDataCallback) => {
 
         // -- If the extension has already returned, don't run it again
         if (extension_data._returned) return;

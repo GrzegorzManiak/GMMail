@@ -2,7 +2,7 @@ import CODE from './CODE';
 import SMTP from '../smtp';
 import { log } from '../../log';
 import ExtensionManager from '../../extensions/main';
-import { IDATAExtensionData, IDATAExtensionDataCallback } from '../../extensions/types';
+import { IDATAExtensionData, IDataExtensionDataCallback } from '../../extensions/types';
 import { CommandMap } from '../types';
 import RecvEmail from '../../email/recv';
 import { Socket as BunSocket } from 'bun';
@@ -66,7 +66,7 @@ export default (commands_map: CommandMap) => commands_map.set('DATA',
 
     // -- Get the extensions
     const extensions = ExtensionManager.get_instance();
-    extensions._get_command_extension_group('DATA').forEach((callback: IDATAExtensionDataCallback) => {
+    extensions._get_command_extension_group('DATA').forEach((callback: IDataExtensionDataCallback) => {
 
         // -- If other messages were sent, don't run the callback
         //    as only one non 250 message can be sent
@@ -145,7 +145,7 @@ export const in_prog_data = (
 
     // -- Get the extensions
     const extensions = ExtensionManager.get_instance();
-    extensions._get_command_extension_group('DATA').forEach((callback: IDATAExtensionDataCallback) => {
+    extensions._get_command_extension_group('DATA').forEach((callback: IDataExtensionDataCallback) => {
         
         // -- If other messages were sent, don't run the callback
         //    as only one non 250 message can be sent
