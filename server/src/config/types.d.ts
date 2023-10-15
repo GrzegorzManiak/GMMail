@@ -13,9 +13,7 @@ export interface ISMTP {
 }
 
 export interface IMail {
-    MAX_ATTACHMENT_SIZE: number;
-    MAX_ATTACHMENT_COUNT: number;
-    MAX_SIZE_NIA: number; // -- Maximum size of email not including attachments (NIA = Not Including Attachments)
+    MAX_SIZE: number;
 }
 
 export type SMTPSend = [ 'SEND' ];
@@ -42,4 +40,5 @@ export interface IConfig {
 export type ConfigKeys = 
     keyof IConfig | 
     keyof ISMTP |
+    keyof IMail |
     keyof ISMTPPorts;

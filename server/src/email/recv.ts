@@ -32,6 +32,9 @@ export default class RecvEmail {
     private _ccs: Array<IAddress> = [];
 
 
+    // -- Extra information
+    private _spam_score = 0;
+    private _extra_map: Map<string, any> = new Map();
     public constructor() {}
 
 

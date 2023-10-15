@@ -4,7 +4,7 @@ import CODE from './commands/CODE';
 import SMTP from './smtp';
 import { CommandMap } from './types';
 import { log } from '../log';
-import DATA from './commands/DATA';
+import DATA, { in_prog_data } from './commands/DATA';
 import EHLO from './commands/EHLO';
 import HELO from './commands/HELO';
 import HELP from './commands/HELP';
@@ -63,19 +63,8 @@ export default (
     email.locked = true;
 
     // -- Check if the client is sending data
-    if (email.sending_data) {
-        // -- Add the data to the email 
-        email.push_data = command;
-        if (command !== SMTP.get_instance().crlf) return;
-
-        // -- Inform the client that the data was received
-        email.sending_data = false;
-        const message = CODE(250);
-        email.push_message('send', message);
-        socket.write(message);
-        return;
-    }
-
+    if (email.sending_data) 
+        return in_prog_data(email, socket, command);
 
     
     // -- Split the command into the words and at :

@@ -28,7 +28,6 @@ export interface IVRFYExtensionData extends IExtensionData {
 export type IDATAExtensionDataCallback = (data: IDATAExtensionData) => void | DATAResponseCode;
 export interface IDATAExtensionData extends IExtensionData {
     type: 'DATA',
-    cancel: (code: DATAResponseCode) => void,
     total_size: number,
     current_size: number,
     bypass_size_check: boolean,

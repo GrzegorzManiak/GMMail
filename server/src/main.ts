@@ -52,6 +52,8 @@ const config = Configuration.get_instance(import.meta.dir + '/../basic_config.js
      * or add custom checks
      */
     extensions.add_command_extension<IDATAExtensionDataCallback>('DATA', (data) => {
+        data.bypass_size_check = false;
+        if (data.total_size > 1300) return 552;
         return 250
     });
 

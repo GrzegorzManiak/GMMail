@@ -20,5 +20,4 @@ export default (commands_map: CommandMap) =>
     socket.end();
 
     log('DEBUG', 'SMTP', 'QUIT', `Email ${email.id} closed`);
-    email.data.forEach(line => console.log(line));
 });

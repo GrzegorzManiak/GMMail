@@ -108,9 +108,7 @@ export default class Configuration {
             NIL: true
         },
         MAIL: {
-            MAX_ATTACHMENT_COUNT: -1,   // -- -1 = unlimited
-            MAX_ATTACHMENT_SIZE: 50000, // -- 50mb
-            MAX_SIZE_NIA: 10000         // -- 10mb
+            MAX_SIZE: 1024 * 1024 * 10, // -- 10MB
         },
         SMTP_MODE: {
             TLS: [ 'SEND', 'RECEIVE' ],

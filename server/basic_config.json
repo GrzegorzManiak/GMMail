@@ -3,9 +3,7 @@
   "VENDOR": "GMMail",
 
   "MAIL": {
-    "MAX_ATTACHMENT_SIZE": 50000,
-    "MAX_ATTACHMENT_COUNT": -1,
-    "MAX_SIZE_NIA": 10000
+    "MAX_SIZE": 10000
   },
   "SMTP_PORTS": {
     "TLS": 587,
