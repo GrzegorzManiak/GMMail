@@ -42,11 +42,9 @@ export default class RecvEmail {
      * from a client, for outbound emails, see SendEmail.
      * 
      * @param {string} _ip - The ip of the client sending the email
-     * @param {number} _port - The port of the client sending the email
      */
     public constructor(
         private _ip: string,
-        private _port: number,
     ) {}
 
 
@@ -577,19 +575,6 @@ export default class RecvEmail {
     public get ip(
     ): string {
         return this._ip;
-    }
-
-
-
-    /**
-     * @name port
-     * @description Gets the port number of the client
-     * 
-     * @returns {number} The port number.
-     */
-    public get port(
-    ): number {
-        return this._port;
     }
 
 

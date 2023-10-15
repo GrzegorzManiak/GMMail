@@ -57,7 +57,8 @@ export default (commands_map: CommandMap) =>
 
 
     // -- Create the email object
-    const new_email = new RecvEmail();
+    const { remoteAddress } = socket,
+        new_email = new RecvEmail(remoteAddress);
     socket.data = new_email;
 
 

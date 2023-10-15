@@ -47,8 +47,11 @@ export default class NilSocket extends Socket {
 
 
             open(socket: BunSocket<unknown>) {
+                // -- Get the senders IP 
+                const { remoteAddress } = socket;
+
                 // -- Create the email object
-                const email = new RecvEmail();
+                const email = new RecvEmail(remoteAddress);
                 socket.data = email;
 
                 // -- Push the greeting
