@@ -5,8 +5,6 @@ import { log } from '../../log';
 import Socket from '../socket';
 import Email from '../../email/email';
 import CODE from '../messages/CODE';
-import SMTP from '../smtp';
-import HELO_EHLO from '../messages/HELO_EHLO';
 import process from '../process';
 
 
@@ -23,7 +21,7 @@ export default class NilSocket extends Socket {
 
 
 
-            async data(socket, data) {
+            data(socket, data) {
 
                 // -- Ensure the socket has data
                 if (!socket.data) {
@@ -41,19 +39,6 @@ export default class NilSocket extends Socket {
                 // -- Get the email object
                 const email = socket.data as Email;
                 email.push_message('recv', data_string);
-
-                // -- If the email is locked, return an error
-                // if (email.locked) {
-                //     log('ERROR', 'Socket', 'constructor', `Socket data on port ${this._port} with locked email`);
-                //     const locked = CODE(503);
-                //     email.push_message('send', locked);
-                //     email.close(false);
-                //     socket.write(locked);
-                //     socket.end();
-                //     return;
-                // }
-
-
 
                 // -- Parse the data based on the stage
                 process(data_array, email, socket);
@@ -90,6 +75,7 @@ export default class NilSocket extends Socket {
             
             error(socket, error) {
                 log('ERROR', 'Socket', 'constructor', `Socket error on port ${this._port}: ${error}`);
+                socket.end();
             }, 
 
 

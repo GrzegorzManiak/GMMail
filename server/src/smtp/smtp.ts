@@ -1,23 +1,33 @@
 import Configuration from '../config';
+import Email from '../email/email';
 import { log } from '../log';
+import { CommandExtensionMap } from '../extensions/types';
 import Socket from './socket';
 import NilSocket from './sockets/nil';
 import { SocketType } from './types';
-
+import { Socket as BunSocket } from 'bun';
+import ExtensionManager from '../extensions/main';
 
 
 export default class SMTP {
     private static _instance: SMTP;
+    private _extensions: ExtensionManager;
+
     private _sockets: Socket[];
     private _config: Configuration;
+    private _crlf = '.';
+    
+    
+
+    // -- Supported features by the server
     private static _supported_features: string[] = [
         '8BITMIME',
-        'DSN',
         'VRFY',
         'SMTPUTF8',
         'STARTTLS'
     ];
 
+    // -- Supported commands by the server
     private static _supported_commands: string[] = [
         'HELO',
         'EHLO',
@@ -34,13 +44,13 @@ export default class SMTP {
         'STARTTLS'
     ];
 
-    private _crlf = '.';
 
 
     private constructor() {
         log('DEBUG', 'SMTP', 'constructor', 'Creating SMTP sockets');
         this._sockets = [];
         this._config = Configuration.get_instance();
+        this._extensions = ExtensionManager.get_instance();
 
         // -- Load the SMTP sockets
         this._config.get<boolean>('SMTP', 'NIL') && this.load_socket('NIL');
@@ -48,6 +58,15 @@ export default class SMTP {
         this._config.get<boolean>('SMTP', 'TLS') && this.load_socket('TLS');
     }
 
+
+
+    /**
+     * @name get_instance
+     * @description Returns the singleton instance of the SMTP class
+     * Should not be called by anything other than the root class
+     * 
+     * @returns {SMTP} The singleton instance of the SMTP class
+     */
     public static get_instance(): SMTP {
         if (!SMTP._instance) SMTP._instance = new SMTP();
         return SMTP._instance;
@@ -71,15 +90,9 @@ export default class SMTP {
             'WARN', 'SMTP', 'load_socket', `Socket already loaded: ${socket_type}`);
             
         switch (socket_type) {
-            case 'NIL':
-                this._sockets.push(new NilSocket());
-                break;
-
-            case 'SSL':
-                break;
-
-            case 'TLS':
-                break;
+            case 'NIL': this._sockets.push(new NilSocket()); break;
+            case 'SSL': break;
+            case 'TLS': break;
         }
     }
 

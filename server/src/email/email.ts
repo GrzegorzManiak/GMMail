@@ -44,7 +44,7 @@ export default class Email {
             type,
             date: new Date(),
         });
-
+        console.log(`[${type}] ${content}`);
     }
 
     public close(
@@ -143,5 +143,37 @@ export default class Email {
 
         // -- Return true
         return true;
+    }
+
+
+
+    /**
+     * @nave validate_username
+     * @description Validates a given username
+     * 
+     * @param {string} username - The username to validate
+     * 
+     * @returns {boolean} Whether the username is valid
+     */
+    public static validate_username(
+        username: string
+    ): boolean {
+        return user_name_regex.test(username);
+    }
+
+
+
+    /**
+     * @name validate_address
+     * @description Validates a given email address
+     * 
+     * @param {string} address - The address to validate
+     * 
+     * @returns {boolean} Whether the address is valid
+     */
+    public static validate_address(
+        address: string
+    ): boolean {
+        return new evp().isValidAddress(address);
     }
 }
