@@ -1,17 +1,25 @@
 import Configuration from '../../config';
+import SMTP from '../smtp';
 
 export default (
     code: number,
     details: string = 'None',
 ): string => {
     const config = Configuration.get_instance(),
-        host = config.get<string>('HOST');
+        host = config.get<string>('HOST'),
+        vendor = config.get<string>('VENDOR'),
+        date = new Date();
 
     // -- Truncate details to 100 characters
     if (details.length > 100) details = details.substr(0, 100);
 
     switch (code) {
-        case 221: return `221 ${host} Service closing transmission channel\r\n`;
+        case 220: return `220 ${host} ESMTP ${vendor} Ready at ${date.toUTCString()}\r\n`;
+        case 221: return `221 ${host} running ${vendor} closing connection at ${date.toUTCString()}\r\n`;
+        case 250: return `250 OK\r\n`;
+        // -- Special case for HELO/EHLO
+        case 2501: return `250-Welcome from ${host} at ${date.toUTCString()} running ${vendor}\r\n`;
+        case 354: return `354 Start mail input; end with <CR><LF>${SMTP.get_instance().crlf}<CR><LF>\r\n`;
         case 421: return `421 ${host} Service not available, closing transmission channel\r\n`;
         case 451: return `451 ${host} Requested action aborted: local error in processing\r\n`;
         case 500: return `500 ${host} Syntax error, command unrecognized | [Details] ${details}\r\n`;
