@@ -4,7 +4,7 @@ import { log } from '../../log';
 
 import Socket from '../socket';
 import Email from '../../email/email';
-import CODE from '../messages/CODE';
+import CODE from '../commands/CODE';
 import process from '../process';
 
 

@@ -7,12 +7,19 @@ import NilSocket from './sockets/nil';
 import { SocketType } from './types';
 import { Socket as BunSocket } from 'bun';
 import ExtensionManager from '../extensions/main';
+import { add_commands } from './process';
 
 
 export default class SMTP {
     private static _instance: SMTP;
     private _extensions: ExtensionManager;
-
+    private _commands_map = new Map<string, (
+        socket: BunSocket<any>, 
+        email: Email,
+        words: Array<string>,
+        raw: string,
+    ) => void>();
+    
     private _sockets: Socket[];
     private _config: Configuration;
     private _crlf = '.';
@@ -56,6 +63,9 @@ export default class SMTP {
         this._config.get<boolean>('SMTP', 'NIL') && this.load_socket('NIL');
         this._config.get<boolean>('SMTP', 'SSL') && this.load_socket('SSL');
         this._config.get<boolean>('SMTP', 'TLS') && this.load_socket('TLS');
+
+        // -- Add the commands
+        add_commands(this._commands_map);
     }
 
 
@@ -101,4 +111,6 @@ export default class SMTP {
     public get crlf(): string { return this._crlf; }
     public get supported_features(): Array<string> { return SMTP._supported_features; }
     public get supported_commands(): Array<string> { return SMTP._supported_commands; }
+
+    public get map() { return this._commands_map; }
 }

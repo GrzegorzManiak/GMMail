@@ -1,5 +1,6 @@
 export type SocketType = 'TLS' | 'SSL' | 'NIL';
-
+import { Socket as BunSocket } from 'bun';
+import Email from '../email/email';
 
 export type VRFYResponseCode = 
     250 | // -- OK
@@ -25,3 +26,5 @@ export type DATAResponseCode =
     550 | // -- Policy rejection
     552 | // -- Requested mail action aborted: exceeded storage allocation
     554;  // -- Transaction failed
+
+export type CommandMap = Map<string, (socket: BunSocket<any>, email: Email, words: Array<string>, raw: string) => void>;
