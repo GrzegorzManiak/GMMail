@@ -7,7 +7,7 @@ import { log } from '../log';
 import EHLO from './messages/EHLO';
 import HELP from './messages/HELP';
 import ExtensionManager from '../extensions/main';
-import { IVRFYExtensionData } from '../extensions/types';
+import { IDATAExtensionData, IDATAExtensionDataCallback, IVRFYExtensionData, IVRFYExtensionDataCallback } from '../extensions/types';
 import { IVRFYResponse } from './types';
 
 
@@ -278,7 +278,7 @@ commands_map.set('RCPT TO', (socket, email, _, command) => {
  * 
  * https://www.ibm.com/docs/en/zvm/7.2?topic=commands-data
  */
-commands_map.set('DATA', (socket, email, words) => {
+commands_map.set('DATA', (socket, email, words, raw_data) => {
     // -- Ensure that there is only the DATA command
     //    HELO/EHLO and RCPT TO have to be sent before DATA
     if (
@@ -306,6 +306,58 @@ commands_map.set('DATA', (socket, email, words) => {
         return;
     }
 
+
+
+    // -- Build the extension data
+    let bypass_size_check = false;
+    const extension_data: IDATAExtensionData = {
+        email, socket, log,
+        words, raw_data,
+        smtp: SMTP.get_instance(),
+        type: 'DATA',
+        total_size: email.data_size,
+        current_size: 0,
+        bypass_size_check: false,
+        _returned: false,
+        cancel(
+            code
+        ) {
+            extension_data._returned = true;
+            const message = CODE(code);
+            email.push_message('send', message);
+            socket.write(message);
+            email.locked = false;
+            return;
+        }
+    };
+
+
+
+    // -- Get the extensions
+    const extensions = ExtensionManager.get_instance();
+    extensions._get_command_extension_group('DATA').forEach((callback: IDATAExtensionDataCallback) => {
+
+        // -- If other messages were sent, don't run the callback
+        //    as only one non 250 message can be sent
+        if (extension_data._returned === true) return;
+
+        // -- Run the callback
+        const response = callback(extension_data);
+        if (!response) return;
+
+        // -- Check the code
+        if (
+            response !== 250 &&
+            extension_data._returned === false
+        ) {
+            const message = CODE(response);
+            email.push_message('send', message);
+            socket.write(message);
+            return;
+        }
+    });
+
+    
 
     // -- Push the data message
     const message = CODE(354);
@@ -424,7 +476,7 @@ commands_map.set('VRFY', (socket, email, words, raw_data) => {
 
     // -- Get the extensions
     const extensions = ExtensionManager.get_instance();
-    extensions._get_command_extension_group('VRFY').forEach((callback) => {
+    extensions._get_command_extension_group('VRFY').forEach((callback: IVRFYExtensionDataCallback) => {
 
         // -- If other messages were sent, don't run the callback
         //    as only one non 250 message can be sent

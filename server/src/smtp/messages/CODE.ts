@@ -21,7 +21,9 @@ export default (
         case 2501: return `250-Welcome from ${host} at ${date.toUTCString()} running ${vendor}\r\n`;
         case 354: return `354 Start mail input; end with <CR><LF>${SMTP.get_instance().crlf}<CR><LF>\r\n`;
         case 421: return `421 ${host} Service not available, closing transmission channel\r\n`;
+        case 450: return `450 ${host} Mailbox unavailable (busy or temporarily blocked). Requested action aborted\r\n`;
         case 451: return `451 ${host} Requested action aborted: local error in processing\r\n`;
+        case 452: return `452 ${host} Requested action not taken: insufficient system storage\r\n`;
         case 500: return `500 ${host} Syntax error, command unrecognized | [Details] ${details}\r\n`;
         case 502: return `502 ${host} Command not implemented | [Details] ${details}\r\n`;
         case 503: return `503 ${host} Bad sequence of commands\r\n`;

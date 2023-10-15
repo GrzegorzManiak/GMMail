@@ -20,6 +20,7 @@ export default class Email {
 
     private _sending_data = false;
     private _data: Array<string> = [];
+    private _data_size = 0;
 
 
     // -- Sender information
@@ -132,10 +133,15 @@ export default class Email {
     public set sending_data(sending_data: boolean) { this._sending_data = sending_data; }
 
     public get data(): Array<string> { return this._data; }
-    public set push_data(data: string) { this._data.push(data); }
+    public set push_data(data: string) { 
+        this._data.push(data);
+        this._data_size += data.length;
+    }
 
 
+    public get data_size(): number { return this._data_size; }
 
+    
 
     /**
      * @name process_sender

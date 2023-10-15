@@ -16,3 +16,12 @@ export interface IVRFYResponse {
     address: string;
     code: VRFYResponseCode;
 }
+
+export type DATAResponseCode =
+    250 | // -- OK
+    450 | // -- Requested mail action not taken: mailbox unavailable
+    451 | // -- Requested action aborted: local error in processing
+    452 | // -- Requested action not taken: insufficient system storage
+    550 | // -- Policy rejection
+    552 | // -- Requested mail action aborted: exceeded storage allocation
+    554;  // -- Transaction failed

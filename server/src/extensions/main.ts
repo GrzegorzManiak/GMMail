@@ -24,9 +24,9 @@ export default class ExtensionManager {
     * 
     * @returns {void}
     */
-   public add_command_extension(
+   public add_command_extension<CallbackType extends CommandCallback>(
        extension: CommandExtension,
-       callback: CommandCallback
+       callback: CallbackType,
    ): void {
 
        // -- Attempt to get the existing extensions

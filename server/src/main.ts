@@ -2,7 +2,7 @@ import Configuration from './config';
 import SMTP from './smtp/smtp';
 import { log } from './log';
 import ExtensionManager from './extensions/main';
-import { IVRFYExtensionData } from './extensions/types';
+import { IDATAExtensionData, IDATAExtensionDataCallback, IVRFYExtensionData, IVRFYExtensionDataCallback } from './extensions/types';
 
 
 log('INFO', 'Main', 'main', 'Starting server...');
@@ -28,7 +28,7 @@ const config = Configuration.get_instance(import.meta.dir + '/../basic_config.js
      * Adds a step to the VRFY command to allow the user
      * to set custom VRFY responses / rules
      */
-    extensions.add_command_extension('VRFY', (data: IVRFYExtensionData) => {
+    extensions.add_command_extension<IVRFYExtensionDataCallback>('VRFY', (data) => {
         data.log('INFO', data.raw_data);
         // -- Custom response after you maybe looked up the user in a database
         //    or a catchall, anything you want
@@ -44,5 +44,15 @@ const config = Configuration.get_instance(import.meta.dir + '/../basic_config.js
     });
 
 
+
+    /**
+     * @name DATA
+     * Adds a step to the DATA command to allow the user
+     * to controll the DATA command, eg bypass limits
+     * or add custom checks
+     */
+    extensions.add_command_extension<IDATAExtensionDataCallback>('DATA', (data) => {
+        return 250
+    });
 
 })();
