@@ -5,17 +5,31 @@ import SMTP from '../smtp';
 
 
 
+function check_ehlo(command: string): boolean {
+    const regex = /^EHLO\s((([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9]))|((\d{1,3}\.){3}\d{1,3})|(\[(((\d{1,3}\.){3}\d{1,3})|(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9]))\])|(IPv6:([0-9A-Fa-f]{0,4}:){2,7}([0-9A-Fa-f]{0,4}))$/;
+    return regex.test(command);
+}
+
+
+
 /**
  * @name EHLO
  * @description Processes the EHLO command
  * Returns the list of supported features
  * and the server greeting
+ * 
+ * https://www.ibm.com/docs/en/zvm/7.3?topic=commands-ehlo
  */
 export default (commands_map: CommandMap) => commands_map.set('EHLO', 
-    (socket, email, words) => {
+    (socket, email, words, raw) => {
 
+
+        
     // -- ensure that we are in the INIT stage
-    if (email.has_marker('EHLO') || email.has_marker('HELO')) {
+    if (
+        email.has_marker('HELO') ||
+        email.has_marker('EHLO')
+    ) {
         const error = CODE(503, 'Bad sequence of commands');
         email.push_message('send', error);
         email.close(false);
@@ -27,7 +41,10 @@ export default (commands_map: CommandMap) => commands_map.set('EHLO',
 
     // - Parse the HELO/EHLO
     const he = HELO_EHLO(words.join(' '));
-    if (he.message_type === 'UNKNOWN') {
+    if (
+        he.message_type === 'UNKNOWN' ||
+        !check_ehlo(raw)
+    ) {
         const unknown = CODE(500, 'Unknown command');
         email.push_message('send', unknown);
         email.close(false);
@@ -54,7 +71,6 @@ export default (commands_map: CommandMap) => commands_map.set('EHLO',
 
     // -- Set the stage and unlock the email
     email.marker = 'EHLO';
-    email.from_domain = he.sender_domain;
     email.mode = 'EHLO';
     email.locked = false;
 });

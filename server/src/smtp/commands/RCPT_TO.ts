@@ -7,6 +7,8 @@ import CODE from './CODE';
  * @name RCPT TO
  * @description Processes the RCPT TO command
  * RCPT TO: < ... >
+ * 
+ * https://www.ibm.com/docs/en/zvm/7.3?topic=commands-rcptto
  */
 export default (commands_map: CommandMap) => commands_map.set('RCPT TO', 
     (socket, email, _, command) => {

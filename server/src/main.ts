@@ -29,7 +29,7 @@ const config = Configuration.get_instance(import.meta.dir + '/../basic_config.js
      * to set custom VRFY responses / rules
      */
     extensions.add_command_extension<IVRFYExtensionDataCallback>('VRFY', (data) => {
-        data.log('INFO', data.raw_data);
+
         // -- Custom response after you maybe looked up the user in a database
         //    or a catchall, anything you want
         data.response({

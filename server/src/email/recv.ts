@@ -1,10 +1,14 @@
 import { log } from '../log';
+import { IMailFrom } from '../smtp/types';
 import { IAddress, IMessage, MessageStage, MessageType } from './types';
 import evp from 'email-validator-pro';
 
 
 
 const user_name_regex = /^(?!.*[._-]{2})[a-zA-Z0-9]+([._-]?[a-zA-Z0-9]+)*$/;
+const VALID_PARAMS = ['SIZE', 'BODY'],
+    VALID_BODY = ['7BIT', '8BITMIME'],
+    SIZE_MAX = 2147483647;
 
 
 
@@ -24,11 +28,7 @@ export default class RecvEmail {
 
 
     // -- Sender information
-    private _from_domain: string;
-    private _from_email_local: string;
-    private _from_email_domain: string;
-    private _from_user: string;
-
+    private _mail_from: IMailFrom;
     private _ccs: Array<IAddress> = [];
 
 
@@ -59,7 +59,7 @@ export default class RecvEmail {
             type,
             date: new Date(),
         });
-        console.log(`[${type}] ${content}`);
+        // console.log(`[${type}] ${content}`);
     }
 
     public close(
@@ -121,9 +121,6 @@ export default class RecvEmail {
 
 
 
-    public set from_domain(from_domain: string) { this._from_domain = from_domain; }
-    public get from_domain(): string { return this._from_domain; }
-
     public set locked(locked: boolean) { this._locked = locked; }
     public get locked(): boolean { return this._locked; }
 
@@ -143,13 +140,13 @@ export default class RecvEmail {
 
 
     public get data_size(): number { return this._data_size; }
-
+    public get sender(): IMailFrom { return this._mail_from; }
     
 
     /**
      * @name process_sender
      * @description Processes the sender information
-     * Eg. MAIL FROM: ... < ... >
+     * Eg. MAIL FROM: ... < ... > SIZE=... BODY=...
      * 
      * @param {string} sender - The sender information
      * 
@@ -161,17 +158,55 @@ export default class RecvEmail {
         // -- Check for a username :<address>
         const spit = sender.split(':');
         if (spit.length !== 2) return false;
-        const address = spit[1].trim()
-            .replace('<', '')
-            .replace('>', '');
+        const address_split = spit[1].split('>'),
+            address = address_split[0].trim().replace('<', '');
+            
 
         // -- Check if the sender information is valid
         const evaluater = new evp();
         if (!evaluater.isValidAddress(address)) return false;
+        
 
-        // -- Set the sender information
-        this._from_domain = evaluater.domain;
-        this._from_email_local = evaluater.local;
+        // -- Evalueate the parameters
+        const split_params = spit[1].split('>')[1].trim().split(' ');
+
+        // -- Check if the parameters are valid
+        this._mail_from = {
+            sender_path_address: address,
+            size: 0,
+            body: '8BITMIME',
+        };
+
+
+        // -- Check if the parameters are valid
+        split_params.forEach(param => {
+
+            // -- Check if this param matches any of the valid params
+            const param_split = param.split('=');
+            if (param_split.length !== 2) return;
+
+            // -- Check if the param is valid
+            const param_name = param_split[0].toUpperCase(),
+                param_value = param_split[1].toUpperCase();
+
+            // -- Check if the param is valid
+            if (!VALID_PARAMS.includes(param_name)) return;
+
+            // -- Check if the param is valid
+            switch (param_name) {
+                case 'SIZE':
+                    const size = parseInt(param_value);
+                    if (isNaN(size) || size > SIZE_MAX) return;
+                    this._mail_from.size = size;
+                    break;
+
+                case 'BODY':
+                    if (!VALID_BODY.includes(param_value)) return;
+                    this._mail_from.body = param_value as '7BIT' | '8BITMIME';
+                    break;
+            }
+        });
+
 
         // -- Return true
         return true;

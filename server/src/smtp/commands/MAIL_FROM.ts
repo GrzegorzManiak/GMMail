@@ -7,6 +7,8 @@ import CODE from './CODE';
  * @name MAIL FROM
  * @description Processes the MAIL FROM command
  * MAIL FROM: < ... >
+ * 
+ * https://www.ibm.com/docs/en/zvm/7.3?topic=commands-mailfrom
  */
 export default (commands_map: CommandMap) => commands_map.set('MAIL FROM', 
     (socket, email, _, command) => {

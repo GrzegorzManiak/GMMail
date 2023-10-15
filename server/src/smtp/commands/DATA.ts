@@ -25,6 +25,7 @@ export default (commands_map: CommandMap) => commands_map.set('DATA',
     if (
         email.has_marker('DATA') ||
         !email.has_marker('RCPT TO') ||
+        !email.has_marker('MAIL FROM') ||
         !(
             email.has_marker('HELO') ||
             email.has_marker('EHLO')

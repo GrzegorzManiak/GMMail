@@ -28,3 +28,10 @@ export type DATAResponseCode =
     554;  // -- Transaction failed
 
 export type CommandMap = Map<string, (socket: BunSocket<any>, email: RecvEmail, words: Array<string>, raw: string) => void>;
+
+
+export interface IMailFrom {
+    sender_path_address: string;
+    size: number;
+    body: '7BIT' | '8BITMIME';
+}

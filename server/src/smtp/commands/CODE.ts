@@ -18,7 +18,7 @@ export default (
         case 221: return `221 ${host} running ${vendor} closing connection at ${date.toUTCString()}\r\n`;
         case 250: return `250 OK\r\n`;
         // -- Special case for HELO/EHLO
-        case 2501: return `250-Welcome from ${host} at ${date.toUTCString()} running ${vendor}\r\n`;
+        case 2501: return `250-${host} is my domain name.\r\n`;
         case 354: return `354 Start mail input; end with <CR><LF>${SMTP.get_instance().crlf}<CR><LF>\r\n`;
         case 421: return `421 ${host} Service not available, closing transmission channel\r\n`;
         case 450: return `450 ${host} Mailbox unavailable (busy or temporarily blocked). Requested action aborted\r\n`;
