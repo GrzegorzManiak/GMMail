@@ -34,7 +34,7 @@ msg.attach(MIMEText(message, 'plain'))
 # Send the email
 try:
     server = smtplib.SMTP(smtp_server, smtp_port)
-    # server.set_debuglevel(1)  # Set the debug level to 1 to print the SMTP response
+    server.set_debuglevel(1)  # Set the debug level to 1 to print the SMTP response
     all_recipients = [receiver_email] + cc_emails
     server.sendmail(sender_email, all_recipients, msg.as_string())
     print("Email sent successfully!")

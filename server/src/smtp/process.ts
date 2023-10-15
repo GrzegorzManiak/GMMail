@@ -4,6 +4,8 @@ import CODE from './messages/CODE';
 import SMTP from './smtp';
 import HELO_EHLO from './messages/HELO_EHLO';
 import { log } from 'console';
+import EHLO from './messages/EHLO';
+import HELP from './messages/HELP';
 
 
 
@@ -37,8 +39,6 @@ export default (
     if (email.sending_data) {
         // -- Add the data to the email 
         email.push_data = command;
-        console.log(command);
-
         if (command !== SMTP.get_instance().crlf) return;
 
         // -- Inform the client that the data was received
@@ -46,7 +46,6 @@ export default (
         const message = CODE(250);
         email.push_message('send', message);
         socket.write(message);
-
         return;
     }
 
@@ -126,7 +125,7 @@ commands_map.set('EHLO', (socket, email, words) => {
 
 
     // -- Only write the supported features if the command was EHLO
-    const features = SMTP.get_supported_features();
+    const features = EHLO();
     features.forEach(feature => {
         email.push_message('send', feature);
         socket.write(feature);
@@ -283,5 +282,21 @@ commands_map.set('QUIT', (socket, email) => {
     socket.end();
 
     log('DEBUG', 'SMTP', 'QUIT', `Email ${email.id} closed`);
-    console.log(email.data);
+    email.data.forEach(line => console.log(line));
+});
+
+
+
+/**
+ * @name HELP
+ * @description Processes the HELP command
+ */
+commands_map.set('HELP', (socket, email) => {
+    // -- Push the help message
+    const message = HELP();
+    message.forEach(line => {
+        email.push_message('send', line);
+        socket.write(line);
+    });
+    email.locked = false;
 });

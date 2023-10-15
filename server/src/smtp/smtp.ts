@@ -14,6 +14,24 @@ export default class SMTP {
         '8BITMIME',
         'DSN',
         'VRFY',
+        'SMTPUTF8',
+        'STARTTLS'
+    ];
+
+    private static _supported_commands: string[] = [
+        'HELO',
+        'EHLO',
+        'MAIL FROM',
+        'RCPT TO',
+        'DATA',
+        'HELP',
+
+        'RSET',
+        'NOOP',
+        'QUIT',
+        'VRFY',
+        'EXPN',
+        'STARTTLS'
     ];
 
     private _crlf = '.';
@@ -67,20 +85,7 @@ export default class SMTP {
 
 
 
-    /**
-     * @name get_supported_features
-     * @description Static function to get the list of supported features
-     * in a format that can be sent to the client
-     * 
-     * @returns {Array<string>} The list of supported features
-     */
-    public static get_supported_features(): Array<string> {
-        const features = SMTP._supported_features.map(feature => '250-' + feature.toUpperCase() + '\r\n');
-        features.push('250 HELP\r\n');
-        return features;
-    }
-
-
-
     public get crlf(): string { return this._crlf; }
+    public get supported_features(): Array<string> { return SMTP._supported_features; }
+    public get supported_commands(): Array<string> { return SMTP._supported_commands; }
 }
