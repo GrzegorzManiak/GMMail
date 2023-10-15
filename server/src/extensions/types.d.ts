@@ -1,4 +1,4 @@
-import Email from '../email/email';
+import RecvEmail from '../email/recv';
 import { LogType } from '../log';
 import { Socket as BunSocket } from 'bun';
 import SMTP from '../smtp/smtp';
@@ -8,7 +8,7 @@ import { DATAResponseCode, IVRFYResponse, VRFYResponseCode } from '../smtp/types
 export type IExtensionDataCallback = (data: IExtensionData) => void | number;
 export interface IExtensionData {
     log: (type: LogType, ...args: Array<unknown>) => void,
-    email: Email,
+    email: RecvEmail,
     socket: BunSocket<any>,
     smtp: SMTP,
     raw_data: string,

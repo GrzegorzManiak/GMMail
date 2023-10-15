@@ -1,5 +1,5 @@
 import { Socket as BunSocket } from 'bun';
-import Email from '../email/email';
+import RecvEmail from '../email/recv';
 import CODE from './commands/CODE';
 import SMTP from './smtp';
 import { CommandMap } from './types';
@@ -48,14 +48,14 @@ export const add_commands = (
  * @description Processes the SMTP commands sent by the client
  * 
  * @param {Array<string>} commands - The command sent by the client
- * @param {Email} email - The email object that the client is connected to
+ * @param {RecvEmail} email - The email object that the client is connected to
  * @param {BunSocket<any>} socket - The socket that the client is connected to
  * 
  * @returns {void}
  */
 export default (
     commands: Array<string>,
-    email: Email,
+    email: RecvEmail,
     socket: BunSocket<any>,
 ) => commands.forEach(command => {
     const commands_map = SMTP.get_instance().map;

@@ -3,7 +3,7 @@ import Configuration from '../../config';
 import { log } from '../../log';
 
 import Socket from '../socket';
-import Email from '../../email/email';
+import RecvEmail from '../../email/recv';
 import CODE from '../commands/CODE';
 import process from '../process';
 
@@ -37,7 +37,7 @@ export default class NilSocket extends Socket {
                     .filter(line => line.length > 0);
 
                 // -- Get the email object
-                const email = socket.data as Email;
+                const email = socket.data as RecvEmail;
                 email.push_message('recv', data_string);
 
                 // -- Parse the data based on the stage
@@ -48,7 +48,7 @@ export default class NilSocket extends Socket {
 
             open(socket: BunSocket<any>) {
                 // -- Create the email object
-                const email = new Email();
+                const email = new RecvEmail();
                 socket.data = email;
 
                 // -- Push the greeting

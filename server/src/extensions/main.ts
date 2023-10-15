@@ -1,4 +1,4 @@
-import Email from '../email/email';
+import RecvEmail from '../email/recv';
 import SMTP from '../smtp/smtp';
 import { CommandCallback, CommandExtension, CommandExtensionMap } from './types';
 import { Socket as BunSocket } from 'bun';

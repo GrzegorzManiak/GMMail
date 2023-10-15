@@ -8,7 +8,7 @@ const user_name_regex = /^(?!.*[._-]{2})[a-zA-Z0-9]+([._-]?[a-zA-Z0-9]+)*$/;
 
 
 
-export default class Email {
+export default class RecvEmail {
     private _id = crypto.randomUUID();
     private _created_at = new Date();
         

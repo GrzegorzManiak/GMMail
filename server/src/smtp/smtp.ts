@@ -1,5 +1,5 @@
 import Configuration from '../config';
-import Email from '../email/email';
+import RecvEmail from '../email/recv';
 import { log } from '../log';
 import { CommandExtensionMap } from '../extensions/types';
 import Socket from './socket';
@@ -15,7 +15,7 @@ export default class SMTP {
     private _extensions: ExtensionManager;
     private _commands_map = new Map<string, (
         socket: BunSocket<any>, 
-        email: Email,
+        email: RecvEmail,
         words: Array<string>,
         raw: string,
     ) => void>();
