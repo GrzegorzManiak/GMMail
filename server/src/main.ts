@@ -2,7 +2,7 @@ import Configuration from './config';
 import SMTP from './smtp/smtp';
 import { log } from './log';
 import ExtensionManager from './extensions/main';
-import { IDATAExtensionData, IDATAExtensionDataCallback, IExtensionDataCallback, IVRFYExtensionData, IVRFYExtensionDataCallback } from './extensions/types';
+import { IDATAExtensionData, IDATAExtensionDataCallback, IExtensionDataCallback, IRCPTTOExtensionData, IRCPTTOExtensionDataCallback, IVRFYExtensionData, IVRFYExtensionDataCallback } from './extensions/types';
 
 
 log('INFO', 'Main', 'main', 'Starting server...');
@@ -66,6 +66,9 @@ const config = Configuration.get_instance(import.meta.dir + '/../basic_config.js
      */
     extensions.add_command_extension<IExtensionDataCallback>('QUIT', (data) => {
         log('INFO', 'Main', 'main', 'Client disconnected');
+    
+        // - Show the cc'd users
+        log('INFO', 'Main', 'main', 'CC\'d users', data.email.recipients);
     });
 
 
@@ -77,5 +80,18 @@ const config = Configuration.get_instance(import.meta.dir + '/../basic_config.js
      */
     extensions.add_command_extension<IExtensionDataCallback>('RSET', (data) => {
         log('INFO', 'Main', 'main', 'Client reset');
+    });
+
+
+    
+    /**
+     * @name RCPT TO
+     * Custom RCPT TO listener, allows you to add custom checks eg, if you dont
+     * want to pass CC'd users to the email, you can deny them here
+     * 
+     * or you can use it for logging, spam prevention, etc
+     */
+    extensions.add_command_extension<IRCPTTOExtensionDataCallback>('RCPT TO', (data) => {
+        if (data.recipient.local === 'cc_email3') data.action('DENY');
     });
 })();

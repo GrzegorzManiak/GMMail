@@ -14,5 +14,4 @@ export type MessageStage =
 export interface IAddress {
     local: string;
     domain: string;
-    user: string;
 }

@@ -2,7 +2,8 @@ import RecvEmail from '../email/recv';
 import { LogType } from '../log';
 import { Socket as BunSocket } from 'bun';
 import SMTP from '../smtp/smtp';
-import { DATAResponseCode, IVRFYResponse, VRFYResponseCode } from '../smtp/types';
+import { DATAResponseCode, IVRFYResponse, RCPTTOResponseCode, VRFYResponseCode } from '../smtp/types';
+import { IAddress } from '../email/types';
 
 
 export type IExtensionDataCallback = (data: IExtensionData) => void | number;
@@ -35,6 +36,15 @@ export interface IDATAExtensionData extends IExtensionData {
 }
 
 
+export type IRCPTTOExtensionDataCallback = (data: IRCPTTOExtensionData) => void | RCPTTOResponseCode;
+export interface IRCPTTOExtensionData extends IExtensionData {
+    type: 'RCPT TO',
+    _returned?: boolean,
+    recipient: IAddress,
+    action: (action: 'ALLOW' | 'DENY') => void,
+}
+
+
 
 /**
  * @name ExtensionDataUnion
@@ -55,7 +65,8 @@ export type CommandExtension =
     'VRFY' |
     'DATA' |
     'QUIT' |
-    'RSET' 
+    'RSET' |
+    'RCPT TO' 
 
 
 

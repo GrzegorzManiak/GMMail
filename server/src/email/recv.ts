@@ -29,7 +29,7 @@ export default class RecvEmail {
 
     // -- Sender information
     private _mail_from: IMailFrom;
-    private _ccs: Array<IAddress> = [];
+    private _recipients: Array<IAddress> = [];
 
 
     // -- Extra information
@@ -141,6 +141,9 @@ export default class RecvEmail {
 
     public get data_size(): number { return this._data_size; }
     public get sender(): IMailFrom { return this._mail_from; }
+
+    public set recipient(address: IAddress) { this._recipients.push(address); }
+    public get recipients(): Array<IAddress> { return this._recipients; }
     
 
     /**
@@ -221,31 +224,29 @@ export default class RecvEmail {
      * 
      * @param {string} recipient - The recipient information
      * 
-     * @returns {boolean} Whether the recipient information is valid
+     * @returns {IAddress | null} Whether the recipient information is valid
      */
     public process_recipient(
         recipient: string
-    ): boolean {
+    ): IAddress | null {
         // -- Check for a username :<address>
         const spit = recipient.split(':');
-        if (spit.length !== 2) return false;
+        if (spit.length !== 2) return;
         const address = spit[1].trim()
             .replace('<', '')
             .replace('>', '');
 
         // -- Check if the sender information is valid
         const evaluater = new evp();
-        if (!evaluater.isValidAddress(address)) return false;
+        if (!evaluater.isValidAddress(address)) return;
 
-        // -- Add the recipient to the list of recipients
-        this._ccs.push({
-            domain: evaluater.domain,
-            local: evaluater.local,
-            user: ''
-        });
 
-        // -- Return true
-        return true;
+        // -- Return the address
+        const split = address.split('@');
+        return {
+            domain: split[1],
+            local: split[0],
+        };
     }
 
 
