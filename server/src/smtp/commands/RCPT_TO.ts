@@ -74,6 +74,7 @@ export default (commands_map: CommandMap) => commands_map.set('RCPT TO',
         // -- If the response is not a 250 or 251
         //    return the user specified code
         if (!GOOD_CODES.includes(response)) {
+            extension_data._returned = true;
             const message = CODE(response);
             email.push_message('send', message);
             socket.write(message);

@@ -13,6 +13,10 @@ import QUIT from './commands/QUIT';
 import RCPT_TO from './commands/RCPT_TO';
 import VRFY from './commands/VRFY';
 import RSET from './commands/RSET';
+import ExtensionManager from '../extensions/main';
+import { parse_custom_ingress_command } from './cust_ingress';
+
+
 
 
 
@@ -77,6 +81,7 @@ export default (
 
 
     // -- Check for potential commands that have two words
+    //  TODO: CHANGE THIS SO IT WORKS LIKE NORMAL
     if (words.length > 1) switch (words[1].toUpperCase()) {
         case 'FROM':
             if (words[0].toUpperCase() === 'MAIL')
@@ -97,6 +102,11 @@ export default (
     if (commands_map.has(command_name)) 
         return commands_map.get(command_name)(socket, email, words, command);
     
+
+    // -- Parse any custom commands
+    const progress = parse_custom_ingress_command(
+        email, socket, command, words, command_name);
+    if (progress === false) return;
 
 
     // -- If the command is not recognized, return an error

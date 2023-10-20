@@ -1,8 +1,15 @@
 import Configuration from './config';
 import SMTP from './smtp/smtp';
-import { log } from './log';
 import ExtensionManager from './extensions/main';
-import { IDATAExtensionData, IDataExtensionDataCallback, IExtensionDataCallback, IMailFromExtensionDataCallback, IRCPTTOExtensionData, IRcptToExtensionDataCallback, IVRFYExtensionData, IVrfyExtensionDataCallback } from './extensions/types';
+import { log } from './log';
+import { 
+    ICustomCommandDataCallback,
+    IDataExtensionDataCallback, 
+    IExtensionDataCallback, 
+    IMailFromExtensionDataCallback, 
+    IRcptToExtensionDataCallback, 
+    IVrfyExtensionDataCallback 
+} from './extensions/types';
 
 
 log('INFO', 'Main', 'main', 'Starting server...');
@@ -107,4 +114,21 @@ const config = Configuration.get_instance(import.meta.dir + '/../basic_config.js
         // -- You can return a 250, but thats the default
         return 250;
     });
+
+
+
+
+
+    // -- CUSTOM incoming commands
+    extensions.add_custom_ingress_command<ICustomCommandDataCallback>('CUSTOM', {
+        SERVER_NAME: 'string:REQUIRED',
+        SERVER_VERSION: 'number:REQUIRED',
+        VALIDATE: 'boolean:OPTIONAL',
+        NEW: 'none:OPTIONAL',
+    }, (data) => {
+
+        log('INFO', 'Main', 'main', 'CUSTOM command received', data.parsed);
+    });
+
+
 })();

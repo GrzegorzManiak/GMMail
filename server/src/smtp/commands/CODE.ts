@@ -26,6 +26,7 @@ export default (
         case 451: return `451 ${host} Requested action aborted: local error in processing\r\n`;
         case 452: return `452 ${host} Requested action not taken: insufficient system storage\r\n`;
         case 500: return `500 ${host} Syntax error, command unrecognized | [Details] ${details}\r\n`;
+        case 501: return `501 ${host} Syntax error in parameters or arguments | [Details] ${details}\r\n`;
         case 502: return `502 ${host} Command not implemented | [Details] ${details}\r\n`;
         case 503: return `503 ${host} Bad sequence of commands\r\n`;
         case 504: return `504 ${host} Command parameter not implemented | [Details] ${details}\r\n`;

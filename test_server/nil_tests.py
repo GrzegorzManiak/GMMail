@@ -45,7 +45,9 @@ try:
     server.rset()
     server.vrfy(receiver_email)
 
-    
+    # -- Custom command
+    rt =  server.docmd("CUSTOM: SERVER_NAME=Test Server NEW SERVER_VERSION=5 VALIDATE=true")
+    print(rt)
 
     # server.set_debuglevel(1)  # Set the debug level to 1 to print the SMTP response
     all_recipients = [receiver_email] + cc_emails

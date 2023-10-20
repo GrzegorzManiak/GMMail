@@ -6,6 +6,37 @@ import { DATAResponseCode, IMailFrom, IVRFYResponse, RCPTTOResponseCode, VRFYRes
 import { IAddress } from '../email/types';
 
 
+// -- PARSER TYPES
+export type ICustomParserReturnType = 'string' | 'number' | 'boolean' | 'none';
+export type ICustomParserNeeds = 'REQUIRED' | 'OPTIONAL';
+export type ICommandParserOption = `${ICustomParserReturnType}:${ICustomParserNeeds}`;
+export interface ICustomParser { [data: string]: ICommandParserOption }
+export type IParsedParser = Map<string, {
+    need: ICustomParserNeeds,
+    type: ICustomParserReturnType,
+    raw: string,
+    data: string | number | boolean,
+}>;
+
+export type ICustomCommandDataCallback = (data: ICustomCommandData) => void | number;
+export interface ICustomCommandData {
+    log: (type: LogType, ...args: Array<unknown>) => void,
+    email: RecvEmail,
+
+    socket: BunSocket<unknown>,
+    smtp: SMTP,
+    raw_data: string,
+    words: Array<string>,
+    type: string,
+    _returned?: boolean,
+
+    parsed: IParsedParser,
+    _parsed?: boolean,
+    _paramaters: ICustomParser,
+}
+
+
+
 export type IExtensionDataCallback = (data: IExtensionData) => void | number;
 export interface IExtensionData {
     log: (type: LogType, ...args: Array<unknown>) => void,
@@ -65,16 +96,24 @@ export type ExtensionDataUnion =
 export type CommandCallback =
     IExtensionDataCallback |
     IVrfyExtensionDataCallback |
-    IDataExtensionDataCallback;
+    IDataExtensionDataCallback |
+    IRcptToExtensionDataCallback |
+    IMailFromExtensionDataCallback;
+
+export type CustomIngressCallback = 
+    ICustomCommandDataCallback;
 
 export type CommandExtensionMap = Map<string, [CommandCallback]>;
+export type CustomCommandEntry = { paramaters: ICustomParser, callback: CustomIngressCallback };
+export type CustomIngressMap = Map<string, [CustomCommandEntry]>;
+
 export type CommandExtension =
     'VRFY' |
     'DATA' |
     'QUIT' |
     'RSET' |
     'RCPT TO' |
-    'MAIL FROM' 
+    'MAIL FROM';
 
 
 
