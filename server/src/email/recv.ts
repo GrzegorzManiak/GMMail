@@ -70,7 +70,7 @@ export default class RecvEmail {
             date: new Date(),
         });
 
-        console.log(`[${type}] ${content}`);
+        console.log(`[${type}] ${content.trim()}`);
     }
 
 

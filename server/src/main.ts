@@ -8,7 +8,7 @@ import { IDATAExtensionData, IDataExtensionDataCallback, IExtensionDataCallback,
 log('INFO', 'Main', 'main', 'Starting server...');
 const config = Configuration.get_instance(import.meta.dir + '/../basic_config.json');
 
-
+//  https://mailtrap.io/blog/smtp-commands-and-responses/#RSET
 
 (async () => {
 
@@ -37,6 +37,7 @@ const config = Configuration.get_instance(import.meta.dir + '/../basic_config.js
             username: 'Test',
             address: 'test@test.com',
         });
+        
 
         // -- Or just a positive response code and itll catch all
         // return 252 // -- Cannot VRFY user, but will accept message and attempt delivery

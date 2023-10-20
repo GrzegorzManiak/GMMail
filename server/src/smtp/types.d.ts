@@ -11,6 +11,7 @@ export type VRFYResponseCode =
     550 | // -- Requested action not taken: mailbox unavailable
     551 | // -- User not local; please try <forward-path>
     553;  // -- Requested action not taken: mailbox name not allowed
+    
 export type DATAResponseCode =
     250 | // -- OK
     450 | // -- Requested mail action not taken: mailbox unavailable

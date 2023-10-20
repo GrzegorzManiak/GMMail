@@ -43,7 +43,9 @@ try:
 
     server.ehlo()
     server.rset()
+    server.vrfy(receiver_email)
 
+    
 
     # server.set_debuglevel(1)  # Set the debug level to 1 to print the SMTP response
     all_recipients = [receiver_email] + cc_emails
