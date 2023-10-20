@@ -31,7 +31,7 @@ export default function parse_command(
     // -- Map to store the paramaters and their types
     const paramaters: IParsedParser = new Map();
 
-    
+
 
     // -- Process the command
     let command_regex = `^${command}: {0,1}`;
@@ -108,7 +108,7 @@ const parse_value = (
         case 'boolean': 
             return value.toLowerCase() === 'true';
 
-        case 'none': return null;
+        case 'none': return true;
     }
 }
 
