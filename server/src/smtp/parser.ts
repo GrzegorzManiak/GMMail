@@ -4,7 +4,8 @@ import { ICustomParser, ICustomParserNeeds, ICustomParserReturnType, IParsedPars
 
 // -- These are the regex's for the different types
 //    that we support
-const string_regex = `(?<!") {0,1}= {0,1}"([\\s\\d\\w]+)"(?!")`;
+const phrase_regex = `(?<!") {0,1}= {0,1}"([\\s\\d\\w]+)"(?!")`;
+const string_regex = `(?<!") {0,1}= {0,1}([\\d\\w\\S]+)(?!")`;
 const number_regex = `(?<!") {0,1}= {0,1}([0-9]+)(?!")`;
 const boolean_regex = `(?<!") {0,1}= {0,1}(true|false)(?!")`;
 const none_regex = `(?<!")( ){0,}(?!")`;
@@ -173,6 +174,7 @@ const parse_value = (
 
     switch (type) {
         case 'string': return value;
+        case 'phrase': return value;
 
         case 'number': 
             const parsed = Number(value);
@@ -241,6 +243,7 @@ const select_regex_string = (
 ): string => {
     switch (type) {
         case 'string': return string_regex;
+        case 'phrase': return phrase_regex;
         case 'number': return number_regex;
         case 'boolean': return boolean_regex;
         case 'none': return none_regex;

@@ -119,15 +119,31 @@ const config = Configuration.get_instance(import.meta.dir + '/../basic_config.js
 
 
 
-    // -- CUSTOM incoming commands
+    /**
+     * @name CUSTOM INGRESS
+     * Custom ingress commands allow you to define your own commands such as
+     * HELO, EHLO, etc (Note, those are actually not custom commands, they are 
+     * hard coded as its more performant) but you get the idea.
+     * 
+     * Eg, You could have a master / slave server that has a custom command that 
+     * allows you to specify custom forwarding rules, or you could have a custom
+     * command that allows you to specify a custom message to be sent to the Master
+     * eg sending a fully formatted email to the master server (Not our target), 
+     * but attaching a custom 'FORWARD_TO' header that tells the server to forward 
+     * the email to a different address with a key that only the master server knows
+     */
     extensions.add_custom_ingress_command<ICustomCommandDataCallback>('CUSTOM', {
-        SERVER_NAME: 'string:REQUIRED',
+        SERVER_NAME: 'phrase:REQUIRED', // -- A sentance, eg "My Server", has whitespace
+        TEST: 'string:REQUIRED',        // -- A string  , eg "Hello",     no whitespace
         SERVER_VERSION: 'number:REQUIRED',
         VALIDATE: 'boolean:OPTIONAL',
         NEW: 'none:REQUIRED',
-        TEST: 'string:REQUIRED'
     }, (data) => {
-        log('INFO', 'Main', 'main', 'CUSTOM command received', data);
+        // -- You can assume that the data is valid here as it has been validated
+        //    and the request would have been rejected if it wasnt, only place
+        //    to keep in mind is if you define a paramater to be 'OPTIONAL' then
+        //    you should check if it exists before using it
+        log('INFO', 'Main', 'main', 'CUSTOM command received', data.parsed.get('SERVER_NAME'));
     });
 
 

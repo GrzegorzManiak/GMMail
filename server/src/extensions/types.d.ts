@@ -7,7 +7,7 @@ import { IAddress } from '../email/types';
 
 
 // -- PARSER TYPES
-export type ICustomParserReturnType = 'string' | 'number' | 'boolean' | 'none';
+export type ICustomParserReturnType = 'string' | 'phrase' | 'number' | 'boolean' | 'none';
 export type ICustomParserNeeds = 'REQUIRED' | 'OPTIONAL';
 export type ICommandParserOption = `${ICustomParserReturnType}:${ICustomParserNeeds}`;
 export interface ICustomParser { [data: string]: ICommandParserOption }
