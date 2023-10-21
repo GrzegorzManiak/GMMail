@@ -69,7 +69,6 @@ export default (commands_map: CommandMap) => commands_map.set('MAIL FROM',
         ) {
             const message = CODE(response);
             email.push_message('send', message);
-            extension_data._returned = true;
             socket.write(message);
             email.close(false);
             return;

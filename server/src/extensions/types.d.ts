@@ -33,6 +33,11 @@ export interface ICustomCommandData {
     parsed: IParsedParser,
     _parsed?: boolean,
     _paramaters: ICustomParser,
+    performance: {
+        parser_start: number,
+        parser_end: number,
+        parser_time: number,
+    }
 }
 
 

@@ -4,10 +4,10 @@ import { ICustomParser, ICustomParserNeeds, ICustomParserReturnType, IParsedPars
 
 // -- These are the regex's for the different types
 //    that we support
-const string_regex = ` {0,1}= {0,1}([\\s\\d\\w]+)`;
-const number_regex = ` {0,1}= {0,1}([0-9]+)`;
-const boolean_regex = ` {0,1}= {0,1}(true|false)`;
-const none_regex = `() {0,}`;
+const string_regex = `(?<!") {0,1}= {0,1}"([\\s\\d\\w]+)"(?!")`;
+const number_regex = `(?<!") {0,1}= {0,1}([0-9]+)(?!")`;
+const boolean_regex = `(?<!") {0,1}= {0,1}(true|false)(?!")`;
+const none_regex = `(?<!")( ){0,}(?!")`;
 
 
 
@@ -35,6 +35,8 @@ export default function parse_command(
 
     // -- Process the command
     let command_regex = `^${command}: {0,1}`;
+    let optional_regexes = [];
+    
     for (const key in parser_options) {
 
         // -- Get the paramater
@@ -42,9 +44,9 @@ export default function parse_command(
 
         // -- Construct the regex
         const regex = select_regex_string(type);
-        let regex_exp = `(?=.*?((${key})${regex}))`;
-        if (need === 'OPTIONAL') regex_exp += '';
-        command_regex += regex_exp;
+        const regex_exp = `(?=.*((${key})${regex}))`;
+        if (need === 'OPTIONAL') optional_regexes.push(regex_exp);
+        if (need === 'REQUIRED') command_regex += regex_exp;
 
         // -- Insert the paramater
         paramaters.set(key, { 
@@ -61,7 +63,7 @@ export default function parse_command(
 
 
     // -- Ensure that there are matches
-    if (!matches) return [501, `Command '${command}' Paramaters is invalid`];
+    if (!matches) return [501, `Command '${command}' Paramaters is invalid, no matches`];
     const parsed_paramaters = [];
 
 
@@ -70,14 +72,86 @@ export default function parse_command(
         parse_paramater(matches, i, paramaters, parsed_paramaters));
 
 
+    // -- Check for optional paramaters
+    const boiled_command = find_optional_paramaters(
+        paramaters, optional_regexes, raw_data, parsed_paramaters);
+
+    // -- Ensure that the command is empty
+    if (boiled_command.trim().toLowerCase() !== `${command.toLowerCase()}:`) 
+        return [501, `Command '${command}' Paramaters is invalid, command is invalid`];
+
     // -- Ensure all the required paramaters are present
     const required_present = required_fields_present(parsed_paramaters, parser_options);
-    if (!required_present) return [501, `Command '${command}' Paramaters is invalid`];
-
+    if (!required_present) return [501, `Command '${command}' Paramaters is invalid, required paramaters are missing`];
 
 
     // -- Return the paramaters
     return paramaters;
+}
+
+
+
+/**
+ * @name boil_command
+ * Boils a command and paramaters into a string with all
+ * parsed data being removed to allow for easier processing
+ * of optional paramaters
+ * 
+ * @param {string} command - The command to boil
+ * @param {IParsedParser} paramaters - The paramaters to boil
+ * 
+ * @returns {string} The boiled command
+ */
+const boil_command = (
+    command: string,
+    paramaters: IParsedParser
+): string => {
+    let boiled = command;
+
+    for (const [key, value] of paramaters) {
+        if (value.need === 'OPTIONAL') continue;
+        boiled = boiled.replace(value.raw, '');
+    }
+    
+    return boiled;
+}
+
+
+
+/**
+ * @name find_optional_paramaters
+ * Finds all the optional paramaters in the command
+ * after the required paramaters have been removed
+ * 
+ * @param {IParsedParser} paramaters - The paramaters to boil
+ * @param {Array<string>} optional_regexes - The regexes to use to find the optional paramaters
+ * @param {string} raw_data - The raw data to parse
+* @param {Array<string>} parsed_paramaters - The already parsed paramaters
+
+ * @returns {string} The further boiled command
+ */
+const find_optional_paramaters = (
+    paramaters: IParsedParser,
+    optional_regexes: Array<string>,
+    raw_data: string,
+    parsed_paramaters: Array<string>,
+): string => {
+    // -- Boil the command
+    let boiled_command = boil_command(raw_data, paramaters);
+
+    // -- Find the optional paramaters
+    optional_regexes.forEach((regex) => {
+        const regex_exp = new RegExp(regex, 'gis');
+        const matches = regex_exp.exec(boiled_command);
+        if (!matches) return;
+        for (let i = 1; i < matches.length; i += 3) {
+            parse_paramater(matches, i, paramaters, parsed_paramaters);
+            boiled_command = boiled_command.replace(matches[i], '');
+        }
+    });
+
+    // -- Return the boiled command
+    return boiled_command;
 }
 
 

@@ -124,10 +124,10 @@ const config = Configuration.get_instance(import.meta.dir + '/../basic_config.js
         SERVER_NAME: 'string:REQUIRED',
         SERVER_VERSION: 'number:REQUIRED',
         VALIDATE: 'boolean:OPTIONAL',
-        NEW: 'none:OPTIONAL',
+        NEW: 'none:REQUIRED',
+        TEST: 'string:REQUIRED'
     }, (data) => {
-
-        log('INFO', 'Main', 'main', 'CUSTOM command received', data.parsed);
+        log('INFO', 'Main', 'main', 'CUSTOM command received', data);
     });
 
 

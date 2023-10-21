@@ -46,7 +46,7 @@ try:
     server.vrfy(receiver_email)
 
     # -- Custom command
-    rt =  server.docmd("CUSTOM: SERVER_NAME=Test Server NEW SERVER_VERSION=5 VALIDATE=true")
+    rt =  server.docmd('CUSTOM: SERVER_NAME="Test Server" NEW SERVER_VERSION=5 VALIDATE=true TEST="BOSS"')
     print(rt)
 
     # server.set_debuglevel(1)  # Set the debug level to 1 to print the SMTP response

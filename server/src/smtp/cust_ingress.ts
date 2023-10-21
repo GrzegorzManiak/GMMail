@@ -30,7 +30,10 @@ export const parse_custom_ingress_command = (
 
 
         // -- Parse the command
+        const parser_start = Bun.nanoseconds();
         const parsed = parse_command(command_name, command, cce.paramaters);
+        const parser_end = Bun.nanoseconds();
+
         if ((parsed as unknown as any)?.length) {
             log('DEBUG', 'SMTP', 'process', `Custom ingress command '${command_name}' FAILED to parse`);
             returned = true;
@@ -50,6 +53,10 @@ export const parse_custom_ingress_command = (
             _parsed: false,
             _paramaters: cce.paramaters,
             parsed: parsed as IParsedParser,
+            performance: {
+                parser_end, parser_start,
+                parser_time: parser_end - parser_start,
+            }
         };
 
 
