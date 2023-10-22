@@ -210,6 +210,7 @@ export type CommandExtension =
     'DATA' |
     'QUIT' |
     'RSET' |
+    'NOOP' |
     'RCPT TO' |
     'MAIL FROM';
 

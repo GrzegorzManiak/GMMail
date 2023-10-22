@@ -15,6 +15,7 @@ import VRFY from './commands/VRFY';
 import RSET from './commands/RSET';
 import ExtensionManager from '../extensions/main';
 import { parse_custom_ingress_command } from './commands/CUST_IN';
+import NOOP from './commands/NOOP';
 
 
 
@@ -43,6 +44,7 @@ export const add_commands = (
     RCPT_TO(commands_map);
     VRFY(commands_map);
     RSET(commands_map);
+    NOOP(commands_map);
 
     log('DEBUG', 'SMTP', 'add_commands', 'SMTP commands added');
 }
