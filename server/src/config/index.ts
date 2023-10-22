@@ -114,6 +114,10 @@ export default class Configuration {
             TLS: [ 'SEND', 'RECEIVE' ],
             SSL: [ 'SEND', 'RECEIVE' ],
             NIL: [ 'SEND', 'RECEIVE' ]
+        },
+        TLS: {
+            KEY: '../certs/gmmail_key.pem',
+            CERT: '../certs/gmmail_cert.pem'
         }
     });
 

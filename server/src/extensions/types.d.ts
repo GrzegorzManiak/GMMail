@@ -149,6 +149,14 @@ export interface IVRFYExtensionData extends IExtensionData {
 }
 
 
+export type IStartTlsExtensionDataCallback = (data: IStartTlsExtensionData) => void | number;
+export interface IStartTlsExtensionData extends IExtensionData {
+    type: 'STARTTLS',
+    _returned?: boolean,
+    action: (action: 'ALLOW' | 'DENY') => void,
+}
+
+
 export type IDataExtensionDataCallback = (data: IDATAExtensionData) => void | DATAResponseCode;
 export interface IDATAExtensionData extends IExtensionData {
     type: 'DATA',
@@ -211,6 +219,7 @@ export type CommandExtension =
     'QUIT' |
     'RSET' |
     'NOOP' |
+    'STARTTLS' |
     'RCPT TO' |
     'MAIL FROM';
 

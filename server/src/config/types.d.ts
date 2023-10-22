@@ -28,6 +28,11 @@ export interface ISMTPMode {
     NIL: SMTPModeUnion;
 }
 
+export interface ITLS {
+    KEY: string;
+    CERT: string;
+}
+
 export interface IConfig {
     HOST: string;
     VENDOR: string;
@@ -35,10 +40,13 @@ export interface IConfig {
     SMTP: ISMTP;
     MAIL: IMail;
     SMTP_MODE: ISMTPMode;
+    TLS: ITLS;
 }
 
 export type ConfigKeys = 
     keyof IConfig | 
     keyof ISMTP |
     keyof IMail |
+    keyof ITLS |
+    keyof ISMTPMode |
     keyof ISMTPPorts;

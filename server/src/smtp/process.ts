@@ -16,6 +16,7 @@ import RSET from './commands/RSET';
 import ExtensionManager from '../extensions/main';
 import { parse_custom_ingress_command } from './commands/CUST_IN';
 import NOOP from './commands/NOOP';
+import STARTLS from './commands/STARTLS';
 
 
 
@@ -45,6 +46,7 @@ export const add_commands = (
     VRFY(commands_map);
     RSET(commands_map);
     NOOP(commands_map);
+    STARTLS(commands_map);
 
     log('DEBUG', 'SMTP', 'add_commands', 'SMTP commands added');
 }

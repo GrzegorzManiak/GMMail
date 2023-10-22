@@ -1,4 +1,4 @@
-export type SocketType = 'TLS' | 'SSL' | 'NIL';
+export type SocketType = 'TLS' | 'STARTTLS' | 'NIL';
 import { Socket as BunSocket } from 'bun';
 import RecvEmail from '../email/recv';
 

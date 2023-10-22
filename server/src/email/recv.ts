@@ -1,6 +1,6 @@
 import { Socket } from 'bun';
 import { log } from '../log';
-import { IMailFrom } from '../smtp/types';
+import { IMailFrom, SocketType } from '../smtp/types';
 import { IAddress, IMessage, MessageStage, MessageType } from './types';
 import evp from 'email-validator-pro';
 import CODE from '../smtp/commands/CODE';
@@ -44,9 +44,11 @@ export default class RecvEmail {
      * from a client, for outbound emails, see SendEmail.
      * 
      * @param {string} _ip - The ip of the client sending the email
+     * @param {SocketType} _socket_mode - The mode of the email
      */
     public constructor(
         private _ip: string,
+        private _socket_mode: SocketType,
     ) {}
 
 
@@ -404,6 +406,19 @@ export default class RecvEmail {
         this._sending_data = sending_data; 
     }
 
+
+
+    /**
+     * @name _socket_mode
+     * @description Gets the socket mode of the email
+     * 
+     * @returns {'TLS' | 'NIL' | 'STARTTLS'} The socket mode of the email
+     */
+    public get socket_mode(
+    ): 'TLS' | 'NIL' | 'STARTTLS' { 
+        return this._socket_mode; 
+    }
+    
 
 
     /**

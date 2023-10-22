@@ -49,7 +49,7 @@ export default (commands_map: CommandMap) =>
 
     // -- Create the email object
     const { remoteAddress } = socket,
-        new_email = new RecvEmail(remoteAddress);
+        new_email = new RecvEmail(remoteAddress, email.socket_mode);
 
     // -- Close of the email
     email.send_message(socket, 250);

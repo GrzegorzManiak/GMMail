@@ -11,7 +11,7 @@ subject = 'Test Email from Python'
 message = 'This is a test email sent from Python.'
 
 # SMTP server information
-smtp_server = 'localhost'
+smtp_server = 'gmmail.grzegorz.ie'
 smtp_port = 2525
 
 # Define multiple email addresses for CC
@@ -36,23 +36,16 @@ use_ehlo = True  # Set this to False to use regular HELO instead
 
 # Send the email using the appropriate protocol
 try:
-    if use_ehlo:
-        server = smtplib.SMTP(smtp_server, smtp_port)
-    else:
-        server = smtplib.SMTP(smtp_server, smtp_port)
-
-    server.ehlo()
-    server.rset()
-    server.vrfy(receiver_email)
+    server = smtplib.SMTP(smtp_server, smtp_port)
 
     # -- Custom command
     rt =  server.docmd('CUSTOM: SERVER_NAME="Test Server" NEW SERVER_VERSION=5 VALIDATE=true TEST=BOSS')
     print(rt)
 
-    rt =  server.docmd('HELP')
+    rt =  server.docmd('STARTTLS')
     print(rt)
 
-    # server.set_debuglevel(1)  # Set the debug level to 1 to print the SMTP response
+    #server.set_debuglevel(1)  # Set the debug level to 1 to print the SMTP response
     all_recipients = [receiver_email] + cc_emails
 
     server.sendmail(sender_email, all_recipients, msg.as_string())

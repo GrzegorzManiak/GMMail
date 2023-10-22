@@ -8,6 +8,7 @@ import { SocketType } from './types';
 import { Socket as BunSocket } from 'bun';
 import ExtensionManager from '../extensions/main';
 import { add_commands } from './process';
+import TlsSocket from './sockets/tls';
 
 
 export default class SMTP {
@@ -61,7 +62,6 @@ export default class SMTP {
 
         // -- Load the SMTP sockets
         this._config.get<boolean>('SMTP', 'NIL') && this.load_socket('NIL');
-        this._config.get<boolean>('SMTP', 'SSL') && this.load_socket('SSL');
         this._config.get<boolean>('SMTP', 'TLS') && this.load_socket('TLS');
 
         // -- Add the commands
@@ -101,8 +101,7 @@ export default class SMTP {
             
         switch (socket_type) {
             case 'NIL': this._sockets.push(new NilSocket()); break;
-            case 'SSL': break;
-            case 'TLS': break;
+            case 'TLS': this._sockets.push(new TlsSocket()); break;;
         }
     }
 
