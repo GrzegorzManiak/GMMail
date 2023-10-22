@@ -1,4 +1,3 @@
-import CODE from './CODE';
 import SMTP from '../smtp';
 import { log } from '../../log';
 import ExtensionManager from '../../extensions/main';

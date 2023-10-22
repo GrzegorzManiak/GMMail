@@ -1,4 +1,4 @@
-import { CommandCallback, CommandExtension, CommandExtensionMap, CustomCommandEntry, CustomIngressCallback, CustomIngressMap, ICustomCommandDataCallback, ICustomCommandParamaters, ICustomParser } from './types';
+import { CallbackDataMap, CommandCallback, CommandExtension, CommandExtensionMap, CustomCommandEntry, CustomIngressCallback, CustomIngressMap, ExtensionDataUnion, ExtensionType, ICustomCommandDataCallback, ICustomCommandParamaters, ICustomParser, IExtensionData, IExtensionDataCallback } from './types';
 
 
 
@@ -20,23 +20,23 @@ export default class ExtensionManager {
      * @name add_command_extension
      * @description Adds an extension to the SMTP server
      * 
-     * @param {CommandExtension} extension - The extension to add
+     * @param {ExtensionType} extension - The extension to add
      * @param {CommandCallback} callback - The callback to run when the extension is called
      * 
      * @returns {void}
      */
-   public add_command_extension<CallbackType extends CommandCallback>(
-       extension: CommandExtension,
-       callback: CallbackType,
-   ): void {
+    public add_command_extension<T extends ExtensionDataUnion = IExtensionData>(
+        extension: T['type'],
+        callback: Extract<CallbackDataMap, { key: T['type'] }>['value'] | IExtensionDataCallback,
+    ): void {
 
-       // -- Attempt to get the existing extensions
-       const extensions = this._command_extensions.get(extension);
-       if (extensions) extensions.push(callback);
+        // -- Attempt to get the existing extensions
+        const extensions = this._command_extensions.get(extension);
+        if (extensions) extensions.push(callback);
 
-       // -- Create a new extension group
-       else this._command_extensions.set(extension, [callback]);
-   }
+        // -- Create a new extension group
+        else this._command_extensions.set(extension, [callback]);
+    }
 
 
 

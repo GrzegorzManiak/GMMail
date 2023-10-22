@@ -409,7 +409,7 @@ export default class RecvEmail {
 
 
     /**
-     * @name _socket_mode
+     * @name socket_mode
      * @description Gets the socket mode of the email
      * 
      * @returns {'TLS' | 'NIL' | 'STARTTLS'} The socket mode of the email
@@ -417,6 +417,25 @@ export default class RecvEmail {
     public get socket_mode(
     ): 'TLS' | 'NIL' | 'STARTTLS' { 
         return this._socket_mode; 
+    }
+
+
+
+    /**
+     * @name upgrade_socket_mode
+     * @description Sets the socket mode of the email
+     * NOTE: You can only go from NIL -> STARTTLS.
+     * 
+     * @returns {void} Nothing
+     */
+    public upgrade_socket_mode(
+    ): void {
+        // -- Check if the socket mode is NIL
+        if (this._socket_mode !== 'NIL') 
+            return log('ERROR', 'RecvEmail', 'upgrade_socket_mode', 'Cannot upgrade socket mode');
+
+        // -- Set the socket mode to STARTTLS
+        this._socket_mode = 'STARTTLS';
     }
     
 

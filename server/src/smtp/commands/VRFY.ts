@@ -3,7 +3,6 @@ import { IVRFYExtensionData, IVrfyExtensionDataCallback } from '../../extensions
 import { log } from '../../log';
 import SMTP from '../smtp';
 import { CommandMap } from '../types';
-import CODE from './CODE';
 
 
 

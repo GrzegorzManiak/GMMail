@@ -1,6 +1,6 @@
 import RecvEmail from '../../email/recv';
 import ExtensionManager from '../../extensions/main';
-import { ICustomCommandData, ICustomParser, IParsedParser } from '../../extensions/types';
+import { ICustomCommandData, IParsedParser } from '../../extensions/types';
 import { log } from '../../log';
 import { Socket as BunSocket } from 'bun';
 import SMTP from '../smtp';
@@ -27,7 +27,7 @@ export const parse_custom_ingress_command = (
             cce.mode !== 'ANY' &&
             cce.mode !== (email.mode === 'EHLO' ? 'ESMTP' : 'SMTP')
         ) return;
-        
+
 
         // -- If we have already returned, return
         if (returned) return;

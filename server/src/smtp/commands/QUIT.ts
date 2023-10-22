@@ -1,9 +1,8 @@
 import ExtensionManager from '../../extensions/main';
-import { IExtensionData, IExtensionDataCallback } from '../../extensions/types';
+import { IQuitExtensionData, IQuitExtensionDataCallback } from '../../extensions/types';
 import { log } from '../../log';
 import SMTP from '../smtp';
 import { CommandMap } from '../types';
-import CODE from './CODE';
 
 
 
@@ -17,7 +16,7 @@ export default (commands_map: CommandMap) =>
 
 
     // -- Build the extension data
-    const extension_data: IExtensionData = {
+    const extension_data: IQuitExtensionData = {
         log, email, socket,
         words, raw_data,
         smtp: SMTP.get_instance(),
@@ -27,7 +26,7 @@ export default (commands_map: CommandMap) =>
 
     // -- Get the extensions
     const extensions = ExtensionManager.get_instance();
-    extensions._get_command_extension_group('QUIT').forEach((callback: IExtensionDataCallback) => 
+    extensions._get_command_extension_group('QUIT').forEach((callback: IQuitExtensionDataCallback) => 
         callback(extension_data));
 
 

@@ -1,4 +1,3 @@
-import CODE from './CODE';
 import HELO_EHLO from './HELO_EHLO';
 import { CommandMap } from '../types';
 

@@ -1,2 +1,2 @@
-openssl req -new -newkey rsa:2048 -nodes -keyout gmmail_key.pem -out gmmail_csr.pem -subj "/C=US/ST=State/L=City/O=Organization/OU=Organizational Unit/CN=gmmail.grzegorz.ie"
-openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout gmmail_key.pem -out gmmail_cert.pem -subj "/C=US/ST=State/L=City/O=Organization/OU=Organizational Unit/CN=gmmail.grzegorz.ie"
+openssl req -new -newkey rsa:2048 -nodes -keyout ./gmmail_key.pem -out ./gmmail_csr.pem -subj "/C=US/ST=State/L=City/O=Organization/OU=Organizational Unit/CN=gmmail.grzegorz.ie"
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout ./gmmail_key.pem -out ./gmmail_cert.pem -subj "/C=US/ST=State/L=City/O=Organization/OU=Organizational Unit/CN=gmmail.grzegorz.ie"

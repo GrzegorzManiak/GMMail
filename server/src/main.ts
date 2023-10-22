@@ -4,12 +4,16 @@ import ExtensionManager from './extensions/main';
 import { log } from './log';
 import { 
     ICustomCommandDataCallback,
-    IDataExtensionDataCallback, 
-    IExtensionDataCallback, 
-    IMailFromExtensionDataCallback, 
-    IRcptToExtensionDataCallback, 
-    IVrfyExtensionDataCallback 
+    IDATAExtensionData,
+    IExtensionData, 
+    IMailFromExtensionData, 
+    IQuitExtensionData, 
+    IRCPTTOExtensionData, 
+    IRsetExtensionData, 
+    IStartTlsExtensionData, 
+    IVRFYExtensionData, 
 } from './extensions/types';
+import { IMailFrom } from './smtp/types';
 
 
 log('INFO', 'Main', 'main', 'Starting server...');
@@ -31,11 +35,31 @@ const config = Configuration.get_instance(import.meta.dir + '/../basic_config.js
 
 
     /**
+     * Heres all the ingress commands you can add extensions to, as you can
+     * see, adding an extension is as simple as calling the add_command_extension
+     * method and passing in the command name and a callback.
+     * 
+     * For better type safety, you can specify the type of the callback, eg
+     * the extension data type, eg: IVRFYExtensionData, and TS will be able
+     * to infer the object type that will be returned in the callback.
+     * 
+     * If you dont specify the type, you will be defualted to IExtensionData
+     * which is the bearbones extension data type, with no specifc command
+     * extension data, eg MAIL FROM data.action('DENY').
+     * 
+     * @example
+     * extensions.add_command_extension<IVRFYExtensionData>('VRFY', (data) => {});
+     * extensions.add_command_extension('VRFY', (data) => {});
+     */
+
+
+
+    /**
      * @name VRFY
      * Adds a step to the VRFY command to allow the user
      * to set custom VRFY responses / rules
      */
-    extensions.add_command_extension<IVrfyExtensionDataCallback>('VRFY', (data) => {
+    extensions.add_command_extension<IVRFYExtensionData>('VRFY', (data) => {
 
         // -- Custom response after you maybe looked up the user in a database
         //    or a catchall, unknownthing you want
@@ -59,7 +83,7 @@ const config = Configuration.get_instance(import.meta.dir + '/../basic_config.js
      * to controll the DATA command, eg bypass limits
      * or add custom checks
      */
-    extensions.add_command_extension<IDataExtensionDataCallback>('DATA', (data) => {
+    extensions.add_command_extension<IDATAExtensionData>('DATA', (data) => {
         data.bypass_size_check = false;
         if (data.total_size > 1300) return 552;
         return 250
@@ -72,7 +96,7 @@ const config = Configuration.get_instance(import.meta.dir + '/../basic_config.js
      * QUIT Listener, cant do much here bar maybe some custom desctruction
      * logic
      */
-    extensions.add_command_extension<IExtensionDataCallback>('QUIT', (data) => {
+    extensions.add_command_extension<IQuitExtensionData>('QUIT', (data) => {
         log('INFO', 'Main', 'main', 'Client disconnected');
     });
 
@@ -83,7 +107,7 @@ const config = Configuration.get_instance(import.meta.dir + '/../basic_config.js
      * RSET Listener, cant do much here bar maybe some custom desctruction
      * logic or logging
      */
-    extensions.add_command_extension<IExtensionDataCallback>('RSET', (data) => {
+    extensions.add_command_extension<IRsetExtensionData>('RSET', (data) => {
         log('INFO', 'Main', 'main', 'Client reset');
     });
 
@@ -96,7 +120,7 @@ const config = Configuration.get_instance(import.meta.dir + '/../basic_config.js
      * 
      * or you can use it for logging, spam prevention, etc
      */
-    extensions.add_command_extension<IRcptToExtensionDataCallback>('RCPT TO', (data) => {
+    extensions.add_command_extension<IRCPTTOExtensionData>('RCPT TO', (data) => {
         if (data.recipient.local === 'cc_email3') data.action('DENY');
     });
 
@@ -109,10 +133,23 @@ const config = Configuration.get_instance(import.meta.dir + '/../basic_config.js
      * 
      * or you can use it for logging, spam prevention, etc
      */
-    extensions.add_command_extension<IMailFromExtensionDataCallback>('MAIL FROM', (data) => {
+    extensions.add_command_extension<IMailFromExtensionData>('MAIL FROM', (data) => {
         if (data.sender.domain === 'example2.com') return 541;
         // -- You can return a 250, but thats the default
         return 250;
+    });
+
+
+
+    /**
+     * @name STARTTLS
+     * Block upgrade requests for whatever reason, not recommended lol but you do you
+     */
+    extensions.add_command_extension<IStartTlsExtensionData>('STARTTLS', (data) => {
+        
+        // -- Roulet, block 50% of requests
+        if (Math.random() > 0.5) return data.action('DENY');
+        else return data.action('ALLOW');
     });
 
 
@@ -146,6 +183,7 @@ const config = Configuration.get_instance(import.meta.dir + '/../basic_config.js
         disallowed_stages: ['SWAG'], // -- You can also disallow stages
 
         mode: 'ANY', // -- Only want this command to work with ESMTP? or specifically HELO?
+        
     }, (data) => {
         // -- You can assume that the data is valid here as it has been validated
         //    and the request would have been rejected if it wasnt, only place

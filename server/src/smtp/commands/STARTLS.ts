@@ -72,5 +72,6 @@ export default (commands_map: CommandMap) =>
 
     // -- Throw a 220, Mailbox unavailable
     log('INFO', 'Upgrading connection to TLS');
+    email.upgrade_socket_mode();
     email.send_message(socket, 220);
 });

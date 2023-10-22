@@ -137,7 +137,7 @@ export interface IExtensionData {
     smtp: SMTP,
     raw_data: string,
     words: Array<string>,
-    type: ExtensionType,
+    type: CommandExtension,
 }
 
 
@@ -184,6 +184,25 @@ export interface IMailFromExtensionData extends IExtensionData {
 }
 
 
+export type IQuitExtensionDataCallback = (data: IQuitExtensionData) => void | number;
+export interface IQuitExtensionData extends IExtensionData {
+    type: 'QUIT',
+}
+
+
+export type IRsetExtensionDataCallback = (data: IRsetExtensionData) => void | number;
+export interface IRsetExtensionData extends IExtensionData {
+    type: 'RSET',
+}
+
+
+export type INoopExtensionDataCallback = (data: INoopExtensionData) => void | number;
+export interface INoopExtensionData extends IExtensionData {
+    type: 'NOOP',
+}
+
+
+
 /**
  * @name ExtensionDataUnion
  * @description A union of all extension data types
@@ -191,15 +210,36 @@ export interface IMailFromExtensionData extends IExtensionData {
 export type ExtensionDataUnion = 
     IExtensionData | 
     IVRFYExtensionData |
-    IDATAExtensionData;
+    IDATAExtensionData |
+    IRCPTTOExtensionData |
+    IMailFromExtensionData |
+    IStartTlsExtensionData |
+    IQuitExtensionData |
+    IRsetExtensionData |
+    INoopExtensionData;
 
 export type CommandCallback =
     IExtensionDataCallback |
     IVrfyExtensionDataCallback |
     IDataExtensionDataCallback |
     IRcptToExtensionDataCallback |
-    IMailFromExtensionDataCallback;
+    IMailFromExtensionDataCallback |
+    IStartTlsExtensionDataCallback |
+    IQuitExtensionDataCallback |
+    IRsetExtensionDataCallback |
+    INoopExtensionDataCallback;
 
+export type CallbackDataMap =
+    { key: 'VRFY', value: IVrfyExtensionDataCallback } |
+    { key: 'DATA', value: IDataExtensionDataCallback } |
+    { key: 'RCPT TO', value: IRcptToExtensionDataCallback } |
+    { key: 'MAIL FROM', value: IMailFromExtensionDataCallback } |
+    { key: 'STARTTLS', value: IStartTlsExtensionDataCallback } |
+    { key: 'QUIT', value: IQuitExtensionDataCallback } |
+    { key: 'RSET', value: IRsetExtensionDataCallback } |
+    { key: 'NOOP', value: INoopExtensionDataCallback } |
+    { key: 'GENERIC', value: IExtensionDataCallback };
+    
 export type CustomIngressCallback = 
     ICustomCommandDataCallback;
 
@@ -214,6 +254,7 @@ export type CustomCommandEntry = {
 export type CustomIngressMap = Map<string, [CustomCommandEntry]>;
 
 export type CommandExtension =
+    'GENERIC' |
     'VRFY' |
     'DATA' |
     'QUIT' |
