@@ -1,11 +1,11 @@
-import RecvEmail from '../email/recv';
-import ExtensionManager from '../extensions/main';
-import { ICustomCommandData, ICustomParser, IParsedParser } from '../extensions/types';
-import { log } from '../log';
+import RecvEmail from '../../email/recv';
+import ExtensionManager from '../../extensions/main';
+import { ICustomCommandData, ICustomParser, IParsedParser } from '../../extensions/types';
+import { log } from '../../log';
 import { Socket as BunSocket } from 'bun';
-import SMTP from './smtp';
-import CODE from './commands/CODE';
-import parse_command from './parser';
+import SMTP from '../smtp';
+import CODE from './CODE';
+import parse_command from '../parser';
 
 const GOOD_CODES = [250, 251, 252];
 
@@ -22,11 +22,30 @@ export const parse_custom_ingress_command = (
     const em = ExtensionManager.get_instance();
     let command_found = false, other_messages: Array<string> = [], returned = false;
     em._is_custom_ingress_command(command_name).forEach((cce) => {
+        // -- Ensure that the command can run on this mode
+        if (
+            cce.mode !== 'ANY' &&
+            cce.mode !== (email.mode === 'EHLO' ? 'ESMTP' : 'SMTP')
+        ) return;
+        
 
         // -- If we have already returned, return
         if (returned) return;
         command_found = true;
         log('DEBUG', 'SMTP', 'process', `Running custom ingress command '${command_name}'`);
+
+
+        // -- Check the allowed / disallowed stages
+        if (
+            email.has_marker(cce.disallowed_stages) ||
+            !email.has_marker(cce.required_stages)
+        ) {
+            log('DEBUG', 'SMTP', 'process', `Custom ingress command '${command_name}' FAILED required stage check`);
+            returned = true;
+            email.send_message(socket, 503, 'Bad sequence of commands');
+            return false;
+        }
+
 
 
         // -- Parse the command

@@ -70,6 +70,7 @@ export interface ICustomParser { [data: string]: ICommandParserOption }
 
 
 
+
 /**
  * @name IParsedParser
  * Represents a Map of parsed parameters returned by the custom command parser.
@@ -87,6 +88,21 @@ export type IParsedParser = Map<string, {
     raw: string,
     data: string | number | boolean,
 }>;
+
+
+
+/**
+ * @name ICustomCommandParamaters
+ * Optional paramaters that state how this command
+ * should behave
+ * 
+ */
+export interface ICustomCommandParamaters {
+    parser?: ICustomParser,
+    required_stages?: Array<string>,
+    disallowed_stages?: Array<string>,
+    mode?: 'SMTP' | 'ESMTP' | 'ANY',
+}
 
 
 
@@ -180,7 +196,13 @@ export type CustomIngressCallback =
     ICustomCommandDataCallback;
 
 export type CommandExtensionMap = Map<string, [CommandCallback]>;
-export type CustomCommandEntry = { paramaters: ICustomParser, callback: CustomIngressCallback };
+export type CustomCommandEntry = { 
+    paramaters: ICustomParser, 
+    callback: CustomIngressCallback,
+    required_stages: Array<string>,
+    disallowed_stages: Array<string>,
+    mode: 'ESMTP' | 'SMTP' | 'ANY',
+};
 export type CustomIngressMap = Map<string, [CustomCommandEntry]>;
 
 export type CommandExtension =

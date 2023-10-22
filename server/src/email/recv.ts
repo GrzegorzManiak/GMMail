@@ -109,6 +109,7 @@ export default class RecvEmail {
     public set marker(
         marker: string
     ) { 
+        marker = marker.toUpperCase();
         this._markers.set(marker, marker); 
     }
 
@@ -118,14 +119,23 @@ export default class RecvEmail {
      * @name has_marker
      * @description Checks if the email has a marker
      * 
-     * @param {string} marker - The marker to check for
+     * @param {string | Array<string>} marker - The marker(S) to check for
      * 
      * @returns {boolean} Whether the email has the marker
      */
     public has_marker(
-        marker: string
+        marker: string | Array<string>
     ): boolean {
-        return this._markers.has(marker); 
+        switch (typeof marker) {
+            case 'string':
+                marker = marker.toUpperCase();
+                return this._markers.has(marker);
+
+            case 'object': return marker.every(m => 
+                this._markers.has(
+                    m.toUpperCase()
+                ));
+        }
     }
 
 

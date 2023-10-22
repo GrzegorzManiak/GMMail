@@ -1,4 +1,4 @@
-import { CommandCallback, CommandExtension, CommandExtensionMap, CustomCommandEntry, CustomIngressCallback, CustomIngressMap, ICustomCommandDataCallback, ICustomParser } from './types';
+import { CommandCallback, CommandExtension, CommandExtensionMap, CustomCommandEntry, CustomIngressCallback, CustomIngressMap, ICustomCommandDataCallback, ICustomCommandParamaters, ICustomParser } from './types';
 
 
 
@@ -48,23 +48,31 @@ export default class ExtensionManager {
     * NOTE: This is for INCOMING connections only, eg receiving mail
     * 
     * @param {string} command_name - The command name to add
-    * @param {ICustomParser} paramaters - The paramaters to parse
+    * @param {ICustomCommandParamaters} paramaters - The paramaters to parse
     * @param {CommandCallback} callback - The callback to run when the command is called
     * 
     * @returns {void}
     */
     public add_custom_ingress_command<CallbackType extends CustomIngressCallback>(
         command_name: string,
-        paramaters: ICustomParser,
+        paramaters: ICustomCommandParamaters,
         callback: CallbackType,
     ): void {
             
         // -- Attempt to get the existing extensions
         const extensions = this._custom_ingress_checks.get(command_name);
-        if (extensions) extensions.push({ paramaters, callback });
+        const extension = {
+            paramaters: paramaters?.parser || {},
+            required_stages: paramaters?.required_stages || [],
+            disallowed_stages: paramaters?.disallowed_stages || [],
+            mode: paramaters?.mode || 'ANY',
+            callback,
+        };
 
-        // -- Create a new extension group
-        else this._custom_ingress_checks.set(command_name, [{ paramaters, callback }]);
+
+        // -- If the extensions exist, push the new extension
+        if (extensions) extensions.push(extension);
+        else this._custom_ingress_checks.set(command_name, [extension]);
     }
 
 

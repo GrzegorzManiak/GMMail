@@ -133,11 +133,19 @@ const config = Configuration.get_instance(import.meta.dir + '/../basic_config.js
      * the email to a different address with a key that only the master server knows
      */
     extensions.add_custom_ingress_command<ICustomCommandDataCallback>('CUSTOM', {
-        SERVER_NAME: 'phrase:REQUIRED', // -- A sentance, eg "My Server", has whitespace
-        TEST: 'string:REQUIRED',        // -- A string  , eg "Hello",     no whitespace
-        SERVER_VERSION: 'number:REQUIRED',
-        VALIDATE: 'boolean:OPTIONAL',
-        NEW: 'none:REQUIRED',
+        parser: {
+            SERVER_NAME: 'phrase:REQUIRED', // -- A sentance, eg "My Server", has whitespace
+            TEST: 'string:REQUIRED',        // -- A string  , eg "Hello",     no whitespace
+            SERVER_VERSION: 'number:REQUIRED',
+            VALIDATE: 'boolean:OPTIONAL',
+            NEW: 'none:REQUIRED',
+        },
+
+        required_stages: ['EHLO'],  // -- You can specify stages that are required before 
+        // this command can be run, eg, you can only run this command after DATA
+        disallowed_stages: ['SWAG'], // -- You can also disallow stages
+
+        mode: 'ANY', // -- Only want this command to work with ESMTP? or specifically HELO?
     }, (data) => {
         // -- You can assume that the data is valid here as it has been validated
         //    and the request would have been rejected if it wasnt, only place

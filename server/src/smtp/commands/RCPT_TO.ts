@@ -92,5 +92,4 @@ export default (commands_map: CommandMap) => commands_map.set('RCPT TO',
 
     // -- Throw a 450, Mailbox unavailable
     email.send_message(socket, 450);
-    return;
 });

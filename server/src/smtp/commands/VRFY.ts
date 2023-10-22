@@ -116,8 +116,5 @@ export default (commands_map: CommandMap) => commands_map.set('VRFY',
 
     // -- If there were no messages sent, send the default 252
     if (other_messages.length !== 0) return;
-
-
-    // -- Push the help message
-    const message = email.send_message(socket, 252);
+    email.send_message(socket, 252);
 });

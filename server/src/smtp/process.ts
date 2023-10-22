@@ -14,7 +14,7 @@ import RCPT_TO from './commands/RCPT_TO';
 import VRFY from './commands/VRFY';
 import RSET from './commands/RSET';
 import ExtensionManager from '../extensions/main';
-import { parse_custom_ingress_command } from './cust_ingress';
+import { parse_custom_ingress_command } from './commands/CUST_IN';
 
 
 
