@@ -30,10 +30,8 @@ export default (commands_map: CommandMap) => commands_map.set('EHLO',
         email.has_marker('HELO') ||
         email.has_marker('EHLO')
     ) {
-        const error = CODE(503, 'Bad sequence of commands');
-        email.push_message('send', error);
-        email.close(false);
-        socket.write(error);
+        email.send_message(socket, 503, 'Bad sequence of commands');
+        email.close(socket, false);
         return;
     }
 
@@ -45,32 +43,28 @@ export default (commands_map: CommandMap) => commands_map.set('EHLO',
         he.message_type === 'UNKNOWN' ||
         !check_ehlo(raw)
     ) {
-        const unknown = CODE(500, 'Unknown command');
-        email.push_message('send', unknown);
-        email.close(false);
-        socket.write(unknown);
+        email.send_message(socket, 500, 'Unknown command');
+        email.close(socket, false);
     }
 
 
     // -- Push the greeting
-    const greetings = CODE(2501);
-    email.push_message('send', greetings);
-    socket.write(greetings);
+    email.send_message(socket, 2501);
+    email.locked = true;
 
 
+    // -- Get the supported features
+    const smtp = SMTP.get_instance(),
+        features = smtp.supported_features;
 
-    // -- Only write the supported features if the command was EHLO
-    const features = SMTP.get_instance()
-        .supported_features.map(feature => '250-' + feature.toUpperCase() + '\r\n');
-    features.push('250 HELP\r\n');
+    // -- Send the features
     features.forEach(feature => {
-        email.push_message('send', feature);
-        socket.write(feature);
+        email.send_message(socket, 2503, feature);
+        email.locked = true;
     });
 
-
-    // -- Set the stage and unlock the email
+    // -- Send the help message
     email.marker = 'EHLO';
     email.mode = 'EHLO';
-    email.locked = false;
+    email.send_message(socket, 2504, 'HELP');
 });

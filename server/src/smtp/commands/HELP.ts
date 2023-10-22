@@ -10,23 +10,22 @@ import { CommandMap } from '../types';
  * HELP, Returns the list of supported commands
  */
 export default (commands_map: CommandMap) => commands_map.set('HELP', (socket, email) => {
-    // -- Push the help message
-    const config = Configuration.get_instance(),
-        vendor = config.get<string>('VENDOR');
 
-    // -- Construct the message
-    const message = `213-The following commands are recognized by ${vendor}\r\n`,
-        commands = SMTP.get_instance().supported_commands
+    // -- Push the greeting
+    email.send_message(socket, 213);
+    email.locked = true;
 
-    // -- Add the commands to the message
-    commands.push(message);
-    commands.map(feature => '213-' + feature.toUpperCase() + '\r\n');
-    commands.push('250 HELP\r\n');
+    // -- Get the supported features
+    const smtp = SMTP.get_instance(),
+        features = smtp.supported_features;
 
-    // -- Send the message
-    commands.forEach(line => {
-        email.push_message('send', line);
-        socket.write(line);
+    // -- Send the features
+    features.forEach(feature => {
+        email.send_message(socket, 2503, feature);
+        email.locked = true;
     });
-    email.locked = false;
+
+    // -- Send the help message
+    email.marker = 'HELP';
+    email.send_message(socket, 2504, 'HELP');
 });

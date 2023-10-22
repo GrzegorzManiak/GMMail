@@ -1,7 +1,9 @@
+import { Socket } from 'bun';
 import { log } from '../log';
 import { IMailFrom } from '../smtp/types';
 import { IAddress, IMessage, MessageStage, MessageType } from './types';
 import evp from 'email-validator-pro';
+import CODE from '../smtp/commands/CODE';
 
 
 
@@ -55,12 +57,14 @@ export default class RecvEmail {
      * is usefull for debugging and logging
      * 
      * @param {MessageType} type - The type of message, recv or send
+     * @param {number} code - The code of the message
      * @param {string} content - The content of the message
      * 
      * @returns {void} Nothing
      */
     public push_message(
         type: MessageType,
+        code: number,
         content: string,
     ): void {
         // -- Push the message to the message sequence
@@ -68,6 +72,7 @@ export default class RecvEmail {
             content,
             type,
             date: new Date(),
+            code,
         });
 
         // console.log(`[${type}] ${content.trim()}`);
@@ -80,11 +85,15 @@ export default class RecvEmail {
      * @description Closes the email, this is called when the email is finished
      * For now this is just a placeholder
      * 
+     * @param {Socket} socket - The socket to send the message to
      * @param {boolean} success - Whether the email was successfully sent
+     * 
+     * @returns {void} Nothing
      */
     public close(
+        socket: Socket<any>,
         success: boolean,
-    ) {
+    ): void {
 
     }
 
@@ -615,5 +624,29 @@ export default class RecvEmail {
         value: unknown
     ): void {
         this._extra_map.set(key, value);
+    }
+
+
+
+    /**
+     * @name send_message
+     * @description Sends a message to the client
+     * 
+     * @param {Socket} socket - The socket to send the message to
+     * @param {number} code - The code of the message
+     * @param {string} [message=''] - The message to send with the code
+     * 
+     * @returns {string} The message that was sent
+     */
+    public send_message(
+        socket: Socket<any>,
+        code: number,
+        message = ''
+    ): string {
+        const code_text = CODE(code, message);
+        this.push_message('send', code, code_text);
+        socket.write(code_text);
+        this.locked = false;
+        return code_text;
     }
 }

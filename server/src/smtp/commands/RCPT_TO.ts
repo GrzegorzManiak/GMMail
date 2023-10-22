@@ -23,10 +23,8 @@ export default (commands_map: CommandMap) => commands_map.set('RCPT TO',
 
     // -- This command has to be sent after MAIL FROM
     if (!email.has_marker('MAIL FROM')) {
-        const error = CODE(503, 'Bad sequence of commands');
-        email.push_message('send', error);
-        email.close(false);
-        socket.write(error);
+        email.send_message(socket, 503, 'Bad sequence of commands');
+        email.close(socket, false);
         return;
     }
 
@@ -34,11 +32,8 @@ export default (commands_map: CommandMap) => commands_map.set('RCPT TO',
     // -- Parse the MAIL FROM
     const recipient = email.process_recipient(raw_data);
     if (recipient === null) {
-        const invalid = CODE(553, 'FROM address invalid');
-        email.push_message('send', invalid);
-        email.close(false);
-        socket.write(invalid);
-        socket.end();
+        email.send_message(socket, 553, 'Invalid recipient');
+        email.close(socket, false);
         return;
     }
     
@@ -75,9 +70,7 @@ export default (commands_map: CommandMap) => commands_map.set('RCPT TO',
         //    return the user specified code
         if (!GOOD_CODES.includes(response)) {
             extension_data._returned = true;
-            const message = CODE(response);
-            email.push_message('send', message);
-            socket.write(message);
+            email.send_message(socket, response);
             return;
         }
     });
@@ -91,19 +84,13 @@ export default (commands_map: CommandMap) => commands_map.set('RCPT TO',
         email.rcpt_recipient = recipient;
 
         // -- Unlock the email
-        const message = CODE(250);
-        email.push_message('send', message);
         email.marker = 'RCPT TO';
-        socket.write(message);
-        email.locked = false;
+        email.send_message(socket, 250);
         return;
     }
 
 
     // -- Throw a 450, Mailbox unavailable
-    const message = CODE(450);
-    email.push_message('send', message);
-    socket.write(message);
-    email.locked = false;
+    email.send_message(socket, 450);
     return;
 });

@@ -19,10 +19,8 @@ export default (commands_map: CommandMap) => commands_map.set('MAIL FROM',
         
     // -- ensure that we are in the VALIDATE stage
     if (email.has_marker('MAIL FROM')) {
-        const error = CODE(503, 'Bad sequence of commands');
-        email.push_message('send', error);
-        email.close(false);
-        socket.write(error);
+        email.send_message(socket, 503, 'Bad sequence of commands');
+        email.close(socket, false);
         return;
     }
 
@@ -30,11 +28,8 @@ export default (commands_map: CommandMap) => commands_map.set('MAIL FROM',
     // -- Parse the MAIL FROM
     const sender = email.process_sender(raw_data);
     if (sender === null) {
-        const invalid = CODE(553, 'FROM address invalid');
-        email.push_message('send', invalid);
-        email.close(false);
-        socket.write(invalid);
-        socket.end();
+        email.send_message(socket, 553, 'Invalid sender');
+        email.close(socket, false);
         return;
     }
 
@@ -67,10 +62,8 @@ export default (commands_map: CommandMap) => commands_map.set('MAIL FROM',
             typeof response === 'number' && 
             response !== 250
         ) {
-            const message = CODE(response);
-            email.push_message('send', message);
-            socket.write(message);
-            email.close(false);
+            email.send_message(socket, response);
+            email.close(socket, false);
             return;
         }
     });
@@ -80,13 +73,10 @@ export default (commands_map: CommandMap) => commands_map.set('MAIL FROM',
     // -- Check if the extensions have returned a response
     if (extension_data._returned) return;
 
+    
+
     // -- Set the sender
     email.sender = sender;
-
-    // -- Unlock the email
-    const message = CODE(250);
-    email.push_message('send', message);
     email.marker = 'MAIL FROM';
-    socket.write(message);
-    email.locked = false;
+    email.send_message(socket, 250);
 });

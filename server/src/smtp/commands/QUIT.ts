@@ -32,9 +32,5 @@ export default (commands_map: CommandMap) =>
 
 
     // -- Push the quit message
-    const message = CODE(221);
-    email.push_message('send', message);
-    email.close(true);
-    socket.write(message);
-    socket.end();
+    email.send_message(socket, 221, 'Bye');
 });

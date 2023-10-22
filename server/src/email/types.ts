@@ -4,6 +4,7 @@ export interface IMessage {
     content: string;
     type: MessageType;
     date: Date;
+    code: number;
 }
 
 export type MessageStage = 

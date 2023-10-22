@@ -25,10 +25,8 @@ export default (commands_map: CommandMap) =>
         !email.has_marker('HELO') && 
         !email.has_marker('EHLO')
     ) {
-        const error = CODE(503, 'Bad sequence of commands');
-        email.push_message('send', error);
-        email.close(false);
-        socket.write(error);
+        email.send_message(socket, 503, 'Bad sequence of commands');
+        email.close(socket, false);
         return;
     }
 
@@ -49,21 +47,16 @@ export default (commands_map: CommandMap) =>
 
 
 
-    // -- Close of the email
-    const message = CODE(250);
-    email.push_message('send', message);
-    email.close(false);
-    const old_mode = email.mode;
-
-
     // -- Create the email object
     const { remoteAddress } = socket,
         new_email = new RecvEmail(remoteAddress);
+
+    // -- Close of the email
+    email.send_message(socket, 250);
+    const old_mode = email.mode;
+
+    // -- Configure the new email
     socket.data = new_email;
-
-
-    // -- Send the message
-    socket.write(message);
     new_email.locked = false;
     new_email.mode = old_mode;
     new_email.marker = old_mode;

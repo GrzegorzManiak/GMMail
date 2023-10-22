@@ -110,8 +110,6 @@ export default (
 
 
     // -- If the command is not recognized, return an error
-    const message = CODE(500, words[0]);
-    email.push_message('send', message);
-    socket.write(message);
+    email.send_message(socket, 500, words[0]);
     email.locked = false;
 });

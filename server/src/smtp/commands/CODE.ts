@@ -14,12 +14,17 @@ export default (
     if (details.length > 100) details = details.substr(0, 100);
 
     switch (code) {
+        case 213: return `213-${host} The following commands are recognized by ${vendor}\r\n`;
         case 220: return `220 ${host} ESMTP ${vendor} Ready at ${date.toUTCString()}\r\n`;
         case 221: return `221 ${host} running ${vendor} closing connection at ${date.toUTCString()}\r\n`;
         case 250: return `250 OK\r\n`;
+        
         // -- Special case for HELO/EHLO
         case 2501: return `250-${host} is my domain name.\r\n`;
         case 2502: return `250 ${host} is my domain name.\r\n`;
+        case 2503: return `250-${details}\r\n`;
+        case 2504: return `250 ${details}\r\n`;
+
         case 354: return `354 Start mail input; end with <CR><LF>${SMTP.get_instance().crlf}<CR><LF>\r\n`;
         case 421: return `421 ${host} Service not available, closing transmission channel\r\n`;
         case 450: return `450 ${host} Mailbox unavailable (busy or temporarily blocked). Requested action aborted\r\n`;

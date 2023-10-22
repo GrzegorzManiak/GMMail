@@ -27,10 +27,8 @@ export default (commands_map: CommandMap) =>  commands_map.set('HELO',
         email.has_marker('HELO') ||
         email.has_marker('EHLO')
     ) {
-        const error = CODE(503, 'Bad sequence of commands');
-        email.push_message('send', error);
-        email.close(false);
-        socket.write(error);
+        email.send_message(socket, 503, 'Bad sequence of commands')
+        email.close(socket, false);
         return;
     }
 
@@ -42,23 +40,15 @@ export default (commands_map: CommandMap) =>  commands_map.set('HELO',
         he.message_type === 'UNKNOWN' ||
         !check_helo(raw)
     ) {
-        const unknown = CODE(500, 'Unknown command');
-        email.push_message('send', unknown);
-        email.close(false);
-        socket.write(unknown);
+        email.send_message(socket, 500, 'Unknown command');
+        email.close(socket, false);
+        return;
     }
-
-
-
-    // -- Push the greeting
-    const greetings = CODE(2502);
-    email.push_message('send', greetings);
-    socket.write(greetings);
 
 
 
     // -- Set the stage and unlock the email
     email.marker = 'HELO';
     email.mode = 'HELO';
-    email.locked = false;
+    email.send_message(socket, 2502);
 });

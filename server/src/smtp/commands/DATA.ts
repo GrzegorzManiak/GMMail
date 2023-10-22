@@ -31,20 +31,16 @@ export default (commands_map: CommandMap) => commands_map.set('DATA',
             email.has_marker('EHLO')
         )
     ) {
-        const error = CODE(503);
-        email.push_message('send', error);
-        email.close(false);
-        socket.write(error);
+        email.send_message(socket, 503);
+        email.close(socket, false);
         return;
     }
 
 
     // -- Ensure that theres no parameters
     if (words.length > 1) {
-        const error = CODE(501);
-        email.push_message('send', error);
-        email.close(false);
-        socket.write(error);
+        email.send_message(socket, 501);
+        email.close(socket, false);
         return;
     }
 
@@ -79,9 +75,7 @@ export default (commands_map: CommandMap) => commands_map.set('DATA',
         // -- Check the code
         if (!(response === 250 || response === void 0)) {
             extension_data._returned = true;
-            const message = CODE(response);
-            email.push_message('send', message);
-            socket.write(message);
+            email.send_message(socket, response);
             return;
         }
     });
@@ -89,12 +83,9 @@ export default (commands_map: CommandMap) => commands_map.set('DATA',
 
 
     // -- Push the data message
-    const message = CODE(354);
     email.marker = 'DATA';
-    email.push_message('send', message);
     email.sending_data = true;
-    socket.write(message);
-    email.locked = false;
+    email.send_message(socket, 354);
 });
 
 
@@ -117,10 +108,8 @@ export const in_prog_data = (
 ): void => {
     // -- Ensure that the DATA command was sent
     if (!email.has_marker('DATA')) {
-        const error = CODE(503);
-        email.push_message('send', error);
-        email.close(false);
-        socket.write(error);
+        email.send_message(socket, 503);
+        email.close(socket, false);
         return;
     }
 
@@ -159,9 +148,7 @@ export const in_prog_data = (
         if (!(response === 250 || response === void 0)) {
             extension_data._returned = true;
             email.sending_data = false;
-            const message = CODE(response);
-            email.push_message('send', message);
-            socket.write(message);
+            email.send_message(socket, response);
             return;
         }
     });
@@ -176,9 +163,8 @@ export const in_prog_data = (
         // -- Check if the size is exceeded
         if (current_size + email.data_size > max_size) {
             email.sending_data = false;
-            const message = CODE(552);
-            email.push_message('send', message);
-            socket.write(message);
+            email.send_message(socket, 552);
+            email.close(socket, false);
             return;
         }
     }
@@ -193,8 +179,6 @@ export const in_prog_data = (
 
     // -- Inform the client that the data was received
     email.sending_data = false;
-    const message = CODE(250);
-    email.push_message('send', message);
-    socket.write(message);
+    email.send_message(socket, 250);
     return;
 }

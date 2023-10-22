@@ -38,7 +38,7 @@ export default class NilSocket extends Socket {
 
                 // -- Get the email object
                 const email = socket.data as RecvEmail;
-                email.push_message('recv', data_string);
+                email.push_message('recv', 250, data_string);
 
                 // -- Parse the data based on the stage
                 process(data_array, email, socket);
@@ -55,11 +55,7 @@ export default class NilSocket extends Socket {
                 socket.data = email;
 
                 // -- Push the greeting
-                const greetings = CODE(220);
-                email.push_message('send', greetings);
-
-                // -- Send the greeting
-                socket.write(greetings);
+                email.send_message(socket, 220);
             },
 
 

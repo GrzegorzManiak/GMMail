@@ -32,20 +32,16 @@ export default (commands_map: CommandMap) => commands_map.set('VRFY',
 
             // -- If the data is not valid, return an error
             if (!GOOD_CODES.includes(data.code)) {
-                const message = CODE(data.code);
-                email.push_message('send', message);
+                const message = email.send_message(socket, data.code);
                 other_messages.push(message);
-                socket.write(message);
                 return;
             }
 
             
             // -- Code has to be 250 to send the user
             if (data.code !== 250) {
-                const message = CODE(data.code);
-                email.push_message('send', message);
+                const message = email.send_message(socket, data.code);
                 other_messages.push(message);
-                socket.write(message);
                 return;
             }
 
@@ -56,10 +52,8 @@ export default (commands_map: CommandMap) => commands_map.set('VRFY',
 
             // -- Check if the user name and email address are valid
             if (!user_name || !address) {
-                const message = CODE(550);
-                email.push_message('send', message);
+                const message = email.send_message(socket, 550);
                 other_messages.push(message);
-                socket.write(message);
                 return;
             }
 
@@ -95,13 +89,12 @@ export default (commands_map: CommandMap) => commands_map.set('VRFY',
             extension_data._returned === false
         ) {
             extension_data._returned = true;
-            const message = CODE(response);
-            email.push_message('send', message);
+            const message = email.send_message(socket, response);
             other_messages.push(message);
-            socket.write(message);
             return;
         }
     });
+
 
 
     // -- Send all the 250 messages if no other messages were sent
@@ -109,27 +102,16 @@ export default (commands_map: CommandMap) => commands_map.set('VRFY',
         code_250_messages.length > 0 && 
         other_messages.length === 0
     ) {
-        
-        // -- 250-<message> bar the last one
-        let constructed_message = '';
         code_250_messages.forEach((message, index) => {
-            
             // -- Check if this is the last message
-            if (index === code_250_messages.length - 1) {
-                constructed_message += ` ${message}\r\n`;
-                return;
-            }
-            
-            // - Else, add the message and a new line
-            constructed_message += ` ${message}\r\n`;
+            if (index === code_250_messages.length - 1) 
+                email.send_message(socket, 2504, message);
+            else email.send_message(socket, 2503, message);
+            email.locked = true;
         });
-
-
-        // -- Push the message
-        email.push_message('send', constructed_message);
-        socket.write(constructed_message);
         return;
     }
+
 
 
     // -- If there were no messages sent, send the default 252
@@ -137,8 +119,5 @@ export default (commands_map: CommandMap) => commands_map.set('VRFY',
 
 
     // -- Push the help message
-    const message = CODE(252);
-    email.push_message('send', message);
-    socket.write(message);
-    email.locked = false;
+    const message = email.send_message(socket, 252);
 });

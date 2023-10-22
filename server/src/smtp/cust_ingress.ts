@@ -37,10 +37,7 @@ export const parse_custom_ingress_command = (
         if ((parsed as unknown as any)?.length) {
             log('DEBUG', 'SMTP', 'process', `Custom ingress command '${command_name}' FAILED to parse`);
             returned = true;
-            const message = CODE(parsed[0], parsed[1]);
-            email.push_message('send', message);
-            other_messages.push(message);
-            socket.write(message);
+            email.send_message(socket, parsed[0], parsed[1]);
             return false;
         }
 
@@ -71,12 +68,7 @@ export const parse_custom_ingress_command = (
             !GOOD_CODES.includes(response) &&
             returned === false
         ) {
-            const message = CODE(response);
-            email.push_message('send', message);
-            other_messages.push(message);
-            returned = true;
-            extension_data._returned = true;
-            socket.write(message);
+            email.send_message(socket, response);
             return false;
         }
     });
@@ -86,10 +78,7 @@ export const parse_custom_ingress_command = (
     // -- If the command was found, return
     if (command_found && returned === false) {
         log('DEBUG', 'SMTP', 'process', `Custom ingress command '${command_name}' NOT returned`);
-        const message = CODE(250);
-        email.push_message('send', message);
-        socket.write(message);
-        email.locked = false;
+        email.send_message(socket, 250);
         return false;
     }
 
