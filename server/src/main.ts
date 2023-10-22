@@ -7,6 +7,7 @@ import {
     IDATAExtensionData,
     IExtensionData, 
     IMailFromExtensionData, 
+    INoopExtensionData, 
     IQuitExtensionData, 
     IRCPTTOExtensionData, 
     IRsetExtensionData, 
@@ -154,6 +155,15 @@ const config = Configuration.get_instance(import.meta.dir + '/../basic_config.js
 
 
 
+    /**
+     * @name NOOP
+     * NOOP Listener, cant do much here bar maybe some custom nothing or 
+     * other nothing logic
+     */
+    extensions.add_command_extension<INoopExtensionData>('NOOP', (data) => {
+        log('INFO', 'Main', 'main', 'Client did nothing');
+    });
+
 
 
     /**
@@ -183,7 +193,7 @@ const config = Configuration.get_instance(import.meta.dir + '/../basic_config.js
         disallowed_stages: ['SWAG'], // -- You can also disallow stages
 
         mode: 'ANY', // -- Only want this command to work with ESMTP? or specifically HELO?
-        
+
     }, (data) => {
         // -- You can assume that the data is valid here as it has been validated
         //    and the request would have been rejected if it wasnt, only place
