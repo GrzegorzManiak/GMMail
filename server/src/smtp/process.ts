@@ -71,17 +71,17 @@ export default (
     const commands_map = SMTP.get_instance().map;
 
     email.locked = true;
-
-    // -- Check if the client is sending data
-    if (email.sending_data) 
-        return in_prog_data(email, socket, command);
-
     
     // -- Split the command into the words and at :
     const words = command
         .split(' ')
         .flatMap(word => word.trim().split(':'))
         .filter(word => word.length > 0);
+
+    
+    // -- Check if the client is sending data
+    if (email.sending_data) 
+        return in_prog_data(email, socket, command, words);
 
 
     // -- Check for potential commands that have two words

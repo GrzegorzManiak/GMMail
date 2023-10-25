@@ -28,13 +28,15 @@ export default (commands_map: CommandMap) =>
 
     
     // -- If we should not allow the upgrade, return an error
-    let allow_upgrade = true;
+    let allow_upgrade = true, final = false;
 
 
     // -- Get the extensions
     const extensions = ExtensionManager.get_instance();
     extensions._get_command_extension_group('STARTTLS').forEach((callback: IStartTlsExtensionDataCallback) => {
 
+        // -- Check if the final callback has been called
+        if (final) return;
 
 
         // -- Construct the extension data
@@ -44,7 +46,10 @@ export default (commands_map: CommandMap) =>
             smtp: SMTP.get_instance(),
             type: 'STARTTLS',
             current_status: allow_upgrade ? 'ALLOW' : 'DENY',
-            action: (action) => allow_upgrade = action === 'ALLOW'
+            action: (action) => {
+                allow_upgrade = (action === 'ALLOW' || action === 'ALLOW:FINAL');
+                if (action === 'ALLOW:FINAL' || action === 'DENY:FINAL') final = true;
+            }
         };
 
 
@@ -58,6 +63,19 @@ export default (commands_map: CommandMap) =>
         // -- If there was an error, log it
         catch (err) {
             log('ERROR', 'SMTP', 'process', `Error running STARTTLS extension '${callback.name}'`, err);
+        }
+
+        // -- Finally, delete the extension data
+        finally {
+            delete extension_data.email;
+            delete extension_data.socket;
+            delete extension_data.log;
+            delete extension_data.words;
+            delete extension_data.raw_data;
+            delete extension_data.smtp;
+            delete extension_data.type;
+            delete extension_data.current_status;
+            delete extension_data.action;
         }
     });
 

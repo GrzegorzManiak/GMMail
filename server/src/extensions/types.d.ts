@@ -152,21 +152,25 @@ export interface IVRFYExtensionData extends IExtensionData {
 }
 
 
+// -- STARTTLS
 export type IStartTlsExtensionDataCallback = (data: IStartTlsExtensionData) => void;
+export type StartTlsActions = `${'ALLOW' | 'DENY'}${':FINAL' | ''}`;
 export interface IStartTlsExtensionData extends IExtensionData {
     type: 'STARTTLS',
-    current_status: 'ALLOW' | 'DENY',
-    action: (action: 'ALLOW' | 'DENY') => void,
+    current_status: StartTlsActions,
+    action: (action: StartTlsActions) => void,
 }
 
 
+// -- DATA
 export type IDataExtensionDataCallback = (data: IDATAExtensionData) => void;
+export type DataActions = 'ALLOW' | 'DENY';
 export interface IDATAExtensionData extends IExtensionData {
     type: 'DATA',
-    total_size: number,
     current_size: number,
     bypass_size_check: boolean,
-    _returned?: boolean,
+    total_size: number,
+    action: (action: DataActions) => void,
 }
 
 

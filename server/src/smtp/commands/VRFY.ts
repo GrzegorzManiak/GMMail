@@ -27,31 +27,6 @@ export default (commands_map: CommandMap) => commands_map.set('VRFY',
     const extensions = ExtensionManager.get_instance();
     extensions._get_command_extension_group('VRFY').forEach((callback: IVrfyExtensionDataCallback) => {
 
-        // -- Action function
-        const action = (data: IVRFYResponse | Array<IVRFYResponse>) => {
-            
-            // -- Ensure the data is an array
-            if (!Array.isArray(data)) data = [data];
-
-            // -- Push the data to the found users
-            for (let i = 0, l = data.length; i < l; i++) {
-                const entry = data[i];
-
-                // -- Attempt to verify that the data is valid
-                const email_valid = RecvEmail.validate_address(entry.address),
-                    username_valid = RecvEmail.validate_username(entry.username);
-
-                // -- If the email or username is invalid, log it and continue
-                if (!email_valid || !username_valid) {
-                    log('ERROR', 'SMTP', 'process', `Invalid VRFY response from extension '${callback.name}'`, entry);
-                    continue;
-                }
-
-                // -- Push the entry to the found users
-                found_users.push(entry);
-            }
-        };
-
 
 
         // -- Build the extension data object
@@ -61,7 +36,7 @@ export default (commands_map: CommandMap) => commands_map.set('VRFY',
             smtp: SMTP.get_instance(),
             type: 'VRFY',
             found_users,
-            action,
+            action: (data) => action(data, found_users)
         };
 
 
@@ -75,6 +50,19 @@ export default (commands_map: CommandMap) => commands_map.set('VRFY',
         // -- If there was an error, log it
         catch (err) {
             log('ERROR', 'SMTP', 'process', `Error running VRFY extension '${callback.name}'`, err);
+        }
+
+        // -- Finally, delete the extension data
+        finally {
+            delete extension_data.email;
+            delete extension_data.socket;
+            delete extension_data.log;
+            delete extension_data.words;
+            delete extension_data.raw_data;
+            delete extension_data.smtp;
+            delete extension_data.type;
+            delete extension_data.found_users;
+            delete extension_data.action;
         }
     });
 
@@ -99,3 +87,33 @@ export default (commands_map: CommandMap) => commands_map.set('VRFY',
         else email.send_message(socket, 2503, message); // -- 2503 is the code for a multi-line response
     }
 });
+
+
+
+// -- Action function
+const action = (
+    data: IVRFYResponse | Array<IVRFYResponse>,
+    found_users: Array<IVRFYResponse>
+) => {
+    
+    // -- Ensure the data is an array
+    if (!Array.isArray(data)) data = [data];
+
+    // -- Push the data to the found users
+    for (let i = 0, l = data.length; i < l; i++) {
+        const entry = data[i];
+
+        // -- Attempt to verify that the data is valid
+        const email_valid = RecvEmail.validate_address(entry.address),
+            username_valid = RecvEmail.validate_username(entry.username);
+
+        // -- If the email or username is invalid, log it and continue
+        if (!email_valid || !username_valid) {
+            log('ERROR', 'SMTP', 'process', `Invalid VRFY response from extension`, entry);
+            continue;
+        }
+
+        // -- Push the entry to the found users
+        found_users.push(entry);
+    }
+};

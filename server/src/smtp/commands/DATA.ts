@@ -43,51 +43,57 @@ export default (commands_map: CommandMap) => commands_map.set('DATA',
         return;
     }
 
-
-
-    // -- Build the extension data
-    const extension_data: IDATAExtensionData = {
-        email, socket, log,
-        words, raw_data,
-        smtp: SMTP.get_instance(),
-        type: 'DATA',
-        total_size: email.data_size,
-        current_size: 0,
-        bypass_size_check: false,
-        _returned: false,
-    };
-
-
+    
 
     // -- Get the extensions
     const extensions = ExtensionManager.get_instance();
+    let allow_continue = true;
     extensions._get_command_extension_group('DATA').forEach((callback: IDataExtensionDataCallback) => {
 
-        // -- If other messages were sent, don't run the callback
-        //    as only one non 250 message can be sent
-        if (extension_data._returned === true) return;
+        // -- Build the extension data
+        const extension_data: IDATAExtensionData = {
+            email, socket, log,
+            words, raw_data,
+            smtp: SMTP.get_instance(),
+            type: 'DATA',
+            current_size: 0,
+            total_size: email.data_size,
+            bypass_size_check: false,
+            action: (action) => allow_continue = action === 'ALLOW'
+        };
 
         // -- Run the callback
-        const response = callback(extension_data);
-        if (!response) return;
+        try {
+            log('DEBUG', 'SMTP', 'process', `Running DATA extension '${callback.name}'`);
+            callback(extension_data);
+        }
 
-        // -- Check the code
-        if (!(response === 354 || response === void 0)) {
-            extension_data._returned = true;
-            email.send_message(socket, response);
-            return;
+        // -- If there was an error, log it
+        catch (err) {
+            log('ERROR', 'SMTP', 'process', `Error running DATA extension '${callback.name}'`, err);
+        }
+
+        // -- Finally, delete the extension data
+        finally {
+            delete extension_data.email;
+            delete extension_data.socket;
+            delete extension_data.log;
+            delete extension_data.words;
+            delete extension_data.raw_data;
+            delete extension_data.smtp;
+            delete extension_data.type;
+            delete extension_data.current_size;
+            delete extension_data.bypass_size_check;
+            delete extension_data.action;
         }
     });
 
 
-    // -- Ensure that the extension data was not returned
-    if (extension_data._returned) return;
-
 
     // -- Push the data message
-    email.marker = 'DATA';
-    email.sending_data = true;
-    email.send_message(socket, 354);
+    email.marker = allow_continue ? 'DATA' : 'DATA:DISALLOWED';
+    email.sending_data = allow_continue;
+    email.send_message(socket, allow_continue ? 354 : 250);
 });
 
 
@@ -101,15 +107,21 @@ export default (commands_map: CommandMap) => commands_map.set('DATA',
  * @param {RecvEmail} email - Current email object
  * @param {BunSocket<unknown>} socket - Current socket
  * @param {string} command  - The command sent by the client
+ * @param {string[]} words - The command split into words
+ * 
  * @returns 
  */
 export const in_prog_data = (
     email: RecvEmail,
     socket: BunSocket<unknown>,
     command: string,
+    words: string[],
 ): void => {
     // -- Ensure that the DATA command was sent
-    if (!email.has_marker('DATA')) {
+    if (
+        !email.has_marker('DATA') ||
+        email.has_marker('DATA:DISALLOWED')
+    ) {
         email.send_message(socket, 503);
         email.close(socket, false);
         return;
@@ -120,45 +132,67 @@ export const in_prog_data = (
 
 
 
-    // -- Construct the extension data object
-    const extension_data: IDATAExtensionData = {
-        email, socket, log,
-        words: [], raw_data: command,
-        smtp: SMTP.get_instance(),
-        type: 'DATA',
-        total_size: email.data_size,
-        current_size,
-        bypass_size_check: false,
-        _returned: false,
-    };
-
-
-
     // -- Get the extensions
     const extensions = ExtensionManager.get_instance();
+    let allow_continue = true, bypass_size_check = false;
     extensions._get_command_extension_group('DATA').forEach((callback: IDataExtensionDataCallback) => {
-        
-        // -- If other messages were sent, don't run the callback
-        //    as only one non 250 message can be sent
-        if (extension_data._returned === true) return;
+
+        // -- Build the extension data
+        const extension_data: IDATAExtensionData = {
+            email, socket, log,
+            words, raw_data: command,
+            smtp: SMTP.get_instance(),
+            type: 'DATA',
+            current_size,
+            total_size: email.data_size,
+            bypass_size_check: false,
+            action: (action) => allow_continue = action === 'ALLOW'
+        };
+
+
 
         // -- Run the callback
-        const response = callback(extension_data);
-        if (!response) return;
+        try {
+            log('DEBUG', 'SMTP', 'process', `Running DATA extension '${callback.name}'`);
+            callback(extension_data);
+            bypass_size_check = extension_data.bypass_size_check;
+        }
 
-        // -- Check the code
-        if (!(response === 250 || response === void 0)) {
-            extension_data._returned = true;
-            email.sending_data = false;
-            email.send_message(socket, response);
-            return;
+        // -- If there was an error, log it
+        catch (err) {
+            log('ERROR', 'SMTP', 'process', `Error running DATA extension '${callback.name}'`, err);
+        }
+
+        // -- Finally, delete the extension data
+        finally {
+            delete extension_data.email;
+            delete extension_data.socket;
+            delete extension_data.log;
+            delete extension_data.words;
+            delete extension_data.raw_data;
+            delete extension_data.smtp;
+            delete extension_data.type;
+            delete extension_data.current_size;
+            delete extension_data.current_size;
+            delete extension_data.bypass_size_check;
+            delete extension_data.action;
         }
     });
 
 
 
+    // -- Check if the extension allowed the data to be sent
+    if (!allow_continue) {
+        email.sending_data = false;
+        email.send_message(socket, 552);
+        email.close(socket, false);
+        return;
+    }
+
+    
+
     // -- Ensure that the data size is not exceeded
-    if (!extension_data.bypass_size_check) {
+    if (!bypass_size_check) {
         const config = Configuration.get_instance(),
             max_size = config.get<number>('MAIL', 'MAX_SIZE');
             
@@ -172,12 +206,10 @@ export const in_prog_data = (
     }
 
 
+
     // -- Add the data to the email 
     email.push_data = command;
-    
-    // -- Check if this is the end of the data
     if (command !== SMTP.get_instance().crlf) return;
-
 
     // -- Inform the client that the data was received
     email.sending_data = false;
