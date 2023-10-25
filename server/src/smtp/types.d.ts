@@ -3,14 +3,11 @@ import { Socket as BunSocket } from 'bun';
 import RecvEmail from '../email/recv';
 
 export type VRFYResponseCode = 
-    250 | // -- OK
     251 | // -- User not local; will forward to <forward-path>
     252 | // -- Cannot VRFY user, but will accept message and attempt delivery
-    502 | // -- Command not implemented
-    504 | // -- Command parameter not implemented
-    550 | // -- Requested action not taken: mailbox unavailable
+    550 | // -- String does not match anything
     551 | // -- User not local; please try <forward-path>
-    553;  // -- Requested action not taken: mailbox name not allowed
+    553;  // -- User ambiguous, not sure which one you mean
     
 export type DATAResponseCode =
     250 | // -- OK
@@ -54,9 +51,8 @@ export interface IMailFrom {
 }
 
 export interface IVRFYResponse {
-    username: string;
+    username?: string;
     address: string;
-    code: VRFYResponseCode;
 }
 
 

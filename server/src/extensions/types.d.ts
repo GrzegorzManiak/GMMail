@@ -130,7 +130,7 @@ export interface ICustomCommandData {
 }
 
 
-export type IExtensionDataCallback = (data: IExtensionData) => void | number;
+export type IExtensionDataCallback = (data: IExtensionData) => void;
 export interface IExtensionData {
     log: (type: LogType, ...args: Array<unknown>) => void,
     email: RecvEmail,
@@ -142,15 +142,17 @@ export interface IExtensionData {
 }
 
 
-export type IVrfyExtensionDataCallback = (data: IVRFYExtensionData) => void | VRFYResponseCode;
+// -- VRFY
+// http://www.smtp-server.com/simple_mail_verifying.htm
+export type IVrfyExtensionDataCallback = (data: IVRFYExtensionData) => void;
 export interface IVRFYExtensionData extends IExtensionData {
     type: 'VRFY',
-    _returned?: boolean,
-    response: (data: IVRFYResponse) => void,
+    found_users: Array<IVRFYResponse>,
+    action: (data: IVRFYResponse | Array<IVRFYResponse>) => void,
 }
 
 
-export type IStartTlsExtensionDataCallback = (data: IStartTlsExtensionData) => void | number;
+export type IStartTlsExtensionDataCallback = (data: IStartTlsExtensionData) => void;
 export interface IStartTlsExtensionData extends IExtensionData {
     type: 'STARTTLS',
     _returned?: boolean,
@@ -158,7 +160,7 @@ export interface IStartTlsExtensionData extends IExtensionData {
 }
 
 
-export type IDataExtensionDataCallback = (data: IDATAExtensionData) => void | DATAResponseCode;
+export type IDataExtensionDataCallback = (data: IDATAExtensionData) => void;
 export interface IDATAExtensionData extends IExtensionData {
     type: 'DATA',
     total_size: number,
@@ -168,7 +170,7 @@ export interface IDATAExtensionData extends IExtensionData {
 }
 
 
-export type IRcptToExtensionDataCallback = (data: IRCPTTOExtensionData) => void | RCPTTOResponseCode;
+export type IRcptToExtensionDataCallback = (data: IRCPTTOExtensionData) => void;
 export interface IRCPTTOExtensionData extends IExtensionData {
     type: 'RCPT TO',
     _returned?: boolean,
@@ -177,7 +179,7 @@ export interface IRCPTTOExtensionData extends IExtensionData {
 }
 
 
-export type IMailFromExtensionDataCallback = (data: IMailFromExtensionData) => void | number;
+export type IMailFromExtensionDataCallback = (data: IMailFromExtensionData) => void;
 export interface IMailFromExtensionData extends IExtensionData {
     type: 'MAIL FROM',
     _returned?: boolean,
@@ -185,19 +187,19 @@ export interface IMailFromExtensionData extends IExtensionData {
 }
 
 
-export type IQuitExtensionDataCallback = (data: IQuitExtensionData) => void | number;
+export type IQuitExtensionDataCallback = (data: IQuitExtensionData) => void;
 export interface IQuitExtensionData extends IExtensionData {
     type: 'QUIT',
 }
 
 
-export type IRsetExtensionDataCallback = (data: IRsetExtensionData) => void | number;
+export type IRsetExtensionDataCallback = (data: IRsetExtensionData) => void;
 export interface IRsetExtensionData extends IExtensionData {
     type: 'RSET',
 }
 
 
-export type INoopExtensionDataCallback = (data: INoopExtensionData) => void | number;
+export type INoopExtensionDataCallback = (data: INoopExtensionData) => void;
 export interface INoopExtensionData extends IExtensionData {
     type: 'NOOP',
 }

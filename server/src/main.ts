@@ -63,16 +63,17 @@ const config = Configuration.get_instance(import.meta.dir + '/../basic_config.js
 
         // -- Custom response after you maybe looked up the user in a database
         //    or a catchall, unknownthing you want
-        data.response({
-            code: 250,
+        data.action({
             username: 'Test',
             address: 'test@test.com',
         });
         
 
-        // -- Or just a positive response code and itll catch all
-        // return 252 // -- Cannot VRFY user, but will accept message and attempt delivery
-        // return 550 // -- Requested action not taken: mailbox unavailable
+        // -- Or a whole array of users
+        data.action([
+            { username: 'Test', address: 'dd@ddd.com', },
+            { username: 'Test', address: 'aa@aaaa.com', },
+        ]);
     });
 
 
