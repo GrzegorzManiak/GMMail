@@ -155,7 +155,7 @@ export interface IVRFYExtensionData extends IExtensionData {
 export type IStartTlsExtensionDataCallback = (data: IStartTlsExtensionData) => void;
 export interface IStartTlsExtensionData extends IExtensionData {
     type: 'STARTTLS',
-    _returned?: boolean,
+    current_status: 'ALLOW' | 'DENY',
     action: (action: 'ALLOW' | 'DENY') => void,
 }
 

@@ -30,45 +30,41 @@ export default (commands_map: CommandMap) =>
     // -- If we should not allow the upgrade, return an error
     let allow_upgrade = true;
 
-    // -- Construct the extension data
-    const extension_data: IStartTlsExtensionData = {
-        email, socket, log,
-        words, raw_data,
-        smtp: SMTP.get_instance(),
-        type: 'STARTTLS',
-        _returned: false,
-        action: (action) => {
-            allow_upgrade = action === 'ALLOW';
-        }
-    };
-
 
     // -- Get the extensions
     const extensions = ExtensionManager.get_instance();
     extensions._get_command_extension_group('STARTTLS').forEach((callback: IStartTlsExtensionDataCallback) => {
 
-        // -- If the extension has already returned, don't run it again
-        if (extension_data._returned) return;
 
-        // -- Run the extension
-        const response = callback(extension_data);
-        if (!response) return;
+
+        // -- Construct the extension data
+        const extension_data: IStartTlsExtensionData = {
+            email, socket, log,
+            words, raw_data,
+            smtp: SMTP.get_instance(),
+            type: 'STARTTLS',
+            current_status: allow_upgrade ? 'ALLOW' : 'DENY',
+            action: (action) => allow_upgrade = action === 'ALLOW'
+        };
+
 
         
-        // -- If the response is not a 250 or 251
-        //    return the user specified code
-        if (!GOOD_CODES.includes(response)) {
-            extension_data._returned = true;
-            email.send_message(socket, response);
-            return;
+        // -- Run the callback
+        try {
+            log('DEBUG', 'SMTP', 'process', `Running STARTTLS extension '${callback.name}'`);
+            callback(extension_data);
+        }
+
+        // -- If there was an error, log it
+        catch (err) {
+            log('ERROR', 'SMTP', 'process', `Error running STARTTLS extension '${callback.name}'`, err);
         }
     });
 
 
 
-    // -- If the extension data was returned, don't add the CC
-    if (extension_data._returned) return;
-    else if (!allow_upgrade) {
+    // -- If the extension disallowed the upgrade, return an error
+    if (!allow_upgrade) {
         log('WARN', 'STARTTLS was not allowed by an extension');
         email.marker = 'STARTTLS';
         email.send_message(socket, 454);
@@ -76,7 +72,7 @@ export default (commands_map: CommandMap) =>
     }
 
 
-    // -- Throw a 220, Mailbox unavailable
+    // -- Throw a 220, Proceed with TLS
     log('INFO', 'Upgrading connection to TLS');
     email.upgrade_socket_mode();
 
