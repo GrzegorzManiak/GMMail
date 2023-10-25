@@ -98,7 +98,7 @@ export default class RecvEmail {
         socket: Socket<any>,
         success: boolean,
     ): void {
-
+        socket.end();
     }
 
 

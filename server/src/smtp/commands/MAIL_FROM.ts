@@ -34,47 +34,63 @@ export default (commands_map: CommandMap) => commands_map.set('MAIL FROM',
 
 
 
-    // -- Prepare the extension data
-    const extension_data: IMailFromExtensionData = {
-        log, email, socket,
-        words, raw_data, sender,
-        smtp: SMTP.get_instance(),
-        type: 'MAIL FROM',
-        _returned: false,
-    };
-
-
 
     // -- Get the extensions
+    let allow_sender = true, final = false;
     const extensions = ExtensionManager.get_instance();
     extensions._get_command_extension_group('MAIL FROM').forEach((callback: IMailFromExtensionDataCallback) => {
 
-        // -- If the extensions have returned a response, return
-        if (extension_data._returned) return;
-        
-        // -- Run the callback
-        const response = callback(extension_data);
-        if (!response) return;
+        // -- Check if the final callback has been called
+        if (final) return;
 
-        // -- Check the code
-        if (
-            typeof response === 'number' && 
-            response !== 250
-        ) {
-            email.send_message(socket, response);
-            email.close(socket, false);
-            return;
+        // -- Prepare the extension data
+        const extension_data: IMailFromExtensionData = {
+            log, email, socket,
+            words, raw_data, sender,
+            smtp: SMTP.get_instance(),
+            type: 'MAIL FROM',
+            action: (action) => {
+                allow_sender = (action === 'ALLOW' || action === 'ALLOW:FINAL');
+                if (action === 'ALLOW:FINAL' || action === 'DENY:FINAL') final = true;
+            }
+        };
+
+
+
+
+        // -- Run the callback
+        try {
+            log('DEBUG', 'SMTP', 'process', `Running RCPT TO extension`);
+            callback(extension_data);
+        }
+
+        // -- If there was an error, log it
+        catch (err) {
+            log('ERROR', 'SMTP', 'process', `Error running RCPT TO extension`, err);
+        }
+
+        // -- Finally, delete the extension data
+        finally {
+            delete extension_data.log;
+            delete extension_data.words;
+            delete extension_data.raw_data;
+            delete extension_data.type;
+            delete extension_data.action;
+            delete extension_data.sender;
         }
     });
 
     
 
-    // -- Check if the extensions have returned a response
-    if (extension_data._returned) return;
-
+    // -- Check if the extensions allowed the sender
+    if (!allow_sender) {
+        log('WARN', 'MAIL FROM was not allowed by an extension');
+        email.marker = 'MAIL FROM';
+        email.send_message(socket, 454);
+        return;
+    }
     
-
-    // -- Set the sender
+    // -- Else, Set the sender
     email.sender = sender;
     email.marker = 'MAIL FROM';
     email.send_message(socket, 250);

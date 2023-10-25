@@ -56,23 +56,20 @@ export default (commands_map: CommandMap) =>
         
         // -- Run the callback
         try {
-            log('DEBUG', 'SMTP', 'process', `Running STARTTLS extension '${callback.name}'`);
+            log('DEBUG', 'SMTP', 'process', `Running STARTTLS extension`);
             callback(extension_data);
         }
 
         // -- If there was an error, log it
         catch (err) {
-            log('ERROR', 'SMTP', 'process', `Error running STARTTLS extension '${callback.name}'`, err);
+            log('ERROR', 'SMTP', 'process', `Error running STARTTLS extension`, err);
         }
 
         // -- Finally, delete the extension data
         finally {
-            delete extension_data.email;
-            delete extension_data.socket;
             delete extension_data.log;
             delete extension_data.words;
             delete extension_data.raw_data;
-            delete extension_data.smtp;
             delete extension_data.type;
             delete extension_data.current_status;
             delete extension_data.action;

@@ -174,20 +174,23 @@ export interface IDATAExtensionData extends IExtensionData {
 }
 
 
+// -- RCPT TO
 export type IRcptToExtensionDataCallback = (data: IRCPTTOExtensionData) => void;
+export type RcptToActions = `${'ALLOW' | 'DENY'}${':FINAL' | ''}`;
 export interface IRCPTTOExtensionData extends IExtensionData {
     type: 'RCPT TO',
-    _returned?: boolean,
     recipient: IAddress,
-    action: (action: 'ALLOW' | 'DENY') => void,
+    action: (action: RcptToActions) => void,
 }
 
 
+// -- MAIL FROM
 export type IMailFromExtensionDataCallback = (data: IMailFromExtensionData) => void;
+export type MailFromActions = `${'ALLOW' | 'DENY'}${':FINAL' | ''}`;
 export interface IMailFromExtensionData extends IExtensionData {
     type: 'MAIL FROM',
-    _returned?: boolean,
     sender: IMailFrom,
+    action: (action: MailFromActions) => void,
 }
 
 

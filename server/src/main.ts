@@ -67,7 +67,7 @@ const config = Configuration.get_instance(import.meta.dir + '/../basic_config.js
             username: 'Test',
             address: 'test@test.com',
         });
-        
+
 
         // -- Or a whole array of users
         data.action([
@@ -86,10 +86,7 @@ const config = Configuration.get_instance(import.meta.dir + '/../basic_config.js
      */
     extensions.add_command_extension<IDATAExtensionData>('DATA', (data) => {
         data.bypass_size_check = false;
-        if (data.total_size > 1300) return 552;
-        
-        if (data.email.sending_data) return 250;
-        else return 354;
+        if(data.total_size > 1000) data.action('DENY');
     });
 
 
@@ -208,7 +205,7 @@ const config = Configuration.get_instance(import.meta.dir + '/../basic_config.js
 
 
     extensions.add_custom_ingress_command<ICustomCommandDataCallback>('AUTH', {
-        feature_name: 'AUTH LOGIN GSSAPI DIGEST-MD5 PLAIN',
+        feature_name: 'AUTH LOGIN PLAIN',
     }, (data) => {
         return 235;
     });

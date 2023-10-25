@@ -38,57 +38,55 @@ export default (commands_map: CommandMap) => commands_map.set('RCPT TO',
     
 
     // -- If we should allow this CC to be added to the email
-    let allow_cc = true;
-
-    // -- Construct the extension data
-    const extension_data: IRCPTTOExtensionData = {
-        email, socket, log,
-        words, raw_data, recipient,
-        smtp: SMTP.get_instance(),
-        type: 'RCPT TO',
-        _returned: false,
-        action: (action) => {
-            allow_cc = action === 'ALLOW';
-        }
-    };
-
-
-    // -- Get the extensions
+    let allow_cc = true, final = false;
     const extensions = ExtensionManager.get_instance();
     extensions._get_command_extension_group('RCPT TO').forEach((callback: IRcptToExtensionDataCallback) => {
 
-        // -- If the extension has already returned, don't run it again
-        if (extension_data._returned) return;
+        // -- Check if the final callback has been called
+        if (final) return;
 
-        // -- Run the extension
-        const response = callback(extension_data);
-        if (!response) return;
+        // -- Construct the extension data
+        const extension_data: IRCPTTOExtensionData = {
+            email, socket, log,
+            words, raw_data, recipient,
+            smtp: SMTP.get_instance(),
+            type: 'RCPT TO',
+            action: (action) => {
+                allow_cc = (action === 'ALLOW' || action === 'ALLOW:FINAL');
+                if (action === 'ALLOW:FINAL' || action === 'DENY:FINAL') final = true;
+            }
+        };
 
-        
-        // -- If the response is not a 250 or 251
-        //    return the user specified code
-        if (!GOOD_CODES.includes(response)) {
-            extension_data._returned = true;
-            email.send_message(socket, response);
-            return;
+
+        // -- Run the callback
+        try {
+            log('DEBUG', 'SMTP', 'process', `Running RCPT TO extension`);
+            callback(extension_data);
+        }
+
+        // -- If there was an error, log it
+        catch (err) {
+            log('ERROR', 'SMTP', 'process', `Error running RCPT TO extension`, err);
+        }
+
+        // -- Finally, delete the extension data
+        finally {
+            delete extension_data.log;
+            delete extension_data.words;
+            delete extension_data.raw_data;
+            delete extension_data.type;
+            delete extension_data.action;
+            delete extension_data.recipient;
         }
     });
 
 
 
     // -- If the extension data was returned, don't add the CC
-    if (extension_data._returned) return;
-    else if (allow_cc) {
-        // -- Add the CC to the email
-        email.rcpt_recipient = recipient;
-
-        // -- Unlock the email
-        email.marker = 'RCPT TO';
-        email.send_message(socket, 250);
-        return;
-    }
-
-
-    // -- Throw a 450, Mailbox unavailable
-    email.send_message(socket, 450);
+    if (!allow_cc) email.send_message(socket, 450);
+    
+    // -- Add the CC to the email
+    email.rcpt_recipient = recipient;
+    email.marker = 'RCPT TO';
+    email.send_message(socket, 250);
 });
