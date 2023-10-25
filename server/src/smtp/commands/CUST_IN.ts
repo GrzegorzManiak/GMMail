@@ -37,8 +37,8 @@ export const parse_custom_ingress_command = (
 
         // -- Check the allowed / disallowed stages
         if (
-            email.has_marker(cce.disallowed_stages) ||
-            !email.has_marker(cce.required_stages)
+            (cce.disallowed_stages.length > 0 && email.has_marker(cce.disallowed_stages)) ||
+            (cce.required_stages.length > 0 && !email.has_marker(cce.required_stages))
         ) {
             log('DEBUG', 'SMTP', 'process', `Custom ingress command '${command_name}' FAILED required stage check`);
             returned = true;
@@ -83,13 +83,9 @@ export const parse_custom_ingress_command = (
 
 
         // -- Check the code
-        if (
-            !GOOD_CODES.includes(response) &&
-            returned === false
-        ) {
-            email.send_message(socket, response);
-            return false;
-        }
+        email.send_message(socket, response);
+        returned = true;
+        return false;
     });
 
 

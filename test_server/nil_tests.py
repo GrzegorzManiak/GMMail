@@ -12,7 +12,7 @@ message = 'This is a test email sent from Python.'
 
 # SMTP server information
 smtp_server = 'gmmail.grzegorz.ie'
-smtp_port = 2525
+smtp_port = 587
 
 # Define multiple email addresses for CC
 cc_emails = ['cc_email1@example.com', 'cc_email2@example.com', 'cc_email3@example.com']
@@ -38,12 +38,12 @@ use_ehlo = True  # Set this to False to use regular HELO instead
 try:
     server = smtplib.SMTP(smtp_server, smtp_port)
 
-    # -- Custom command
-    rt =  server.docmd('CUSTOM: SERVER_NAME="Test Server" NEW SERVER_VERSION=5 VALIDATE=true TEST=BOSS')
-    print(rt)
+    # # -- Custom command
+    # rt =  server.docmd('CUSTOM: SERVER_NAME="Test Server" NEW SERVER_VERSION=5 VALIDATE=true TEST=BOSS')
+    # print(rt)
 
-    rt =  server.docmd('STARTTLS')
-    print(rt)
+    # rt =  server.docmd('STARTTLS')
+    # print(rt)
 
     #server.set_debuglevel(1)  # Set the debug level to 1 to print the SMTP response
     all_recipients = [receiver_email] + cc_emails

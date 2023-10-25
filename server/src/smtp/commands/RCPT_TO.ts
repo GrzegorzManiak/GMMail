@@ -30,7 +30,7 @@ export default (commands_map: CommandMap) => commands_map.set('RCPT TO',
 
     // -- Parse the MAIL FROM
     const recipient = email.process_recipient(raw_data);
-    if (recipient === null) {
+    if (!recipient) {
         email.send_message(socket, 553, 'Invalid recipient');
         email.close(socket, false);
         return;

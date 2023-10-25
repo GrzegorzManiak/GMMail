@@ -5,7 +5,6 @@ import { log } from './log';
 import { 
     ICustomCommandDataCallback,
     IDATAExtensionData,
-    IExtensionData, 
     IMailFromExtensionData, 
     INoopExtensionData, 
     IQuitExtensionData, 
@@ -87,7 +86,9 @@ const config = Configuration.get_instance(import.meta.dir + '/../basic_config.js
     extensions.add_command_extension<IDATAExtensionData>('DATA', (data) => {
         data.bypass_size_check = false;
         if (data.total_size > 1300) return 552;
-        return 250
+        
+        if (data.email.sending_data) return 250;
+        else return 354;
     });
 
 
@@ -149,8 +150,8 @@ const config = Configuration.get_instance(import.meta.dir + '/../basic_config.js
     extensions.add_command_extension<IStartTlsExtensionData>('STARTTLS', (data) => {
         
         // -- Roulet, block 50% of requests
-        if (Math.random() > 0.5) return data.action('DENY');
-        else return data.action('ALLOW');
+        // if (Math.random() > 0.5) return data.action('DENY');
+        // else return data.action('ALLOW');
     });
 
 
@@ -194,6 +195,7 @@ const config = Configuration.get_instance(import.meta.dir + '/../basic_config.js
 
         mode: 'ANY', // -- Only want this command to work with ESMTP? or specifically HELO?
 
+        feature_name: 'CUSTOM_TEST_CMD' // -- If you want to add a help tag, you can do so here
     }, (data) => {
         // -- You can assume that the data is valid here as it has been validated
         //    and the request would have been rejected if it wasnt, only place
@@ -203,4 +205,12 @@ const config = Configuration.get_instance(import.meta.dir + '/../basic_config.js
     });
 
 
+
+    extensions.add_custom_ingress_command<ICustomCommandDataCallback>('AUTH', {
+        feature_name: 'AUTH LOGIN GSSAPI DIGEST-MD5 PLAIN',
+    }, (data) => {
+        return 235;
+    });
+
+    // https://www.samlogic.net/articles/smtp-commands-reference.htm
 })();

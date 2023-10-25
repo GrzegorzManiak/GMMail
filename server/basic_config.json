@@ -6,18 +6,15 @@
     "MAX_SIZE": 10000
   },
   "SMTP_PORTS": {
-    "TLS": 1587,
-    "SSL": 465,
-    "NIL": 2525
+    "TLS": 1465,
+    "NIL": 1587
   },
   "SMTP": {
     "TLS": true,
-    "SSL": true,
     "NIL": true
   },
   "SMTP_MODE": {
     "TLS": [ "SEND", "RECEIVE" ],
-    "SSL": [ "SEND", "RECEIVE" ],
     "NIL": [ "SEND", "RECEIVE" ]
   }
 }

@@ -101,15 +101,29 @@ export default class SMTP {
             
         switch (socket_type) {
             case 'NIL': this._sockets.push(new NilSocket()); break;
-            case 'TLS': this._sockets.push(new TlsSocket()); break;;
+            case 'TLS': this._sockets.push(new TlsSocket()); break;
         }
     }
 
 
 
     public get crlf(): string { return this._crlf; }
-    public get supported_features(): Array<string> { return SMTP._supported_features; }
-    public get supported_commands(): Array<string> { return SMTP._supported_commands; }
+    public get supported_features(): Array<string> { 
+        const default_features = SMTP._supported_features;
+
+        // -- Extensions
+        for (const [_, commands] of this._extensions._get_all_custom_ingress_commands()) commands.forEach((command) => {
+            const feature = command.feature_name;
+            if (feature && !default_features.includes(feature)) default_features.push(feature);
+        });
+
+        // -- Return the features
+        return default_features;
+    }
+
+    public get supported_commands(): Array<string> { 
+        return SMTP._supported_commands; 
+    }
 
     public get map() { return this._commands_map; }
 }

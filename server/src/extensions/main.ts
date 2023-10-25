@@ -67,6 +67,7 @@ export default class ExtensionManager {
             disallowed_stages: paramaters?.disallowed_stages || [],
             mode: paramaters?.mode || 'ANY',
             callback,
+            feature_name: paramaters?.feature_name || null,
         };
 
 
@@ -103,5 +104,17 @@ export default class ExtensionManager {
      */
     public _is_custom_ingress_command(command_name: string): Array<CustomCommandEntry> {
         return this._custom_ingress_checks.get(command_name) || [];
+    }
+
+
+
+    /**
+     * @name _get_all_custom_ingress_commands
+     * @description Gets all the custom ingress commands
+     * 
+     * @returns {CustomIngressMap} All the custom ingress commands
+     */
+    public _get_all_custom_ingress_commands(): CustomIngressMap {
+        return this._custom_ingress_checks
     }
 }

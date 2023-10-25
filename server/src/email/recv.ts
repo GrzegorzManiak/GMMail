@@ -22,6 +22,8 @@ export default class RecvEmail {
     private _mode: 'EHLO' | 'HELO';
 
 
+
+
     private _sending_data = false;
     private _data: Array<string> = [];
     private _data_size = 0;
@@ -77,7 +79,7 @@ export default class RecvEmail {
             code,
         });
 
-        // console.log(`[${type}] ${content.trim()}`);
+        console.log(`[${type}] ${content.trim()}`);
     }
 
 
@@ -326,7 +328,7 @@ export default class RecvEmail {
     ): IAddress | null {
         // -- Check for a username :<address>
         const spit = recipient.split(':');
-        if (spit.length !== 2) return;
+        if (spit.length < 1) return;
         const address = spit[1].trim()
             .replace('<', '')
             .replace('>', '');

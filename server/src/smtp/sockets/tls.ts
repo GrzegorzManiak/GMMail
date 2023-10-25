@@ -12,7 +12,7 @@ import {
 
 export default class TlsSocket extends Socket {
     public constructor() {
-        super('NIL', Configuration.get_instance().get<number>('SMTP_PORTS', 'TLS'));
+        super('TLS', Configuration.get_instance().get<number>('SMTP_PORTS', 'TLS'));
 
         this._socket = Bun.listen({
             hostname: this._config.get<string>('HOST'),

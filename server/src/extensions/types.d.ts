@@ -102,6 +102,7 @@ export interface ICustomCommandParamaters {
     required_stages?: Array<string>,
     disallowed_stages?: Array<string>,
     mode?: 'SMTP' | 'ESMTP' | 'ANY',
+    feature_name?: string | null,
 }
 
 
@@ -250,6 +251,7 @@ export type CustomCommandEntry = {
     required_stages: Array<string>,
     disallowed_stages: Array<string>,
     mode: 'ESMTP' | 'SMTP' | 'ANY',
+    feature_name: string | null,
 };
 export type CustomIngressMap = Map<string, [CustomCommandEntry]>;
 

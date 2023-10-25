@@ -72,13 +72,16 @@ export default (commands_map: CommandMap) => commands_map.set('DATA',
         if (!response) return;
 
         // -- Check the code
-        if (!(response === 250 || response === void 0)) {
+        if (!(response === 354 || response === void 0)) {
             extension_data._returned = true;
             email.send_message(socket, response);
             return;
         }
     });
 
+
+    // -- Ensure that the extension data was not returned
+    if (extension_data._returned) return;
 
 
     // -- Push the data message

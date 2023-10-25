@@ -32,6 +32,10 @@ export default function parse_command(
     // -- Map to store the paramaters and their types
     const paramaters: IParsedParser = new Map();
 
+    // -- Ensure that the parser options are valid
+    if (Object.keys(parser_options).length === 0)
+        return paramaters;
+
 
 
     // -- Process the command
