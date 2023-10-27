@@ -1,18 +1,18 @@
-import Configuration from '../config';
-import RecvEmail from '../email/recv';
-import { log } from '../log';
-import { CommandExtensionMap } from '../extensions/types';
-import Socket from './socket';
+import Configuration from '../../config';
+import RecvEmail from '../../email/recv';
+import { log } from '../../log';
+import { CommandExtensionMap } from '../../extensions/types';
+import Socket from './base_socket';
 import NilSocket from './sockets/nil';
-import { SocketType } from './types';
+import { SocketType } from '../types';
 import { Socket as BunSocket } from 'bun';
-import ExtensionManager from '../extensions/main';
-import { add_commands } from './process';
+import ExtensionManager from '../../extensions/main';
+import { add_commands, process } from './interpreter';
 import TlsSocket from './sockets/tls';
 
 
-export default class SMTP {
-    private static _instance: SMTP;
+export default class SMTPIngress {
+    private static _instance: SMTPIngress;
     private _extensions: ExtensionManager;
     private _commands_map = new Map<string, (
         socket: BunSocket<unknown>, 
@@ -55,7 +55,7 @@ export default class SMTP {
 
 
     private constructor() {
-        log('DEBUG', 'SMTP', 'constructor', 'Creating SMTP sockets');
+        log('DEBUG', 'SMTPIngress', 'constructor', 'Creating SMTP sockets');
         this._sockets = [];
         this._config = Configuration.get_instance();
         this._extensions = ExtensionManager.get_instance();
@@ -75,12 +75,42 @@ export default class SMTP {
      * @description Returns the singleton instance of the SMTP class
      * Should not be called by unknownthing other than the root class
      * 
-     * @returns {SMTP} The singleton instance of the SMTP class
+     * @returns {SMTPIngress} The singleton instance of the SMTP class
      */
-    public static get_instance(): SMTP {
-        if (!SMTP._instance) SMTP._instance = new SMTP();
-        return SMTP._instance;
+    public static get_instance(): SMTPIngress {
+        if (!SMTPIngress._instance) SMTPIngress._instance = new SMTPIngress();
+        return SMTPIngress._instance;
     }
+
+
+
+    /**
+     * @name process
+     * @description Processes the SMTP commands sent by the client
+     * You can call the process function directly, but it is recommended
+     * to use the SMTPIngress class instead.
+     * 
+     * @param {string} command - The command sent by the client
+     * @param {RecvEmail} email - The email object that the client is connected to
+     * @param {BunSocket<unknown>} socket - The socket that the client is connected to
+     * 
+     * @returns {void} Nothing
+     */
+    public process(
+        command: string,
+        email: RecvEmail,
+        socket: BunSocket<unknown>,
+    ): void {
+        try {
+            process(command, email, socket, this);
+        }
+
+        catch (error) {
+            log('ERROR', 'SMTPIngress', 'process', error);
+            socket.end();
+        }
+    }
+
 
 
 
@@ -97,7 +127,7 @@ export default class SMTP {
     ) {
         // -- Check if the socket already exists
         if (this._sockets.find(socket => socket.socket_type === socket_type)) return log(
-            'WARN', 'SMTP', 'load_socket', `Socket already loaded: ${socket_type}`);
+            'WARN', 'SMTPIngress', 'load_socket', `Socket already loaded: ${socket_type}`);
             
         switch (socket_type) {
             case 'NIL': this._sockets.push(new NilSocket()); break;
@@ -109,7 +139,7 @@ export default class SMTP {
 
     public get crlf(): string { return this._crlf; }
     public get supported_features(): Array<string> { 
-        const default_features = SMTP._supported_features;
+        const default_features = SMTPIngress._supported_features;
 
         // -- Extensions
         for (const [_, commands] of this._extensions._get_all_custom_ingress_commands()) commands.forEach((command) => {
@@ -122,7 +152,7 @@ export default class SMTP {
     }
 
     public get supported_commands(): Array<string> { 
-        return SMTP._supported_commands; 
+        return SMTPIngress._supported_commands; 
     }
 
     public get map() { return this._commands_map; }

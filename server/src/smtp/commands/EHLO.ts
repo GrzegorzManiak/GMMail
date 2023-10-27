@@ -1,6 +1,6 @@
 import HELO_EHLO from './HELO_EHLO';
 import { CommandMap } from '../types';
-import SMTP from '../smtp';
+import SMTP from '../ingress/ingress';
 
 
 

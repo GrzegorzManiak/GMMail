@@ -1,5 +1,5 @@
 import Configuration from './config';
-import SMTP from './smtp/smtp';
+import SMTP from './smtp/ingress/ingress';
 import ExtensionManager from './extensions/main';
 import { log } from './log';
 import { 
@@ -14,6 +14,13 @@ import {
     IVRFYExtensionData, 
 } from './extensions/types';
 import { IMailFrom } from './smtp/types';
+
+
+// -- There will be a main class here that will be the entry point for the server
+//    and will be responsible for loading the config, starting the server, etc
+// 
+//    For now, theres two distinct parts, the SMTP Ingress and the SMTP Egress
+//    modules which are not connected.
 
 
 log('INFO', 'Main', 'main', 'Starting server...');

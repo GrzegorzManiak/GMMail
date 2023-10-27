@@ -1,4 +1,4 @@
-import SMTP from '../smtp';
+import SMTP from '../ingress/ingress';
 import { log } from '../../log';
 import ExtensionManager from '../../extensions/main';
 import { IDATAExtensionData, IDataExtensionDataCallback } from '../../extensions/types';

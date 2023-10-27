@@ -1,22 +1,20 @@
 import { Socket as BunSocket } from 'bun';
-import RecvEmail from '../email/recv';
-import CODE from './commands/CODE';
-import SMTP from './smtp';
-import { CommandMap } from './types';
-import { log } from '../log';
-import DATA, { in_prog_data } from './commands/DATA';
-import EHLO from './commands/EHLO';
-import HELO from './commands/HELO';
-import HELP from './commands/HELP';
-import MAIL_FROM from './commands/MAIL_FROM';
-import QUIT from './commands/QUIT';
-import RCPT_TO from './commands/RCPT_TO';
-import VRFY from './commands/VRFY';
-import RSET from './commands/RSET';
-import ExtensionManager from '../extensions/main';
-import { parse_custom_ingress_command } from './commands/CUST_IN';
-import NOOP from './commands/NOOP';
-import STARTLS from './commands/STARTLS';
+import RecvEmail from '../../email/recv';
+import SMTPIngress from './ingress';
+import { CommandMap } from '../types';
+import { log } from '../../log';
+import DATA, { in_prog_data } from '../commands/DATA';
+import EHLO from '../commands/EHLO';
+import HELO from '../commands/HELO';
+import HELP from '../commands/HELP';
+import MAIL_FROM from '../commands/MAIL_FROM';
+import QUIT from '../commands/QUIT';
+import RCPT_TO from '../commands/RCPT_TO';
+import VRFY from '../commands/VRFY';
+import RSET from '../commands/RSET';
+import { parse_custom_ingress_command } from '../commands/CUST_IN';
+import NOOP from '../commands/NOOP';
+import STARTLS from '../commands/STARTLS';
 
 
 
@@ -60,16 +58,17 @@ export const add_commands = (
  * @param {Array<string>} commands - The command sent by the client
  * @param {RecvEmail} email - The email object that the client is connected to
  * @param {BunSocket<unknown>} socket - The socket that the client is connected to
+ * @param {SMTPIngress} smtp_ingress - The SMTPIngress class
  * 
  * @returns {void}
  */
-export default (
-    commands: Array<string>,
+export const process = (
+    command: string,
     email: RecvEmail,
     socket: BunSocket<unknown>,
-) => commands.forEach(command => {
-    const commands_map = SMTP.get_instance().map;
-
+    smtp_ingress: SMTPIngress
+) => {
+    const commands_map = smtp_ingress.map;
     email.locked = true;
     
     // -- Split the command into the words and at :
@@ -116,4 +115,4 @@ export default (
     // -- If the command is not recognized, return an error
     email.send_message(socket, 500, words[0]);
     email.locked = false;
-});
+};

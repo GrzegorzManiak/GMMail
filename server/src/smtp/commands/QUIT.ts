@@ -1,7 +1,7 @@
 import ExtensionManager from '../../extensions/main';
 import { IQuitExtensionData, IQuitExtensionDataCallback } from '../../extensions/types';
 import { log } from '../../log';
-import SMTP from '../smtp';
+import SMTP from '../ingress/ingress';
 import { CommandMap } from '../types';
 
 

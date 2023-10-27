@@ -2,16 +2,10 @@ import Configuration from '../../config';
 import ExtensionManager from '../../extensions/main';
 import { IExtensionData, IExtensionDataCallback, IStartTlsExtensionData, IStartTlsExtensionDataCallback } from '../../extensions/types';
 import { log } from '../../log';
-import SMTP from '../smtp';
+import SMTP from '../ingress/ingress';
 import { CommandMap } from '../types';
 import { Socket as BunSocket } from 'bun';
-import {
-    socket_data,
-    socket_open,
-    socket_close,
-    socket_drain,
-    socket_error,
-} from '../sockets/socket';
+
 
 
 const GOOD_CODES = [250, 251];
@@ -98,24 +92,24 @@ export default (commands_map: CommandMap) =>
         email.send_message(socket, 220);
 
 
-    // -- Upgrade the socket to TLS
-    // @ts-ignore
-    const tls_socket = socket.upgradeTLS({
-        // .data on the newly created socket
-        data: socket.data,
-        tls: {
-            key: Bun.file(config.get<string>('TLS', 'KEY')),
-            cert: Bun.file(config.get<string>('TLS', 'CERT')),
-        },
+    // // -- Upgrade the socket to TLS
+    // // @ts-ignore
+    // const tls_socket = socket.upgradeTLS({
+    //     // .data on the newly created socket
+    //     data: socket.data,
+    //     tls: {
+    //         key: Bun.file(config.get<string>('TLS', 'KEY')),
+    //         cert: Bun.file(config.get<string>('TLS', 'CERT')),
+    //     },
 
-        socket: {
-            data: (socket, data) => socket_data(socket, data, port),
-            open: socket => socket_open(socket, port, 'TLS'),
-            close: socket => socket_close(socket, port),
-            drain: socket => socket_drain(socket, port),
-            error: (socket, error) => socket_error(socket, error, port),
-        }
-    }) as BunSocket<unknown>;
+    //     socket: {
+    //         data: (socket, data) => socket_data(socket, data, port),
+    //         open: socket => socket_open(socket, port, 'TLS'),
+    //         close: socket => socket_close(socket, port),
+    //         drain: socket => socket_drain(socket, port),
+    //         error: (socket, error) => socket_error(socket, error, port),
+    //     }
+    // }) as BunSocket<unknown>;
 
     
 });

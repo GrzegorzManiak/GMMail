@@ -1,5 +1,5 @@
 import Configuration from '../../config';
-import SMTP from '../smtp';
+import SMTP from '../ingress/ingress';
 
 export default (
     code: number,

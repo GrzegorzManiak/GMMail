@@ -1,7 +1,7 @@
 import RecvEmail from '../email/recv';
 import { LogType } from '../log';
 import { Socket as BunSocket } from 'bun';
-import SMTP from '../smtp/smtp';
+import SMTP from '../smtp/ingress/ingress';
 import { DATAResponseCode, IMailFrom, IVRFYResponse, RCPTTOResponseCode, VRFYResponseCode } from '../smtp/types';
 import { IAddress } from '../email/types';
 
