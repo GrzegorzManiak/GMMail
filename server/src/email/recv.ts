@@ -4,6 +4,7 @@ import { IMailFrom, SocketType } from '../smtp/types';
 import { IAddress, IMessage, MessageStage, MessageType } from './types';
 import evp from 'email-validator-pro';
 import CODE from '../smtp/commands/CODE';
+import { TCPSocketListener, Socket as BunSocket } from 'bun';
 
 
 
@@ -19,6 +20,7 @@ export default class RecvEmail {
     private _message_sequence: Array<IMessage> = [];
     private _markers: Map<string, string> = new Map();
     private _locked = false;
+    private _finished = false;
     private _mode: 'EHLO' | 'HELO';
 
 
@@ -30,6 +32,7 @@ export default class RecvEmail {
 
 
     // -- Sender information
+    private _ip = '';
     private _mail_from: IMailFrom;
     private _rcpt_recipients: Array<IAddress> = [];
 
@@ -39,19 +42,99 @@ export default class RecvEmail {
     private _extra_map: Map<string, unknown> = new Map();
 
 
+    // -- Timeout information
+    private _last_received = new Date();
+    private _last_sent = new Date();
+    
+
 
     /**
      * @class RecvEmail
      * @description Represents an email that is being received
      * from a client, for outbound emails, see SendEmail.
      * 
-     * @param {string} _ip - The ip of the client sending the email
+     * @param {BunSocket} socket - The socket that the client is connected to
      * @param {SocketType} _socket_mode - The mode of the email
+     * @param {number} [_timeout=10] - The time betweem messages till the email is closed
+     * @param {number} [_total_timeout=90] - The total time till the email is closed
      */
     public constructor(
-        private _ip: string,
+        socket: BunSocket<unknown>,
         private _socket_mode: SocketType,
-    ) {}
+        private _timeout = 10,
+        private _total_timeout = 90,
+    ) {
+        // -- Set the IP address
+        this._ip = socket.remoteAddress as string;
+
+        // -- Launch the timeout manager
+        this._timeout_manager(socket);
+    }
+
+
+    
+    /**
+     * @name _timeout_manager
+     * @description Manages the timeout of the email and makes sure
+     * that the email is closed if the timeout is reached
+     * 
+     * @param {BunSocket} socket - The socket that the client is connected to
+     * @param {number} [interval=500] - The interval to check the timeout at (in ms)
+     * 
+     * @returns {void} Nothing
+     */
+    private async _timeout_manager(
+        socket: BunSocket<unknown>,
+        interval = 500,
+    ) {
+        // -- Check if the email is locked
+        if (this._finished) 
+            return log('DEBUG', 'RecvEmail', '_timeout_manager', 'Email already closed');
+
+
+        // -- Get the time difference
+        const message_time_difference = 
+            new Date().getTime() - 
+            this._last_received.getTime();
+
+        const total_time_difference =
+            this._last_received.getTime() -
+            this._created_at.getTime();
+
+
+        // -- Check if the timeout is reached
+        if (
+            message_time_difference > (this._timeout * 1000) ||
+            total_time_difference > (this._total_timeout * 1000)
+        ) {
+            log('DEBUG', 'RecvEmail', '_timeout_manager', 'Timeout reached');
+
+            // -- Send a 221 message and close the email
+            this.send_message(socket, 221, 'Timeout reached');
+            this.close(socket, false);
+        }
+
+
+        // -- Check again in x seconds
+        setTimeout(() => this._timeout_manager(socket), interval);
+    }
+
+
+
+    /**
+     * @name reset_command
+     * @description Resets the command that the client is sending
+     * used by the RSET command, this is used to reset certain
+     * parameters of the email so that the client can start again
+     * 
+     * @returns {void} Nothing
+     */
+    public reset_command(
+    ): void {
+        this.locked = false;
+        this._markers.clear();
+        this.marker = 'RSET';
+    }
 
 
 
@@ -71,6 +154,10 @@ export default class RecvEmail {
         code: number,
         content: string,
     ): void {
+
+        // -- Check if the email is locked
+        if (this.locked) return;
+
         // -- Push the message to the message sequence
         this._message_sequence.push({
             content,
@@ -79,7 +166,12 @@ export default class RecvEmail {
             code,
         });
 
-        // console.log(`[${type}] ${content.trim()}`);
+
+        // -- Update the last received date
+        switch (type) {
+            case 'recv': this._last_received = new Date(); break;
+            case 'send': this._last_sent = new Date(); break;
+        }
     }
 
 
@@ -98,7 +190,15 @@ export default class RecvEmail {
         socket: Socket<any>,
         success: boolean,
     ): void {
-        socket.end();
+        // -- If the email is already closed, return
+        if (this._finished) return;
+
+        // -- Attempt to close the socket
+        try { socket.end(); }
+        catch (error) { log('ERROR', 'RecvEmail', 'close', error); }
+
+        this.locked = true;
+        this._finished = true;
     }
 
 
@@ -473,6 +573,7 @@ export default class RecvEmail {
     ) { 
         this._data.push(data);
         this._data_size += data.length;
+        this._last_received = new Date();
     }
     
 
@@ -689,6 +790,13 @@ export default class RecvEmail {
         code: number,
         message = ''
     ): string {
+        // -- Ensure that the email is not closed
+        if (this._finished) {
+            log('ERROR', 'RecvEmail', 'send_message', 'Email already closed');
+            throw new Error('Email already closed');
+        }
+
+        // -- Send the message
         const code_text = CODE(code, message);
         this.push_message('send', code, code_text);
         socket.write(code_text);

@@ -69,7 +69,7 @@ export default class BaseSocket {
         log('DEBUG', 'Socket', 'constructor', `Socket opened on port ${port} from ${remoteAddress} with mode ${mode}`);
 
         // -- Create the email object
-        const email = new RecvEmail(remoteAddress, mode);
+        const email = new RecvEmail(socket, mode);
         socket.data = email;
 
         // -- Push the greeting
@@ -83,6 +83,16 @@ export default class BaseSocket {
         port: number,
     ) => {
         log('DEBUG', 'Socket', 'constructor', `Socket closed on port ${port}`);
+
+        // -- Check if the socket has data
+        if (
+            !socket.data ||
+            !(socket.data instanceof RecvEmail)
+        ) return;
+
+        // -- Close the email object
+        const email = socket.data as RecvEmail;
+        email.close(socket, true);
     };
 
 
@@ -102,6 +112,15 @@ export default class BaseSocket {
         port: number,
     ) => {
         log('ERROR', 'Socket', 'constructor', `Socket error on port ${port}: ${error}`);
-        socket.end();
+
+        // -- Check if the socket has data
+        if (
+            !socket.data ||
+            !(socket.data instanceof RecvEmail)
+        ) return;
+
+        // -- Close the email object
+        const email = socket.data as RecvEmail;
+        email.close(socket, false);
     };
 }

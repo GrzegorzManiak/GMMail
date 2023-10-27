@@ -44,19 +44,7 @@ export const I_RSET = (commands_map: CommandMap) =>
         callback(extension_data));
 
 
-
-    // -- Create the email object
-    const { remoteAddress } = socket,
-        new_email = new RecvEmail(remoteAddress, email.socket_mode);
-
     // -- Close of the email
+    email.reset_command();
     email.send_message(socket, 250);
-    const old_mode = email.mode;
-
-    // -- Configure the new email
-    socket.data = new_email;
-    new_email.locked = false;
-    new_email.mode = old_mode;
-    new_email.marker = old_mode;
-    new_email.marker = 'RSET';
 });
