@@ -23,11 +23,11 @@ const none_regex = `(?<!")( ){0,}(?!")`;
  * 
  * @returns {IParsedParser | [number, string]} The parsed command and paramaters or an error code and message
  */
-export default function parse_command(
+export const parse_command = (
     command: string, 
     raw_data: string,
     parser_options: ICustomParser
-): IParsedParser | [number, string] {
+): IParsedParser | [number, string] => {
 
     // -- Map to store the paramaters and their types
     const paramaters: IParsedParser = new Map();

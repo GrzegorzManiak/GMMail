@@ -11,14 +11,14 @@ function check_helo(command: string): boolean {
 
 
 /**
- * @name HELO
+ * @name I_HELO
  * @description Processes the HELO command
  * Older, less useful version of EHLO, sends
  * only the server greeting
  * 
  * https://www.ibm.com/docs/en/zvm/7.3?topic=commands-helo
  */
-export default (commands_map: CommandMap) =>  commands_map.set('HELO',
+export const I_HELO = (commands_map: CommandMap) =>  commands_map.set('HELO',
     (socket, email, words, raw) => {
 
     // -- ensure that we are in the INIT stage

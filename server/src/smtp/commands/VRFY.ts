@@ -8,12 +8,12 @@ import { CommandMap, IVRFYResponse, VRFYResponseCode } from '../types';
 
 
 /**
- * @name VRFY
+ * @name I_VRFY
  * @description Processes the VRFY command
  * by default, returns 252, but can be overriden
  * trough extensions
  */
-export default (commands_map: CommandMap) => commands_map.set('VRFY', 
+export const I_VRFY = (commands_map: CommandMap) => commands_map.set('VRFY', 
     (socket, email, words, raw_data) => {
 
 

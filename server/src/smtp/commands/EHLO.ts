@@ -12,14 +12,14 @@ function check_ehlo(command: string): boolean {
 
 
 /**
- * @name EHLO
+ * @name I_EHLO
  * @description Processes the EHLO command
  * Returns the list of supported features
  * and the server greeting
  * 
  * https://www.ibm.com/docs/en/zvm/7.3?topic=commands-ehlo
  */
-export default (commands_map: CommandMap) => commands_map.set('EHLO', 
+export const I_EHLO = (commands_map: CommandMap) => commands_map.set('EHLO', 
     (socket, email, words, raw) => {
 
 

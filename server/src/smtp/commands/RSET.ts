@@ -8,14 +8,14 @@ import { CommandMap } from '../types';
 
 
 /**
- * @name RSET
+ * @name I_RSET
  * @description Processes the RSET command
  * which just resets everything to before
  * the client sent unknown commands
  * 
  * https://www.ibm.com/docs/en/zvm/7.3?topic=commands-rset
  */
-export default (commands_map: CommandMap) => 
+export const I_RSET = (commands_map: CommandMap) => 
     commands_map.set('RSET', (socket, email, words, raw_data) => {
 
     // -- Either HELO or EHLO has to be sent before RSET

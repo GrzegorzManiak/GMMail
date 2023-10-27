@@ -1,12 +1,12 @@
 import RecvEmail from '../../email/recv';
 import ExtensionManager from '../../extensions/main';
-import parse_command from '../../extensions/parser'; 
+import { parse_command } from '../../extensions/parser'; 
 import { ICustomCommandData, IParsedParser } from '../../extensions/types';
 import { log } from '../../log';
 import { Socket as BunSocket } from 'bun';
 import SMTP from '../ingress/ingress';
 
-const GOOD_CODES = [250, 251, 252];
+
 
 export const parse_custom_ingress_command = (
     email: RecvEmail,

@@ -5,11 +5,11 @@ import { CommandMap } from '../types';
 
 
 /**
- * @name HELP
+ * @name I_HELP
  * @description Processes the HELP command
  * HELP, Returns the list of supported commands
  */
-export default (commands_map: CommandMap) => commands_map.set('HELP', (socket, email) => {
+export const I_HELP = (commands_map: CommandMap) => commands_map.set('HELP', (socket, email) => {
 
     // -- Push the greeting
     email.send_message(socket, 213);

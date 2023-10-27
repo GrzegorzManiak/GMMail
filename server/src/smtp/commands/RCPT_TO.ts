@@ -6,18 +6,14 @@ import { CommandMap } from '../types';
 
 
 
-const GOOD_CODES = [250, 251];
-
-
-
 /**
- * @name RCPT TO
+ * @name I_RCPT_TO
  * @description Processes the RCPT TO command
  * RCPT TO: < ... >
  * 
  * https://www.ibm.com/docs/en/zvm/7.3?topic=commands-rcptto
  */
-export default (commands_map: CommandMap) => commands_map.set('RCPT TO', 
+export const I_RCPT_TO = (commands_map: CommandMap) => commands_map.set('RCPT TO', 
     (socket, email, words, raw_data) => {
 
     // -- This command has to be sent after MAIL FROM

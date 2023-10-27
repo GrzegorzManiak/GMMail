@@ -3,18 +3,18 @@ import RecvEmail from '../../email/recv';
 import SMTPIngress from './ingress';
 import { CommandMap } from '../types';
 import { log } from '../../log';
-import DATA, { in_prog_data } from '../commands/DATA';
-import EHLO from '../commands/EHLO';
-import HELO from '../commands/HELO';
-import HELP from '../commands/HELP';
-import MAIL_FROM from '../commands/MAIL_FROM';
-import QUIT from '../commands/QUIT';
-import RCPT_TO from '../commands/RCPT_TO';
-import VRFY from '../commands/VRFY';
-import RSET from '../commands/RSET';
+import { I_DATA, I_in_prog_data } from '../commands/DATA';
+import { I_EHLO } from '../commands/EHLO';
+import { I_HELO } from '../commands/HELO';
+import { I_HELP } from '../commands/HELP';
+import { I_MAIL_FROM } from '../commands/MAIL_FROM';
+import { I_QUIT } from '../commands/QUIT';
+import { I_RCPT_TO } from '../commands/RCPT_TO';
+import { I_VRFY } from '../commands/VRFY';
+import { I_RSET } from '../commands/RSET';
 import { parse_custom_ingress_command } from '../commands/CUST_IN';
-import NOOP from '../commands/NOOP';
-import STARTLS from '../commands/STARTLS';
+import { I_NOOP } from '../commands/NOOP';
+import { I_STARTTLS } from '../commands/STARTLS';
 
 
 
@@ -34,17 +34,17 @@ export const add_commands = (
     log('DEBUG', 'SMTP', 'add_commands', 'Adding SMTP commands');
 
     // -- Add the commands
-    DATA(commands_map);
-    EHLO(commands_map);
-    HELO(commands_map);
-    HELP(commands_map);
-    MAIL_FROM(commands_map);
-    QUIT(commands_map);
-    RCPT_TO(commands_map);
-    VRFY(commands_map);
-    RSET(commands_map);
-    NOOP(commands_map);
-    STARTLS(commands_map);
+    I_DATA(commands_map);
+    I_EHLO(commands_map);
+    I_HELO(commands_map);
+    I_HELP(commands_map);
+    I_MAIL_FROM(commands_map);
+    I_QUIT(commands_map);
+    I_RCPT_TO(commands_map);
+    I_VRFY(commands_map);
+    I_RSET(commands_map);
+    I_NOOP(commands_map);
+    I_STARTTLS(commands_map);
 
     log('DEBUG', 'SMTP', 'add_commands', 'SMTP commands added');
 }
@@ -80,7 +80,7 @@ export const process = (
     
     // -- Check if the client is sending data
     if (email.sending_data) 
-        return in_prog_data(email, socket, command, words);
+        return I_in_prog_data(email, socket, command, words);
 
 
     // -- Check for potential commands that have two words

@@ -7,11 +7,11 @@ import { CommandMap } from '../types';
 
 
 /**
- * @name QUIT
+ * @name I_QUIT
  * @description Processes the QUIT command
  * QUIT
  */
-export default (commands_map: CommandMap) => 
+export const I_QUIT = (commands_map: CommandMap) => 
     commands_map.set('QUIT', (socket, email, words, raw_data) => {
 
 

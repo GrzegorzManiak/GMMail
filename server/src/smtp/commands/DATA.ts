@@ -10,13 +10,13 @@ import Configuration from '../../config';
 
 
 /**
- * @name DATA
+ * @name I_DATA
  * @description Processes the DATA command
  * DATA ... CRLF . CRLF
  * 
  * https://www.ibm.com/docs/en/zvm/7.2?topic=commands-data
  */
-export default (commands_map: CommandMap) => commands_map.set('DATA', 
+export const I_DATA = (commands_map: CommandMap) => commands_map.set('DATA', 
     (socket, email, words, raw_data) => {
         
     // -- Ensure that there is only the DATA command
@@ -97,7 +97,7 @@ export default (commands_map: CommandMap) => commands_map.set('DATA',
 
 
 /**
- * @name in_prog_data
+ * @name I_in_prog_data
  * @description Processes the data sent by the client
  * different from the DATA command as this is the data 
  * sent by the client
@@ -109,7 +109,7 @@ export default (commands_map: CommandMap) => commands_map.set('DATA',
  * 
  * @returns 
  */
-export const in_prog_data = (
+export const I_in_prog_data = (
     email: RecvEmail,
     socket: BunSocket<unknown>,
     command: string,

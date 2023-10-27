@@ -4,20 +4,15 @@ import { IExtensionData, IExtensionDataCallback, IStartTlsExtensionData, IStartT
 import { log } from '../../log';
 import SMTP from '../ingress/ingress';
 import { CommandMap } from '../types';
-import { Socket as BunSocket } from 'bun';
-
-
-
-const GOOD_CODES = [250, 251];
 
 
 
 /**
- * @name STARTTLS
+ * @name I_STARTTLS
  * @description Processes the STARTTLS command which
  * upgrades the connection to TLS
  */
-export default (commands_map: CommandMap) => 
+export const I_STARTTLS = (commands_map: CommandMap) => 
     commands_map.set('STARTTLS', (socket, email, words, raw_data) => {
 
     

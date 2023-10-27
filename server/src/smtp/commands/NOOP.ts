@@ -7,11 +7,11 @@ import { CommandMap } from '../types';
 
 
 /**
- * @name NOOP
+ * @name I_NOOP
  * @description Processes the NOOP command, Which 
  * dose a whole lot of nothing
  */
-export default (commands_map: CommandMap) => 
+export const I_NOOP = (commands_map: CommandMap) => 
     commands_map.set('NOOP', (socket, email, words, raw_data) => {
 
 
