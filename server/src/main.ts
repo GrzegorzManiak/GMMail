@@ -13,7 +13,7 @@ import {
     IStartTlsExtensionData, 
     IVRFYExtensionData, 
 } from './extensions/types';
-import { IMailFrom } from './smtp/types';
+
 
 
 // -- There will be a main class here that will be the entry point for the server
@@ -21,6 +21,7 @@ import { IMailFrom } from './smtp/types';
 // 
 //    For now, theres two distinct parts, the SMTP Ingress and the SMTP Egress
 //    modules which are not connected.
+
 
 
 log('INFO', 'Main', 'main', 'Starting server...');
@@ -38,6 +39,7 @@ const config = Configuration.get_instance(import.meta.dir + '/../basic_config.js
     // -- Load the SMTP server
     const smtp = SMTP.get_instance(),
         extensions = ExtensionManager.get_instance();
+    smtp.start_listening();
 
 
 

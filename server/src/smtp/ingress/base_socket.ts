@@ -47,16 +47,14 @@ export default class BaseSocket {
         }   
 
         // -- Parse the data
-        const data_string = data.toString(),
-            data_array = data_string.split('\r\n')
-            .filter(line => line.length > 0);
+        const data_string = data.toString();
 
         // -- Get the email object
         const email = socket.data as RecvEmail;
         email.push_message('recv', 250, data_string);
 
         // -- Parse the data based on the stage
-        this._smtp_ingress.process(data_array[0], email, socket);
+        this._smtp_ingress.process(data_string, email, socket);
     };
 
 

@@ -1,7 +1,6 @@
 import Configuration from '../../config';
 import RecvEmail from '../../email/recv';
 import { log } from '../../log';
-import { CommandExtensionMap } from '../../extensions/types';
 import Socket from './base_socket';
 import NilSocket from './sockets/nil';
 import { SocketType } from '../types';
@@ -9,6 +8,7 @@ import { Socket as BunSocket } from 'bun';
 import ExtensionManager from '../../extensions/main';
 import { add_commands, process } from './interpreter';
 import TlsSocket from './sockets/tls';
+
 
 
 export default class SMTPIngress {
@@ -60,13 +60,24 @@ export default class SMTPIngress {
         this._config = Configuration.get_instance();
         this._extensions = ExtensionManager.get_instance();
 
-        // -- Load the SMTP sockets
-        this._config.get<boolean>('SMTP', 'NIL') && this.load_socket('NIL');
-        this._config.get<boolean>('SMTP', 'TLS') && this.load_socket('TLS');
-
         // -- Add the commands
         add_commands(this._commands_map);
     }
+
+
+
+    /**
+     * @name start_listening
+     * @description Adds the socket listeners and starts listening
+     * for incoming connections
+     * 
+     * @returns {void}
+     */
+    public start_listening(): void {
+        // -- Load the SMTP sockets
+        this._config.get<boolean>('SMTP', 'NIL') && this._load_socket('NIL');
+        this._config.get<boolean>('SMTP', 'TLS') && this._load_socket('TLS');
+    }   
 
 
 
@@ -115,14 +126,14 @@ export default class SMTPIngress {
 
 
     /**
-     * @name load_socket
+     * @name _load_socket
      * @description Creates a new socket and adds it to the list of sockets
      * 
      * @param {SocketType} socket_type - The type of socket to load
      * 
      * @returns {void}
      */
-    public load_socket(
+    private _load_socket(
         socket_type: SocketType
     ) {
         // -- Check if the socket already exists

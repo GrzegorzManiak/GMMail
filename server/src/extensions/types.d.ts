@@ -170,6 +170,7 @@ export interface IDATAExtensionData extends IExtensionData {
     current_size: number,
     bypass_size_check: boolean,
     total_size: number,
+    data_lines: Array<string>,
     action: (action: DataActions) => void,
 }
 

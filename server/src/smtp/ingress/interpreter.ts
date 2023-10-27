@@ -55,7 +55,7 @@ export const add_commands = (
  * @file process.ts
  * @description Processes the SMTP commands sent by the client
  * 
- * @param {Array<string>} commands - The command sent by the client
+ * @param {string} command - The command sent by the client
  * @param {RecvEmail} email - The email object that the client is connected to
  * @param {BunSocket<unknown>} socket - The socket that the client is connected to
  * @param {SMTPIngress} smtp_ingress - The SMTPIngress class
@@ -71,16 +71,17 @@ export const process = (
     const commands_map = smtp_ingress.map;
     email.locked = true;
     
+
+    // -- Check if the client is sending data
+    if (email.sending_data) 
+        return I_in_prog_data(email, socket, command);
+
+
     // -- Split the command into the words and at :
     const words = command
         .split(' ')
         .flatMap(word => word.trim().split(':'))
         .filter(word => word.length > 0);
-
-    
-    // -- Check if the client is sending data
-    if (email.sending_data) 
-        return I_in_prog_data(email, socket, command, words);
 
 
     // -- Check for potential commands that have two words
@@ -96,8 +97,6 @@ export const process = (
                 return commands_map.get('RCPT TO')(socket, email, words, command);
             break;
     }
-
-
 
 
     // -- Check for potential commands that have one word

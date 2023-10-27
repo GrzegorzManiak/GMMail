@@ -53,7 +53,8 @@ export const I_DATA = (commands_map: CommandMap) => commands_map.set('DATA',
         // -- Build the extension data
         const extension_data: IDATAExtensionData = {
             email, socket, log,
-            words, raw_data,
+            words: [], raw_data,
+            data_lines: [],
             smtp: SMTP.get_instance(),
             type: 'DATA',
             current_size: 0,
@@ -80,6 +81,7 @@ export const I_DATA = (commands_map: CommandMap) => commands_map.set('DATA',
             delete extension_data.words;
             delete extension_data.raw_data;
             delete extension_data.type;
+            delete extension_data.data_lines;
             delete extension_data.current_size;
             delete extension_data.bypass_size_check;
             delete extension_data.action;
@@ -105,15 +107,13 @@ export const I_DATA = (commands_map: CommandMap) => commands_map.set('DATA',
  * @param {RecvEmail} email - Current email object
  * @param {BunSocket<unknown>} socket - Current socket
  * @param {string} command  - The command sent by the client
- * @param {string[]} words - The command split into words
  * 
  * @returns 
  */
 export const I_in_prog_data = (
     email: RecvEmail,
     socket: BunSocket<unknown>,
-    command: string,
-    words: string[],
+    command: string
 ): void => {
     // -- Ensure that the DATA command was sent
     if (
@@ -126,8 +126,8 @@ export const I_in_prog_data = (
     }
 
     // -- Get the size of the data the user is sending
-    const current_size = command.length;
-
+    const current_size = command.length,
+        data_lines = command.split('\n');
 
 
     // -- Get the extensions
@@ -138,10 +138,11 @@ export const I_in_prog_data = (
         // -- Build the extension data
         const extension_data: IDATAExtensionData = {
             email, socket, log,
-            words, raw_data: command,
+            words: [], raw_data: command,
             smtp: SMTP.get_instance(),
             type: 'DATA',
             current_size,
+            data_lines,
             total_size: email.data_size,
             bypass_size_check: false,
             action: (action) => allow_continue = action === 'ALLOW'
@@ -166,6 +167,7 @@ export const I_in_prog_data = (
             delete extension_data.words;
             delete extension_data.raw_data;
             delete extension_data.type;
+            delete extension_data.data_lines;
             delete extension_data.current_size;
             delete extension_data.current_size;
             delete extension_data.bypass_size_check;
@@ -201,12 +203,21 @@ export const I_in_prog_data = (
 
 
 
-    // -- Add the data to the email 
-    email.push_data = command;
-    if (command !== SMTP.get_instance().crlf) return;
+    // -- Loop through the data lines
+    for (let i = 0; i < data_lines.length; i++) {
 
-    // -- Inform the client that the data was received
-    email.sending_data = false;
-    email.send_message(socket, 250);
-    return;
+        // -- Get the current line
+        const line = data_lines[i];
+
+        // -- Check if the line is the end of the data
+        //    if so, stop the loop, and send the message
+        if (line.trim() === SMTP.get_instance().crlf) {
+            email.sending_data = false;
+            email.send_message(socket, 250);
+            return;
+        }
+
+        // -- Add the data to the email
+        email.push_data = line;
+    }
 }

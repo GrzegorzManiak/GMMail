@@ -79,7 +79,7 @@ export default class RecvEmail {
             code,
         });
 
-        console.log(`[${type}] ${content.trim()}`);
+        // console.log(`[${type}] ${content.trim()}`);
     }
 
 
