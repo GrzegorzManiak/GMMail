@@ -2,12 +2,12 @@ import Configuration from '../../config';
 import RecvEmail from '../../email/recv';
 import { log } from '../../log';
 import Socket from './base_socket';
-import NilSocket from './sockets/nil';
+import NilSocket from './sockets/starttls';
 import { SocketType } from '../types';
 import { Socket as BunSocket } from 'bun';
 import ExtensionManager from '../../extensions/main';
 import { add_commands, process } from './interpreter';
-import TlsSocket from './sockets/tls';
+import TlsSocket from './sockets/implicit';
 
 
 

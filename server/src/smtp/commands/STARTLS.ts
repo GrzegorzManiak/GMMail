@@ -3,6 +3,7 @@ import ExtensionManager from '../../extensions/main';
 import { IExtensionData, IExtensionDataCallback, IStartTlsExtensionData, IStartTlsExtensionDataCallback } from '../../extensions/types';
 import { log } from '../../log';
 import SMTP from '../ingress/ingress';
+import UpgradeSocket from '../ingress/sockets/upgrade';
 import { CommandMap } from '../types';
 
 
@@ -82,29 +83,11 @@ export const I_STARTTLS = (commands_map: CommandMap) =>
 
 
     // -- Get the port
-    const config = Configuration.get_instance(),
-        port = socket.localPort;
-        email.send_message(socket, 220);
+    email.send_message(socket, 2201);
+    email.reset_command();
+    email.marker = 'STARTTLS';
+    new UpgradeSocket(socket);
+    // console.log(upgraded_socket.socket);
+    // email.send_message(upgraded_socket.socket, 220);
 
-
-    // // -- Upgrade the socket to TLS
-    // // @ts-ignore
-    // const tls_socket = socket.upgradeTLS({
-    //     // .data on the newly created socket
-    //     data: socket.data,
-    //     tls: {
-    //         key: Bun.file(config.get<string>('TLS', 'KEY')),
-    //         cert: Bun.file(config.get<string>('TLS', 'CERT')),
-    //     },
-
-    //     socket: {
-    //         data: (socket, data) => socket_data(socket, data, port),
-    //         open: socket => socket_open(socket, port, 'TLS'),
-    //         close: socket => socket_close(socket, port),
-    //         drain: socket => socket_drain(socket, port),
-    //         error: (socket, error) => socket_error(socket, error, port),
-    //     }
-    // }) as BunSocket<unknown>;
-
-    
 });

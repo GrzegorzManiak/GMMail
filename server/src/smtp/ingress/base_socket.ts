@@ -36,21 +36,28 @@ export default class BaseSocket {
         socket: BunSocket<unknown>, 
         data: Buffer,
         port: number,
+        socket_type: SocketType
     ) => {
 
         // -- Ensure the socket has data
-        if (!socket.data) {
+        if (
+            !socket.data ||
+            !(socket.data instanceof RecvEmail)
+        ) {
             log('ERROR', 'Socket', 'constructor', `Socket data on port ${port} without email`);
             socket.write(CODE(451, 'EMail Object not found'))
             socket.end();
             return;
         }   
 
+
+        // -- Get the email object, and make sure the socket mode is correct
+        const email = socket.data as RecvEmail;
+        if (email.socket_mode !== socket_type) return;
+
+
         // -- Parse the data
         const data_string = data.toString();
-
-        // -- Get the email object
-        const email = socket.data as RecvEmail;
         email.push_message('recv', 250, data_string);
 
         // -- Parse the data based on the stage
@@ -64,16 +71,42 @@ export default class BaseSocket {
         port: number,
         mode: SocketType
     ) => {
-        // -- Get the senders IP 
-        const { remoteAddress } = socket;
-        log('DEBUG', 'Socket', 'constructor', `Socket opened on port ${port} from ${remoteAddress} with mode ${mode}`);
+        switch (mode) {
+            case 'NIL':
+            case 'TLS': {
 
-        // -- Create the email object
-        const email = new RecvEmail(socket, mode);
-        socket.data = email;
+                // -- Get the senders IP 
+                const { remoteAddress } = socket;
+                log('DEBUG', 'Socket', 'constructor', `Socket opened on port ${port} from ${remoteAddress} with mode ${mode}`);
 
-        // -- Push the greeting
-        email.send_message(socket, 220);
+                // -- Create the email object
+                const email = new RecvEmail(socket, mode);
+                socket.data = email;
+
+                // -- Push the greeting
+                email.send_message(socket, 220);
+                break;
+            };
+
+
+
+            case 'STARTTLS': {
+
+                // -- Ensure that the socket has data
+                if (
+                    !socket.data ||
+                    !(socket.data instanceof RecvEmail)
+                ) {
+                    log('ERROR', 'Socket', 'constructor', `Socket data on port ${port} without email`);
+                    socket.write(CODE(451, 'EMail Object not found'))
+                    socket.end();
+                    return;
+                }
+
+                // -- Log the STARTTLS
+                log('DEBUG', 'Socket', 'constructor', `Completed STARTTLS on port ${port}`);
+            }
+        }
     };
 
 

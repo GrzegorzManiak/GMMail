@@ -213,11 +213,11 @@ const config = Configuration.get_instance(import.meta.dir + '/../basic_config.js
 
 
 
-    extensions.add_custom_ingress_command<ICustomCommandDataCallback>('AUTH', {
-        feature_name: 'AUTH LOGIN PLAIN',
-    }, (data) => {
-        return 235;
-    });
+    // extensions.add_custom_ingress_command<ICustomCommandDataCallback>('AUTH', {
+    //     feature_name: 'AUTH LOGIN PLAIN',
+    // }, (data) => {
+    //     return 235;
+    // });
 
     // https://www.samlogic.net/articles/smtp-commands-reference.htm
 })();

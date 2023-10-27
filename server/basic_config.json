@@ -1,20 +1,30 @@
 {
-  "HOST": "0.0.0.0",
-  "VENDOR": "GMMail",
-
-  "MAIL": {
-    "MAX_SIZE": 10000
-  },
-  "SMTP_PORTS": {
-    "TLS": 1465,
-    "NIL": 1587
-  },
-  "SMTP": {
-    "TLS": true,
-    "NIL": true
-  },
-  "SMTP_MODE": {
-    "TLS": [ "SEND", "RECEIVE" ],
-    "NIL": [ "SEND", "RECEIVE" ]
-  }
+	"HOST": "0.0.0.0",
+	"DOMAIN": "ggmail.grzegorz.ie",
+	"VENDOR": "GMMail",
+	"MAIL": {
+		"MAX_SIZE": 10000
+	},
+	"SMTP_PORTS": {
+		"TLS": 1465,
+		"NIL": 1587
+	},
+	"SMTP": {
+		"TLS": true,
+		"NIL": true
+	},
+	"SMTP_MODE": {
+		"TLS": [
+			"SEND",
+			"RECEIVE"
+		],
+		"NIL": [
+			"SEND",
+			"RECEIVE"
+		]
+	},
+	"TLS": {
+		"KEY": "../certs/private.key",
+		"CERT": "../certs/certificate.crt"
+	}
 }

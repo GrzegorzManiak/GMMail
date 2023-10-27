@@ -96,6 +96,7 @@ export default class Configuration {
      */
     public static default = (): IConfig => ({
         HOST: 'localhost',
+        DOMAIN: 'localhost',
         VENDOR: 'GMMail',
         SMTP_PORTS: {
             TLS: 587,

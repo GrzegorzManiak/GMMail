@@ -17,10 +17,9 @@ export default class TlsSocket extends BaseSocket {
             },
 
             socket: {
-                data: (socket, data) => this.socket_data(socket, data, this._port),
+                data: (socket, data) => this.socket_data(socket, data, this._port, 'TLS'),
                 open: socket => this.socket_open(socket, this._port, 'TLS'),
                 close: socket => this.socket_close(socket, this._port),
-                drain: socket => this.socket_drain(socket, this._port),
                 error: (socket, error) => this.socket_error(socket, error, this._port),
             }
         });

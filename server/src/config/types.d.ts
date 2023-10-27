@@ -36,6 +36,7 @@ export interface ITLS {
 export interface IConfig {
     HOST: string;
     VENDOR: string;
+    DOMAIN: string;
     SMTP_PORTS: ISMTPPorts;
     SMTP: ISMTP;
     MAIL: IMail;
