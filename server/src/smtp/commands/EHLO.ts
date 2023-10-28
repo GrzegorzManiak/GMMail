@@ -54,7 +54,7 @@ export const I_EHLO = (commands_map: CommandMap) => commands_map.set('EHLO',
 
     // -- Get the supported features
     const smtp = SMTP.get_instance(),
-        features = smtp.supported_features;
+        features = smtp.supported_features(email.socket_mode === 'NIL');
 
     // -- Send the features
     features.forEach(feature => {

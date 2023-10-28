@@ -1,14 +1,15 @@
 import Configuration from '../../../config';
+import RecvEmail from '../../../email/recv';
 import BaseSocket from '../base_socket';
 import { Socket as BunSocket } from 'bun';
 
 
 export default class UpgradeSocket extends BaseSocket {
 
-    public socket: BunSocket<unknown>;
+    public socket: BunSocket<RecvEmail>;
 
     public constructor(
-        public existing_socket: BunSocket<unknown>
+        public existing_socket: BunSocket<RecvEmail>
     ) {
 
         // -- The port is NIL as we are upgrading the connection from the NIL socket
@@ -25,10 +26,10 @@ export default class UpgradeSocket extends BaseSocket {
             },
 
             socket: {
-                data: (socket, data) => this.socket_data(socket, data, this._port, 'STARTTLS'),
-                open: socket => this.socket_open(socket, this._port, 'STARTTLS'),
-                close: socket => this.socket_close(socket, this._port),
-                error: (socket, error) => this.socket_error(socket, error, this._port),
+                data: (socket, data) => this.socket_data(socket as BunSocket<RecvEmail>, data, this._port, 'STARTTLS'),
+                open: socket => this.socket_open(socket as BunSocket<RecvEmail>, this._port, 'STARTTLS'),
+                close: socket => this.socket_close(socket as BunSocket<RecvEmail>, this._port),
+                error: (socket, error) => this.socket_error(socket as BunSocket<RecvEmail>, error, this._port),
             }
         });
 

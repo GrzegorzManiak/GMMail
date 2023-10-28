@@ -59,10 +59,10 @@ export default class RecvEmail {
      * @param {number} [_total_timeout=90] - The total time till the email is closed
      */
     public constructor(
-        socket: BunSocket<unknown>,
+        socket: BunSocket<RecvEmail>,
         private _socket_mode: SocketType,
-        private _timeout = 10,
-        private _total_timeout = 90,
+        private _timeout = 60,
+        private _total_timeout = 900,
     ) {
         // -- Set the IP address
         this._ip = socket.remoteAddress as string;
@@ -84,7 +84,7 @@ export default class RecvEmail {
      * @returns {void} Nothing
      */
     private async _timeout_manager(
-        socket: BunSocket<unknown>,
+        socket: BunSocket<RecvEmail>,
         interval = 500,
     ) {
         // -- Check if the email is locked
@@ -134,6 +134,7 @@ export default class RecvEmail {
         this.locked = false;
         this._markers.clear();
         this.marker = 'RSET';
+        this.mode = null;
     }
 
 
@@ -166,6 +167,7 @@ export default class RecvEmail {
             code,
         });
 
+        console.log(`[${type.toUpperCase()}] ${code} ${content}`);
 
         // -- Update the last received date
         switch (type) {
@@ -187,7 +189,7 @@ export default class RecvEmail {
      * @returns {void} Nothing
      */
     public close(
-        socket: Socket<any>,
+        socket: Socket<RecvEmail>,
         success: boolean,
     ): void {
         // -- If the email is already closed, return
@@ -786,7 +788,7 @@ export default class RecvEmail {
      * @returns {string} The message that was sent
      */
     public send_message(
-        socket: Socket<any>,
+        socket: Socket<RecvEmail>,
         code: number,
         message = ''
     ): string {

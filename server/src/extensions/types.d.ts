@@ -112,7 +112,7 @@ export interface ICustomCommandData {
     log: (type: LogType, ...args: Array<unknown>) => void,
     email: RecvEmail,
 
-    socket: BunSocket<unknown>,
+    socket: BunSocket<RecvEmail>,
     smtp: SMTP,
     raw_data: string,
     words: Array<string>,
@@ -134,7 +134,7 @@ export type IExtensionDataCallback = (data: IExtensionData) => void;
 export interface IExtensionData {
     log: (type: LogType, ...args: Array<unknown>) => void,
     email: RecvEmail,
-    socket: BunSocket<unknown>,
+    socket: BunSocket<RecvEmail>,
     smtp: SMTP,
     raw_data: string,
     words: Array<string>,

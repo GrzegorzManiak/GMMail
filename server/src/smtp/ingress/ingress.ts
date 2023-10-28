@@ -15,7 +15,7 @@ export default class SMTPIngress {
     private static _instance: SMTPIngress;
     private _extensions: ExtensionManager;
     private _commands_map = new Map<string, (
-        socket: BunSocket<unknown>, 
+        socket: BunSocket<RecvEmail>, 
         email: RecvEmail,
         words: Array<string>,
         raw: string,
@@ -103,14 +103,14 @@ export default class SMTPIngress {
      * 
      * @param {string} command - The command sent by the client
      * @param {RecvEmail} email - The email object that the client is connected to
-     * @param {BunSocket<unknown>} socket - The socket that the client is connected to
+     * @param {Socket<RecvEmail>} socket - The socket that the client is connected to
      * 
      * @returns {void} Nothing
      */
     public process(
         command: string,
         email: RecvEmail,
-        socket: BunSocket<unknown>,
+        socket: BunSocket<RecvEmail>,
     ): void {
         try {
             process(command, email, socket, this);
@@ -149,8 +149,10 @@ export default class SMTPIngress {
 
 
     public get crlf(): string { return this._crlf; }
-    public get supported_features(): Array<string> { 
-        const default_features = SMTPIngress._supported_features;
+    public supported_features(
+        starttls: boolean = false
+    ): Array<string> { 
+        const default_features = SMTPIngress._supported_features.filter(feature => feature !== 'STARTTLS' || starttls);
 
         // -- Extensions
         for (const [_, commands] of this._extensions._get_all_custom_ingress_commands()) commands.forEach((command) => {
@@ -162,8 +164,10 @@ export default class SMTPIngress {
         return default_features;
     }
 
-    public get supported_commands(): Array<string> { 
-        return SMTPIngress._supported_commands; 
+    public supported_commands(
+        starttls: boolean = false
+    ): Array<string> { 
+        return SMTPIngress._supported_commands.filter(command => command !== 'STARTTLS' || starttls);
     }
 
     public get map() { return this._commands_map; }

@@ -33,7 +33,7 @@ export default class BaseSocket {
 
 
     protected socket_data = (
-        socket: BunSocket<unknown>, 
+        socket: BunSocket<RecvEmail>, 
         data: Buffer,
         port: number,
         socket_type: SocketType
@@ -67,11 +67,15 @@ export default class BaseSocket {
 
 
     protected socket_open = (
-        socket: BunSocket<unknown>,
+        socket: BunSocket<RecvEmail>,
         port: number,
         mode: SocketType
     ) => {
         switch (mode) {
+
+            
+            // -- These are the same, and they are invoked when a socket is opened
+            //    on the TLS port, or the NIL port
             case 'NIL':
             case 'TLS': {
 
@@ -89,7 +93,8 @@ export default class BaseSocket {
             };
 
 
-
+            // -- Where as STARTTLS can only be invoked by the STARTTLS command
+            //    so we dont need to push the greeting, just validate the socket
             case 'STARTTLS': {
 
                 // -- Ensure that the socket has data
@@ -112,7 +117,7 @@ export default class BaseSocket {
 
 
     protected socket_close = (
-        socket: BunSocket<unknown>,
+        socket: BunSocket<RecvEmail>,
         port: number,
     ) => {
         log('DEBUG', 'Socket', 'constructor', `Socket closed on port ${port}`);
@@ -131,7 +136,7 @@ export default class BaseSocket {
 
 
     protected socket_drain = (
-        socket: BunSocket<unknown>,
+        socket: BunSocket<RecvEmail>,
         port: number,
     ) => {
         log('DEBUG', 'Socket', 'constructor', `Socket drained on port ${port}`);
@@ -140,7 +145,7 @@ export default class BaseSocket {
 
 
     protected socket_error = (
-        socket: BunSocket<unknown>,
+        socket: BunSocket<RecvEmail>,
         error: Error,
         port: number,
     ) => {

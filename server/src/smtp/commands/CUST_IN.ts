@@ -10,7 +10,7 @@ import SMTP from '../ingress/ingress';
 
 export const parse_custom_ingress_command = (
     email: RecvEmail,
-    socket: BunSocket<unknown>,
+    socket: BunSocket<RecvEmail>,
     command: string,
     words: Array<string>,
     command_name: string,

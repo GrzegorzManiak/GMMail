@@ -16,6 +16,9 @@ import { CommandMap } from '../types';
 export const I_STARTTLS = (commands_map: CommandMap) => 
     commands_map.set('STARTTLS', (socket, email, words, raw_data) => {
 
+    // -- Ensure that the current mode is NIL
+    if (email.socket_mode !== 'NIL') 
+        return email.send_message(socket, 454); 
     
     // -- If we should not allow the upgrade, return an error
     let allow_upgrade = true, final = false;
@@ -79,15 +82,11 @@ export const I_STARTTLS = (commands_map: CommandMap) =>
 
     // -- Throw a 220, Proceed with TLS
     log('INFO', 'Upgrading connection to TLS');
+
+    // -- Upgrade the socket
     email.upgrade_socket_mode();
-
-
-    // -- Get the port
     email.send_message(socket, 2201);
     email.reset_command();
     email.marker = 'STARTTLS';
     new UpgradeSocket(socket);
-    // console.log(upgraded_socket.socket);
-    // email.send_message(upgraded_socket.socket, 220);
-
 });

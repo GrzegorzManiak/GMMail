@@ -105,14 +105,14 @@ export const I_DATA = (commands_map: CommandMap) => commands_map.set('DATA',
  * sent by the client
  * 
  * @param {RecvEmail} email - Current email object
- * @param {BunSocket<unknown>} socket - Current socket
+ * @param {Socket<RecvEmail>} socket - Current socket
  * @param {string} command  - The command sent by the client
  * 
  * @returns 
  */
 export const I_in_prog_data = (
     email: RecvEmail,
-    socket: BunSocket<unknown>,
+    socket: BunSocket<RecvEmail>,
     command: string
 ): void => {
     // -- Ensure that the DATA command was sent

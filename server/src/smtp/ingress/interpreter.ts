@@ -57,7 +57,7 @@ export const add_commands = (
  * 
  * @param {string} command - The command sent by the client
  * @param {RecvEmail} email - The email object that the client is connected to
- * @param {BunSocket<unknown>} socket - The socket that the client is connected to
+ * @param {Socket<RecvEmail>} socket - The socket that the client is connected to
  * @param {SMTPIngress} smtp_ingress - The SMTPIngress class
  * 
  * @returns {void}
@@ -65,7 +65,7 @@ export const add_commands = (
 export const process = (
     command: string,
     email: RecvEmail,
-    socket: BunSocket<unknown>,
+    socket: BunSocket<RecvEmail>,
     smtp_ingress: SMTPIngress
 ) => {
     const commands_map = smtp_ingress.map;
