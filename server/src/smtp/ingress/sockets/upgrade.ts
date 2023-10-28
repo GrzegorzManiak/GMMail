@@ -17,7 +17,7 @@ export default class UpgradeSocket extends BaseSocket {
 
 
         // @ts-ignore // -- This feature is not yet documented in the Bun library
-        const sockets = existing_socket.upgradeTLS({
+        const sockets = existing_socket.upgradeTLS<RecvEmail>({
             data: existing_socket.data,
             
             tls: {
@@ -26,10 +26,10 @@ export default class UpgradeSocket extends BaseSocket {
             },
 
             socket: {
-                data: (socket, data) => this.socket_data(socket as BunSocket<RecvEmail>, data, this._port, 'STARTTLS'),
-                open: socket => this.socket_open(socket as BunSocket<RecvEmail>, this._port, 'STARTTLS'),
-                close: socket => this.socket_close(socket as BunSocket<RecvEmail>, this._port),
-                error: (socket, error) => this.socket_error(socket as BunSocket<RecvEmail>, error, this._port),
+                data: (socket, data) => this.socket_data(socket, data, this._port),
+                open: socket => this.socket_open(socket, this._port),
+                close: socket => this.socket_close(socket, this._port),
+                error: (socket, error) => this.socket_error(socket, error, this._port),
             }
         });
 

@@ -192,8 +192,8 @@ export default class RecvEmail {
         socket: Socket<RecvEmail>,
         success: boolean,
     ): void {
-        // -- If the email is already closed, return
-        if (this._finished) return;
+        // // -- If the email is already closed, return
+        // if (this._finished) return log('DEBUG', 'RecvEmail', 'close', 'Email already closed');
 
         // -- Attempt to close the socket
         try { socket.end(); }

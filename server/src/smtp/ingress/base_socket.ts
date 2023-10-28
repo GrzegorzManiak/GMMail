@@ -36,7 +36,7 @@ export default class BaseSocket {
         socket: BunSocket<RecvEmail>, 
         data: Buffer,
         port: number,
-        socket_type: SocketType
+        socket_type: SocketType  = this._socket_type
     ) => {
 
         // -- Ensure the socket has data
@@ -69,7 +69,7 @@ export default class BaseSocket {
     protected socket_open = (
         socket: BunSocket<RecvEmail>,
         port: number,
-        mode: SocketType
+        mode: SocketType = this._socket_type
     ) => {
         switch (mode) {
 
@@ -119,22 +119,51 @@ export default class BaseSocket {
     protected socket_close = (
         socket: BunSocket<RecvEmail>,
         port: number,
+        mode: SocketType = this._socket_type
     ) => {
-        log('DEBUG', 'Socket', 'constructor', `Socket closed on port ${port}`);
+
 
         // -- Check if the socket has data
         if (
             !socket.data ||
             !(socket.data instanceof RecvEmail)
-        ) return;
+        ) {
+            socket.end();
+            return;
+        }
 
-        // -- Close the email object
-        const email = socket.data as RecvEmail;
-        email.close(socket, true);
+
+        // -- Get the email object
+        const email = socket.data as RecvEmail,
+            active_mode = email.socket_mode === mode ? mode : null;
+
+        switch (active_mode) {
+            case 'NIL':
+            case 'TLS': {
+                log('DEBUG', 'Socket', 'constructor', `Socket closed on port ${port} with mode ${active_mode}`);
+                email.close(socket, true);
+                break;
+            };
+
+
+            case 'STARTTLS': {
+                log('DEBUG', 'Socket', 'constructor', `Completed STARTTLS on port ${port}, closing socket`);
+                email.close(socket, true);
+                break;
+            }
+
+
+            case null: {
+                log('DEBUG', 'Socket', 'constructor', `Closing secondary socket on port ${port}`);
+                email.close(socket, false);
+                break;
+            }
+        }
     };
 
 
 
+    // -- Not used
     protected socket_drain = (
         socket: BunSocket<RecvEmail>,
         port: number,
@@ -148,6 +177,7 @@ export default class BaseSocket {
         socket: BunSocket<RecvEmail>,
         error: Error,
         port: number,
+        mode: SocketType = this._socket_type
     ) => {
         log('ERROR', 'Socket', 'constructor', `Socket error on port ${port}: ${error}`);
 
@@ -155,10 +185,12 @@ export default class BaseSocket {
         if (
             !socket.data ||
             !(socket.data instanceof RecvEmail)
-        ) return;
+        ) socket.end();
 
-        // -- Close the email object
-        const email = socket.data as RecvEmail;
-        email.close(socket, false);
+        else {
+            // -- Close the email object
+            const email = socket.data as RecvEmail;
+            email.close(socket, false);
+        }
     };
 }
