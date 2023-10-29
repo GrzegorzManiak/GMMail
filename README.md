@@ -13,8 +13,8 @@ Privacy is also a concern for many users, and GGMail addresses this by allowing 
 ## Requirements
 
 - [Python 3.8](https://www.python.org/downloads/release/python-380/)
-- [pip](https://pip.pypa.io/en/stable/installing/)
-    - [pyspf](https://pypi.org/project/pyspf/)
+- [pip](https://pip.pypa.io/en/stable/installing/) - Optional, but you will need to implement your own SPF resolver.
+    - [pyspf](https://pypi.org/project/pyspf/) 
     - [dnspython](https://pypi.org/project/dnspython/)
 - GMmail is built to run on Bun.js and Node.js, its up to you to decide how you want to run it. 
     - [Bun.js](https://bun.js.org/)

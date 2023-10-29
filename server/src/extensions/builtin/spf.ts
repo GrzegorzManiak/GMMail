@@ -27,9 +27,10 @@ export default (
         const response: [string, string] = await spf_check(data.socket.remoteAddress, data.sender.address, data.sender.domain),
             result: string = response[0].toUpperCase(),
             explanation: string = response[1];
-        console.log(result, explanation);
+
         data.email.set_extra('spf_result', result);
         data.email.set_extra('spf_explanation', explanation);
+
 
 
         // -- If the SPF result is not a Pass, Neutral or None, deny the sender
@@ -38,10 +39,13 @@ export default (
             data.log('DEBUG', 'SMTP', 'process', `SPF result for ${data.socket.remoteAddress} ${data.sender.address} was ${result}, denying`);
             data.email.set_extra('spf_passed', false);
             data.action('SPF'); // -- Mark as SPF fail, dosent nessesarily mean deny
+
+            // -- Check the config to see if we should deny the email
             if (data.configuration.get<SPFActions>('SECURITY', 'SPF') === 'DROP') data.action('DENY');
             return;
         }
         
+
 
         // -- These are not hard fails, but warrent a warning
         if (result === 'NONE' || result === 'NEUTRAL') 
