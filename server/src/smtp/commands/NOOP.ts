@@ -12,7 +12,7 @@ import { CommandMap } from '../types';
  * dose a whole lot of nothing
  */
 export const I_NOOP = (commands_map: CommandMap) => commands_map.set('NOOP', 
-    (socket, email, words, raw_data) => new Promise(async(resolve, reject) => {
+    (socket, email, words, raw_data, configuration) => new Promise(async(resolve, reject) => {
 
 
 
@@ -27,6 +27,7 @@ export const I_NOOP = (commands_map: CommandMap) => commands_map.set('NOOP',
             smtp: SMTP.get_instance(),
             type: 'NOOP',
             extension_id: data.id,
+            configuration,
             extensions: extensions,
         };
         

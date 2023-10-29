@@ -14,7 +14,7 @@ import { CommandMap } from '../types';
  * https://www.ibm.com/docs/en/zvm/7.3?topic=commands-mailfrom
  */
 export const I_MAIL_FROM = (commands_map: CommandMap) => commands_map.set('MAIL FROM', 
-    (socket, email, words, raw_data) => new Promise(async(resolve, reject) => {
+    (socket, email, words, raw_data, configuration) => new Promise(async(resolve, reject) => {
         
     // -- ensure that we are in the VALIDATE stage
     if (email.has_marker('MAIL FROM')) {
@@ -36,7 +36,7 @@ export const I_MAIL_FROM = (commands_map: CommandMap) => commands_map.set('MAIL 
 
 
     // -- Get the extensions
-    let allow_sender = true, final = false;
+    let allow_sender = true, final = false, spf_fail = false;
     const extensions = ExtensionManager.get_instance();
     const extension_funcs = extensions._get_command_extension_group('MAIL FROM');
     for (let i = 0; i < extension_funcs.length; i++) {
@@ -51,10 +51,21 @@ export const I_MAIL_FROM = (commands_map: CommandMap) => commands_map.set('MAIL 
             smtp: SMTP.get_instance(),
             type: 'MAIL FROM',
             extension_id: extension_funcs[i].id,
+            configuration,
             extensions: extensions,
-            action: (action) => {
-                allow_sender = (action === 'ALLOW' || action === 'ALLOW:FINAL');
-                if (action === 'ALLOW:FINAL' || action === 'DENY:FINAL') final = true;
+            action: (raw_action) => {
+                // -- Split the action
+                const split_action = raw_action.split(':'),
+                    action = split_action[0],
+                    action_type = split_action[1];
+
+                // -- Process the action
+                if (action === 'SPF') spf_fail = true;
+                if (action === 'ALLOW') allow_sender = true;
+                if (action === 'DENY') allow_sender = false;
+
+                // -- Check if this is the final action
+                if (action_type === 'FINAL') final = true;
             }
         };
 
@@ -80,15 +91,18 @@ export const I_MAIL_FROM = (commands_map: CommandMap) => commands_map.set('MAIL 
             delete extension_data.action;
             delete extension_data.sender;
         }
-    }
+    }   
 
-    
+
 
     // -- Check if the extensions allowed the sender
-    if (!allow_sender) {
+    if (!allow_sender && spf_fail) {
         log('WARN', 'MAIL FROM was not allowed by an extension');
         email.marker = 'MAIL FROM';
-        email.send_message(socket, 454);
+
+        if (spf_fail) email.send_message(socket, 550, 'SPF failed');
+        else email.send_message(socket, 454);
+
         return resolve();
     }
     

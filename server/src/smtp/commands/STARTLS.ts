@@ -14,7 +14,7 @@ import { CommandMap } from '../types';
  * upgrades the connection to TLS
  */
 export const I_STARTTLS = (commands_map: CommandMap) => commands_map.set('STARTTLS',
-    (socket, email, words, raw_data) => new Promise(async(resolve, reject) => {
+    (socket, email, words, raw_data, configuration) => new Promise(async(resolve, reject) => {
 
     // -- Ensure that the current mode is NIL
     if (email.socket_mode !== 'NIL') {
@@ -44,6 +44,7 @@ export const I_STARTTLS = (commands_map: CommandMap) => commands_map.set('STARTT
             type: 'STARTTLS',
             extension_id: extension_funcs[i].id,
             extensions: extensions,
+            configuration,
             current_status: allow_upgrade ? 'ALLOW' : 'DENY',
             action: (action) => {
                 allow_upgrade = (action === 'ALLOW' || action === 'ALLOW:FINAL');

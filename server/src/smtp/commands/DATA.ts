@@ -17,7 +17,7 @@ import Configuration from '../../config';
  * https://www.ibm.com/docs/en/zvm/7.2?topic=commands-data
  */
 export const I_DATA = (commands_map: CommandMap) => commands_map.set('DATA', 
-    (socket, email, words, raw_data) => new Promise(async(resolve, reject) => {
+    (socket, email, words, raw_data, configuration) => new Promise(async(resolve, reject) => {
         
     // -- Ensure that there is only the DATA command
     //    HELO/EHLO and RCPT TO have to be sent before DATA
@@ -59,6 +59,7 @@ export const I_DATA = (commands_map: CommandMap) => commands_map.set('DATA',
             smtp: SMTP.get_instance(),
             type: 'DATA',
             current_size: 0,
+            configuration,
             total_size: email.data_size,
             bypass_size_check: false,
             extension_id: extension_funcs[i].id,
@@ -111,13 +112,15 @@ export const I_DATA = (commands_map: CommandMap) => commands_map.set('DATA',
  * @param {RecvEmail} email - Current email object
  * @param {WrappedSocket} socket - Current socket
  * @param {string} command  - The command sent by the client
+ * @param {Configuration} configuration - The current configuration
  * 
  * @returns 
  */
 export const I_in_prog_data = (
     email: RecvEmail,
     socket: WrappedSocket,
-    command: string
+    command: string,
+    configuration: Configuration
 ): Promise<void> => new Promise(async(resolve, reject) => {
     // -- Ensure that the DATA command was sent
     if (
@@ -152,6 +155,7 @@ export const I_in_prog_data = (
             bypass_size_check: false,
             extension_id: extension_funcs[i].id,
             extensions: extensions,
+            configuration,
             action: (action) => allow_continue = action === 'ALLOW'
         };
 

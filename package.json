@@ -1,6 +1,8 @@
 {
   "dependencies": {
     "fetch-dns-lookup": "^3.0.6",
-    "haraka-plugin-spf": "^1.2.3"
+    "haraka-plugin-spf": "^1.2.3",
+    "python-spfcheck2": "^1.0.3",
+    "spf-check": "^0.4.3"
   }
 }

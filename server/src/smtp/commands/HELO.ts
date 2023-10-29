@@ -19,7 +19,7 @@ function check_helo(command: string): boolean {
  * https://www.ibm.com/docs/en/zvm/7.3?topic=commands-helo
  */
 export const I_HELO = (commands_map: CommandMap) =>  commands_map.set('HELO',
-    (socket, email, words, raw_data) => new Promise((resolve, reject) => {
+    (socket, email, words, raw_data, configuration) => new Promise((resolve, reject) => {
 
     // -- ensure that we are in the INIT stage
     if (

@@ -120,6 +120,9 @@ export default class Configuration {
         TLS: {
             KEY: '../certs/gmmail_key.pem',
             CERT: '../certs/gmmail_cert.pem'
+        },
+        SECURITY: {
+            SPF: 'MARK'
         }
     });
 

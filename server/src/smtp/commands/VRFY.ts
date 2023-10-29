@@ -14,7 +14,7 @@ import { CommandMap, IVRFYResponse, VRFYResponseCode } from '../types';
  * trough extensions
  */
 export const I_VRFY = (commands_map: CommandMap) => commands_map.set('VRFY', 
-    (socket, email, words, raw_data) => new Promise(async(resolve, reject) => {
+    (socket, email, words, raw_data, configuration) => new Promise(async(resolve, reject) => {
 
 
 
@@ -37,6 +37,7 @@ export const I_VRFY = (commands_map: CommandMap) => commands_map.set('VRFY',
             extension_id: extension_funcs[i].id,
             extensions: extensions,
             found_users,
+            configuration,
             action: (data) => action(data, found_users)
         };
 

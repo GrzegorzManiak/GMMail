@@ -20,7 +20,7 @@ function check_ehlo(command: string): boolean {
  * https://www.ibm.com/docs/en/zvm/7.3?topic=commands-ehlo
  */
 export const I_EHLO = (commands_map: CommandMap) => commands_map.set('EHLO', 
-    (socket, email, words, raw_data) => new Promise((resolve, reject) => {
+    (socket, email, words, raw_data, configuration) => new Promise((resolve, reject) => {
 
         
     // -- ensure that we are in the INIT stage

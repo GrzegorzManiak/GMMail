@@ -12,7 +12,7 @@ import { CommandMap } from '../types';
  * QUIT
  */
 export const I_QUIT = (commands_map: CommandMap) => commands_map.set('QUIT', 
-    (socket, email, words, raw_data) => new Promise(async(resolve, reject) => {
+    (socket, email, words, raw_data, configuration) => new Promise(async(resolve, reject) => {
 
 
     // -- Get the extensions
@@ -27,6 +27,7 @@ export const I_QUIT = (commands_map: CommandMap) => commands_map.set('QUIT',
             type: 'QUIT',
             extension_id: data.id,
             extensions: extensions,
+            configuration
         };
         
         promises.push((data.callback as IQuitExtensionDataCallback)(extension_data));

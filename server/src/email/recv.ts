@@ -341,6 +341,7 @@ export default class RecvEmail {
             domain: split_address[1],
             size: params.size,
             body: params.body,
+            address 
         };
     }
 

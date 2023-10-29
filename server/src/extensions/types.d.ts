@@ -5,6 +5,7 @@ import SMTP from '../smtp/ingress/ingress';
 import { DATAResponseCode, IMailFrom, IVRFYResponse, RCPTTOResponseCode, VRFYResponseCode } from '../smtp/types';
 import { IAddress } from '../email/types';
 import ExtensionManager from './main';
+import Configuration from '../config';
 
 
 
@@ -142,6 +143,7 @@ export interface IExtensionData {
     type: CommandExtension,
     extensions: ExtensionManager,
     extension_id: string,
+    configuration: Configuration
 }
 
 
@@ -190,7 +192,7 @@ export interface IRCPTTOExtensionData extends IExtensionData {
 
 // -- MAIL FROM
 export type IMailFromExtensionDataCallback = (data: IMailFromExtensionData) => void | Promise<void>;
-export type MailFromActions = `${'ALLOW' | 'DENY'}${':FINAL' | ''}`;
+export type MailFromActions = `${'ALLOW' | 'DENY' | 'SPF'}${':FINAL' | ''}`;
 export interface IMailFromExtensionData extends IExtensionData {
     type: 'MAIL FROM',
     sender: IMailFrom,

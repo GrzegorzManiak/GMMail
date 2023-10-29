@@ -15,6 +15,7 @@ import { I_RSET } from '../commands/RSET';
 import { parse_custom_ingress_command } from '../commands/CUST_IN';
 import { I_NOOP } from '../commands/NOOP';
 import { I_STARTTLS } from '../commands/STARTLS';
+import Configuration from '../../config';
 
 
 
@@ -59,6 +60,7 @@ export const add_commands = (
  * @param {RecvEmail} email - The email object that the client is connected to
  * @param {WrappedSocket} socket - The socket that the client is connected to
  * @param {SMTPIngress} smtp_ingress - The SMTPIngress class
+ * @param {Configuration} config - The configuration class
  * 
  * @returns {void}
  */
@@ -66,7 +68,8 @@ export const process = (
     command: string,
     email: RecvEmail,
     socket: WrappedSocket,
-    smtp_ingress: SMTPIngress
+    smtp_ingress: SMTPIngress,
+    config: Configuration
 ): Promise<void> => {
     const commands_map = smtp_ingress.map;
     email.locked = true;
@@ -74,7 +77,7 @@ export const process = (
 
     // -- Check if the client is sending data
     if (email.sending_data) 
-        return I_in_prog_data(email, socket, command);
+        return I_in_prog_data(email, socket, command, config);
 
 
     // -- Split the command into the words and at :
@@ -89,12 +92,12 @@ export const process = (
     if (words.length > 1) switch (words[1].toUpperCase()) {
         case 'FROM':
             if (words[0].toUpperCase() === 'MAIL')
-                return commands_map.get('MAIL FROM')(socket, email, words, command);
+                return commands_map.get('MAIL FROM')(socket, email, words, command, config);
             break;
 
         case 'TO':
             if (words[0].toUpperCase() === 'RCPT')
-                return commands_map.get('RCPT TO')(socket, email, words, command);
+                return commands_map.get('RCPT TO')(socket, email, words, command, config);
             break;
     }
 
@@ -102,7 +105,7 @@ export const process = (
     // -- Check for potential commands that have one word
     const command_name = words[0].toUpperCase();
     if (commands_map.has(command_name)) 
-        return commands_map.get(command_name)(socket, email, words, command);
+        return commands_map.get(command_name)(socket, email, words, command, config);
     
 
     // -- Parse any custom commands

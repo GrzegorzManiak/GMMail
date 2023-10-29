@@ -14,7 +14,7 @@ import { CommandMap } from '../types';
  * https://www.ibm.com/docs/en/zvm/7.3?topic=commands-rcptto
  */
 export const I_RCPT_TO = (commands_map: CommandMap) => commands_map.set('RCPT TO', 
-    (socket, email, words, raw_data) => new Promise(async(resolve, reject) => {
+    (socket, email, words, raw_data, configuration) => new Promise(async(resolve, reject) => {
 
     // -- This command has to be sent after MAIL FROM
     if (!email.has_marker('MAIL FROM')) {
@@ -49,6 +49,7 @@ export const I_RCPT_TO = (commands_map: CommandMap) => commands_map.set('RCPT TO
             type: 'RCPT TO',
             extension_id: extension_funcs[i].id,
             extensions: extensions,
+            configuration,
             action: (action) => {
                 allow_cc = (action === 'ALLOW' || action === 'ALLOW:FINAL');
                 if (action === 'ALLOW:FINAL' || action === 'DENY:FINAL') final = true;

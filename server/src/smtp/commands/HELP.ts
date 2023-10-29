@@ -10,7 +10,7 @@ import { CommandMap } from '../types';
  * HELP, Returns the list of supported commands
  */
 export const I_HELP = (commands_map: CommandMap) => commands_map.set('HELP', 
-    (socket, email, words, raw_data) => new Promise((resolve, reject) => {
+    (socket, email, words, raw_data, configuration) => new Promise((resolve, reject) => {
 
     // -- Push the greeting
     email.send_message(socket, 213);

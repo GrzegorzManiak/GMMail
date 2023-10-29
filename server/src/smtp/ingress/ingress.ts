@@ -107,7 +107,7 @@ export default class SMTPIngress {
         socket: WrappedSocket,
     ): Promise<void> => new Promise((resolve, reject) => {
         try {
-            process(command, email, socket, this)
+            process(command, email, socket, this, this._config)
                 .then(() => resolve())
                 .catch((err) => reject(err));
         }
