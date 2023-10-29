@@ -25,5 +25,7 @@ export default class TlsSocket extends BaseSocket {
                 error: (socket, error) => this.socket_error(socket, error, this._port),
             }
         });
+
+        this._socket.ref();
     }
 }

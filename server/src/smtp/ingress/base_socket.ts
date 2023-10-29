@@ -141,21 +141,21 @@ export default class BaseSocket {
             case 'NIL':
             case 'TLS': {
                 log('DEBUG', 'Socket', 'constructor', `Socket closed on port ${port} with mode ${active_mode}`);
-                email.close(socket, true);
+                // email.close(socket, true);
                 break;
             };
 
 
             case 'STARTTLS': {
                 log('DEBUG', 'Socket', 'constructor', `Completed STARTTLS on port ${port}, closing socket`);
-                email.close(socket, true);
+                // email.close(socket, true);
                 break;
             }
 
 
             case null: {
                 log('DEBUG', 'Socket', 'constructor', `Closing secondary socket on port ${port}`);
-                email.close(socket, false);
+                // email.close(socket, true);
                 break;
             }
         }
