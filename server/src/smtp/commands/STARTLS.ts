@@ -14,7 +14,7 @@ import { CommandMap } from '../types';
  * upgrades the connection to TLS
  */
 export const I_STARTTLS = (commands_map: CommandMap) => commands_map.set('STARTTLS',
-    (socket, email, words, raw_data) => new Promise((resolve, reject) => {
+    (socket, email, words, raw_data) => new Promise(async(resolve, reject) => {
 
     // -- Ensure that the current mode is NIL
     if (email.socket_mode !== 'NIL') {
@@ -29,10 +29,11 @@ export const I_STARTTLS = (commands_map: CommandMap) => commands_map.set('STARTT
 
     // -- Get the extensions
     const extensions = ExtensionManager.get_instance();
-    extensions._get_command_extension_group('STARTTLS').forEach((callback: IStartTlsExtensionDataCallback) => {
+    const extension_funcs = extensions._get_command_extension_group('STARTTLS');
+    for (let i = 0; i < extension_funcs.length; i++) {
 
         // -- Check if the final callback has been called
-        if (final) return;
+        if (final) break;
 
 
         // -- Construct the extension data
@@ -53,7 +54,8 @@ export const I_STARTTLS = (commands_map: CommandMap) => commands_map.set('STARTT
         // -- Run the callback
         try {
             log('DEBUG', 'SMTP', 'process', `Running STARTTLS extension`);
-            callback(extension_data);
+            const extension_func = extension_funcs[i] as IStartTlsExtensionDataCallback;
+            await extension_func(extension_data);
         }
 
         // -- If there was an error, log it
@@ -70,7 +72,7 @@ export const I_STARTTLS = (commands_map: CommandMap) => commands_map.set('STARTT
             delete extension_data.current_status;
             delete extension_data.action;
         }
-    });
+    }
 
 
 

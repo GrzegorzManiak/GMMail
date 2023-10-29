@@ -144,9 +144,9 @@ const config = Configuration.get_instance(abs_config_path);
      * or you can use it for logging, spam prevention, etc
      */
     extensions.add_command_extension<IMailFromExtensionData>('MAIL FROM', (data) => {
-        if (data.sender.domain === 'example2.com') return 541;
-        // -- You can return a 250, but thats the default
-        return 250;
+        // if (data.sender.domain === 'example2.com') return 541;
+        // // -- You can return a 250, but thats the default
+        // return 250;
     });
 
 

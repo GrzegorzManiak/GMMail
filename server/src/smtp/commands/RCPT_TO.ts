@@ -14,7 +14,7 @@ import { CommandMap } from '../types';
  * https://www.ibm.com/docs/en/zvm/7.3?topic=commands-rcptto
  */
 export const I_RCPT_TO = (commands_map: CommandMap) => commands_map.set('RCPT TO', 
-    (socket, email, words, raw_data) => new Promise((resolve, reject) => {
+    (socket, email, words, raw_data) => new Promise(async(resolve, reject) => {
 
     // -- This command has to be sent after MAIL FROM
     if (!email.has_marker('MAIL FROM')) {
@@ -36,10 +36,10 @@ export const I_RCPT_TO = (commands_map: CommandMap) => commands_map.set('RCPT TO
     // -- If we should allow this CC to be added to the email
     let allow_cc = true, final = false;
     const extensions = ExtensionManager.get_instance();
-    extensions._get_command_extension_group('RCPT TO').forEach((callback: IRcptToExtensionDataCallback) => {
-
+    const extension_funcs = extensions._get_command_extension_group('RCPT TO');
+    for (let i = 0; i < extension_funcs.length; i++) {
         // -- Check if the final callback has been called
-        if (final) return;
+        if (final) break;
 
         // -- Construct the extension data
         const extension_data: IRCPTTOExtensionData = {
@@ -57,7 +57,8 @@ export const I_RCPT_TO = (commands_map: CommandMap) => commands_map.set('RCPT TO
         // -- Run the callback
         try {
             log('DEBUG', 'SMTP', 'process', `Running RCPT TO extension`);
-            callback(extension_data);
+            const extension_func = extension_funcs[i] as IRcptToExtensionDataCallback;
+            extension_func(extension_data);
         }
 
         // -- If there was an error, log it
@@ -74,7 +75,7 @@ export const I_RCPT_TO = (commands_map: CommandMap) => commands_map.set('RCPT TO
             delete extension_data.action;
             delete extension_data.recipient;
         }
-    });
+    }
 
 
 

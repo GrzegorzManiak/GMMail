@@ -16,7 +16,7 @@ import { CommandMap } from '../types';
  * https://www.ibm.com/docs/en/zvm/7.3?topic=commands-rset
  */
 export const I_RSET = (commands_map: CommandMap) => commands_map.set('RSET',
-    (socket, email, words, raw_data) => new Promise((resolve, reject) => {
+    (socket, email, words, raw_data) => new Promise(async(resolve, reject) => {
 
     // -- Either HELO or EHLO has to be sent before RSET
     if (
@@ -40,8 +40,12 @@ export const I_RSET = (commands_map: CommandMap) => commands_map.set('RSET',
 
     // -- Get the extensions
     const extensions = ExtensionManager.get_instance();
+    const promises = [];
     extensions._get_command_extension_group('RSET').forEach((callback: IRsetExtensionDataCallback) => 
-        callback(extension_data));
+        promises.push(callback(extension_data)));
+
+    // -- Wait for all the promises to resolve
+    await Promise.all(promises);
 
 
     // -- Close of the email

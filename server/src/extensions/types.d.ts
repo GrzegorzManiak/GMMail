@@ -130,7 +130,7 @@ export interface ICustomCommandData {
 }
 
 
-export type IExtensionDataCallback = (data: IExtensionData) => void;
+export type IExtensionDataCallback = (data: IExtensionData) => void | Promise<void>;
 export interface IExtensionData {
     log: (type: LogType, ...args: Array<unknown>) => void,
     email: RecvEmail,
@@ -144,7 +144,7 @@ export interface IExtensionData {
 
 // -- VRFY
 // http://www.smtp-server.com/simple_mail_verifying.htm
-export type IVrfyExtensionDataCallback = (data: IVRFYExtensionData) => void;
+export type IVrfyExtensionDataCallback = (data: IVRFYExtensionData) => void | Promise<void>;
 export interface IVRFYExtensionData extends IExtensionData {
     type: 'VRFY',
     found_users: Array<IVRFYResponse>,
@@ -153,7 +153,7 @@ export interface IVRFYExtensionData extends IExtensionData {
 
 
 // -- STARTTLS
-export type IStartTlsExtensionDataCallback = (data: IStartTlsExtensionData) => void;
+export type IStartTlsExtensionDataCallback = (data: IStartTlsExtensionData) => void | Promise<void>;
 export type StartTlsActions = `${'ALLOW' | 'DENY'}${':FINAL' | ''}`;
 export interface IStartTlsExtensionData extends IExtensionData {
     type: 'STARTTLS',
@@ -163,7 +163,7 @@ export interface IStartTlsExtensionData extends IExtensionData {
 
 
 // -- DATA
-export type IDataExtensionDataCallback = (data: IDATAExtensionData) => void;
+export type IDataExtensionDataCallback = (data: IDATAExtensionData) => void | Promise<void>;
 export type DataActions = 'ALLOW' | 'DENY';
 export interface IDATAExtensionData extends IExtensionData {
     type: 'DATA',
@@ -176,7 +176,7 @@ export interface IDATAExtensionData extends IExtensionData {
 
 
 // -- RCPT TO
-export type IRcptToExtensionDataCallback = (data: IRCPTTOExtensionData) => void;
+export type IRcptToExtensionDataCallback = (data: IRCPTTOExtensionData) => void | Promise<void>;
 export type RcptToActions = `${'ALLOW' | 'DENY'}${':FINAL' | ''}`;
 export interface IRCPTTOExtensionData extends IExtensionData {
     type: 'RCPT TO',
@@ -186,7 +186,7 @@ export interface IRCPTTOExtensionData extends IExtensionData {
 
 
 // -- MAIL FROM
-export type IMailFromExtensionDataCallback = (data: IMailFromExtensionData) => void;
+export type IMailFromExtensionDataCallback = (data: IMailFromExtensionData) => void | Promise<void>;
 export type MailFromActions = `${'ALLOW' | 'DENY'}${':FINAL' | ''}`;
 export interface IMailFromExtensionData extends IExtensionData {
     type: 'MAIL FROM',
@@ -195,19 +195,19 @@ export interface IMailFromExtensionData extends IExtensionData {
 }
 
 
-export type IQuitExtensionDataCallback = (data: IQuitExtensionData) => void;
+export type IQuitExtensionDataCallback = (data: IQuitExtensionData) => void | Promise<void>;
 export interface IQuitExtensionData extends IExtensionData {
     type: 'QUIT',
 }
 
 
-export type IRsetExtensionDataCallback = (data: IRsetExtensionData) => void;
+export type IRsetExtensionDataCallback = (data: IRsetExtensionData) => void | Promise<void>;
 export interface IRsetExtensionData extends IExtensionData {
     type: 'RSET',
 }
 
 
-export type INoopExtensionDataCallback = (data: INoopExtensionData) => void;
+export type INoopExtensionDataCallback = (data: INoopExtensionData) => void | Promise<void>;
 export interface INoopExtensionData extends IExtensionData {
     type: 'NOOP',
 }

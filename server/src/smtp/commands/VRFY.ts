@@ -14,7 +14,7 @@ import { CommandMap, IVRFYResponse, VRFYResponseCode } from '../types';
  * trough extensions
  */
 export const I_VRFY = (commands_map: CommandMap) => commands_map.set('VRFY', 
-    (socket, email, words, raw_data) => new Promise((resolve, reject) => {
+    (socket, email, words, raw_data) => new Promise(async(resolve, reject) => {
 
 
 
@@ -25,9 +25,8 @@ export const I_VRFY = (commands_map: CommandMap) => commands_map.set('VRFY',
 
     // -- Construct the extension data and call the callbacks
     const extensions = ExtensionManager.get_instance();
-    extensions._get_command_extension_group('VRFY').forEach((callback: IVrfyExtensionDataCallback) => {
-
-
+    const extension_funcs = extensions._get_command_extension_group('VRFY');
+    for (let i = 0; i < extension_funcs.length; i++) {
 
         // -- Build the extension data object
         const extension_data: IVRFYExtensionData = {
@@ -44,7 +43,8 @@ export const I_VRFY = (commands_map: CommandMap) => commands_map.set('VRFY',
         // -- Run the callback
         try {
             log('DEBUG', 'SMTP', 'process', `Running VRFY extension`);
-            callback(extension_data);
+            const extension_func = extension_funcs[i] as IVrfyExtensionDataCallback;
+            await extension_func(extension_data);
         }
 
         // -- If there was an error, log it
@@ -61,7 +61,7 @@ export const I_VRFY = (commands_map: CommandMap) => commands_map.set('VRFY',
             delete extension_data.found_users;
             delete extension_data.action;
         }
-    });
+    }
 
    
 
@@ -85,7 +85,7 @@ export const I_VRFY = (commands_map: CommandMap) => commands_map.set('VRFY',
     }
 
     // -- Resolve the promise
-    resolve();
+    return resolve();
 }));
 
 

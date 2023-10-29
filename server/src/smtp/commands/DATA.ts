@@ -17,7 +17,7 @@ import Configuration from '../../config';
  * https://www.ibm.com/docs/en/zvm/7.2?topic=commands-data
  */
 export const I_DATA = (commands_map: CommandMap) => commands_map.set('DATA', 
-    (socket, email, words, raw_data) => new Promise((resolve, reject) => {
+    (socket, email, words, raw_data) => new Promise(async(resolve, reject) => {
         
     // -- Ensure that there is only the DATA command
     //    HELO/EHLO and RCPT TO have to be sent before DATA
@@ -48,7 +48,8 @@ export const I_DATA = (commands_map: CommandMap) => commands_map.set('DATA',
     // -- Get the extensions
     const extensions = ExtensionManager.get_instance();
     let allow_continue = true;
-    extensions._get_command_extension_group('DATA').forEach((callback: IDataExtensionDataCallback) => {
+    const extension_funcs = extensions._get_command_extension_group('DATA');
+    for (let i = 0; i < extension_funcs.length; i++) {
 
         // -- Build the extension data
         const extension_data: IDATAExtensionData = {
@@ -66,7 +67,8 @@ export const I_DATA = (commands_map: CommandMap) => commands_map.set('DATA',
         // -- Run the callback
         try {
             log('DEBUG', 'SMTP', 'process', `Running DATA extension`);
-            callback(extension_data);
+            const extension_func = extension_funcs[i] as IDataExtensionDataCallback;
+            await extension_func(extension_data);
         }
 
         // -- If there was an error, log it
@@ -76,7 +78,6 @@ export const I_DATA = (commands_map: CommandMap) => commands_map.set('DATA',
 
         // -- Finally, delete the extension data
         finally {
-
             delete extension_data.log;
             delete extension_data.words;
             delete extension_data.raw_data;
@@ -86,7 +87,7 @@ export const I_DATA = (commands_map: CommandMap) => commands_map.set('DATA',
             delete extension_data.bypass_size_check;
             delete extension_data.action;
         }
-    });
+    }
 
 
 
