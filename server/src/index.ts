@@ -25,7 +25,8 @@ import {
 
 
 log('INFO', 'Main', 'main', 'Starting server...');
-const config = Configuration.get_instance(import.meta.dir + '/../basic_config.json');
+const abs_config_path = `${__dirname}/../basic_config.json`;
+const config = Configuration.get_instance(abs_config_path);
 
 //  https://mailtrap.io/blog/smtp-commands-and-responses/#RSET
 

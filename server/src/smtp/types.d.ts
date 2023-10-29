@@ -1,6 +1,7 @@
 export type SocketType = 'TLS' | 'STARTTLS' | 'NIL';
-import { Socket as BunSocket } from 'bun';
+import { Socket as NodeSocket } from 'net';
 import RecvEmail from '../email/recv';
+import { TLSSocket } from 'tls';
 
 export type VRFYResponseCode = 
     251 | // -- User not local; will forward to <forward-path>
@@ -41,7 +42,7 @@ export type MAILFROMResponseCode =
     553 | // -- Requested action not taken: mailbox name not allowed
     555;  // -- MAIL FROM/RCPT TO parameters not recognized or not implemented
 
-export type CommandMap = Map<string, (socket: BunSocket<RecvEmail>, email: RecvEmail, words: Array<string>, raw: string) => void>;
+export type CommandMap = Map<string, (socket: WrappedSocket, email: RecvEmail, words: Array<string>, raw: string) => void>;
 
 export interface IMailFrom {
     user: string;
@@ -57,3 +58,14 @@ export interface IVRFYResponse {
 
 
 export type SMTPAuthType = 'PLAIN' | 'LOGIN' | 'CRAM-MD5' | 'DIGEST-MD5';
+
+
+
+// export type WrappedSocket = (NodeSocket | TLSSocket) & {
+//     data: RecvEmail | null;
+// };
+
+export type NodeSocketUnion = NodeSocket | TLSSocket;
+export type WrappedSocket = NodeSocketUnion & {
+    data: RecvEmail | null;
+};

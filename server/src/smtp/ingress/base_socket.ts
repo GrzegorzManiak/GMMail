@@ -1,18 +1,32 @@
-import { TCPSocketListener, Socket as BunSocket } from 'bun';
+import { Socket as NodeSocket, Server } from 'net';
 import { log } from '../../log';
-import { SocketType } from '../types';
+import { NodeSocketUnion, SocketType, WrappedSocket } from '../types';
 import Configuration from '../../config';
 import CODE from '../commands/CODE';
 import RecvEmail from '../../email/recv';
 import SMTPIngress from './ingress';
+import fs from 'fs';
+import { TlsOptions } from 'tls';
+
+
 
 export default class BaseSocket {
     protected _socket_type: SocketType;
-    protected _socket: TCPSocketListener<unknown>;
+    protected _socket: Server;
     protected _port: number;
 
     protected _config: Configuration;
     protected _smtp_ingress: SMTPIngress;
+
+    protected tls_cert_path = Configuration.get_instance().get<string>('TLS', 'CERT');
+    protected tls_key_path = Configuration.get_instance().get<string>('TLS', 'KEY');
+    protected tls_cert = fs.readFileSync(this.tls_cert_path);
+    protected tls_key = fs.readFileSync(this.tls_key_path);
+    
+    protected tls_options: TlsOptions = {
+        key: this.tls_key,
+        cert: this.tls_cert
+    };
 
     constructor(
         socket_type: SocketType,
@@ -33,7 +47,7 @@ export default class BaseSocket {
 
 
     protected socket_data = (
-        socket: BunSocket<RecvEmail>, 
+        socket: WrappedSocket, 
         data: Buffer,
         port: number,
         socket_type: SocketType  = this._socket_type
@@ -67,57 +81,49 @@ export default class BaseSocket {
 
 
     protected socket_open = (
-        socket: BunSocket<RecvEmail>,
+        socket: NodeSocketUnion,
         port: number,
         mode: SocketType = this._socket_type
-    ) => {
-        switch (mode) {
+    ): RecvEmail => {
+        // -- Get the senders IP 
+        const { remoteAddress } = socket;
+        log('DEBUG', 'Socket', 'constructor', `Socket opened on port ${port} from ${remoteAddress} with mode ${mode}`);
 
-            
-            // -- These are the same, and they are invoked when a socket is opened
-            //    on the TLS port, or the NIL port
-            case 'NIL':
-            case 'TLS': {
+        // -- Create the email object
+        const email = new RecvEmail(socket, mode);
 
-                // -- Get the senders IP 
-                const { remoteAddress } = socket;
-                log('DEBUG', 'Socket', 'constructor', `Socket opened on port ${port} from ${remoteAddress} with mode ${mode}`);
-
-                // -- Create the email object
-                const email = new RecvEmail(socket, mode);
-                socket.data = email;
-
-                // -- Push the greeting
-                email.send_message(socket, 220);
-                break;
-            };
-
-
-            // -- Where as STARTTLS can only be invoked by the STARTTLS command
-            //    so we dont need to push the greeting, just validate the socket
-            case 'STARTTLS': {
-
-                // -- Ensure that the socket has data
-                if (
-                    !socket.data ||
-                    !(socket.data instanceof RecvEmail)
-                ) {
-                    log('ERROR', 'Socket', 'constructor', `Socket data on port ${port} without email`);
-                    socket.write(CODE(451, 'EMail Object not found'))
-                    socket.end();
-                    return;
-                }
-
-                // -- Log the STARTTLS
-                log('DEBUG', 'Socket', 'constructor', `Completed STARTTLS on port ${port}`);
-            }
-        }
+        // -- Push the greeting
+        email.send_message(socket, 220);
+        return email;
     };
 
 
 
+    protected socket_upgrade = (
+        socket: WrappedSocket,
+        port: number,
+        mode: SocketType = this._socket_type
+    ) => {
+
+        // -- Ensure that the socket has data
+        if (
+            !socket.data ||
+            !(socket.data instanceof RecvEmail)
+        ) {
+            log('ERROR', 'Socket', 'constructor', `Socket data on port ${port} without email`);
+            socket.write(CODE(451, 'EMail Object not found'))
+            socket.end();
+            return;
+        }
+
+        // -- Log some information
+        log('DEBUG', 'Socket', 'constructor', `Socket upgraded on port ${port} with mode ${mode}`);
+    }
+
+
+
     protected socket_close = (
-        socket: BunSocket<RecvEmail>,
+        socket: WrappedSocket,
         port: number,
         mode: SocketType = this._socket_type
     ) => {
@@ -128,7 +134,7 @@ export default class BaseSocket {
             !socket.data ||
             !(socket.data instanceof RecvEmail)
         ) {
-            socket.end();
+            // socket.destroy();
             return;
         }
 
@@ -165,7 +171,7 @@ export default class BaseSocket {
 
     // -- Not used
     protected socket_drain = (
-        socket: BunSocket<RecvEmail>,
+        socket: WrappedSocket,
         port: number,
     ) => {
         log('DEBUG', 'Socket', 'constructor', `Socket drained on port ${port}`);
@@ -174,7 +180,7 @@ export default class BaseSocket {
 
 
     protected socket_error = (
-        socket: BunSocket<RecvEmail>,
+        socket: WrappedSocket,
         error: Error,
         port: number,
         mode: SocketType = this._socket_type

@@ -1,25 +1,37 @@
-import { Socket as BunSocket } from 'bun';
+import { Socket as NodeSocket, createServer as create_server } from 'net';
 import Configuration from '../../../config';
 import BaseSocket from '../base_socket';
-import RecvEmail from '../../../email/recv';
 
 
 
 export default class NilSocket extends BaseSocket {
     public constructor() {
         super('NIL', Configuration.get_instance().get<number>('SMTP_PORTS', 'NIL'));
-        
-        this._socket = Bun.listen<RecvEmail>({
-            hostname: this._config.get<string>('HOST'),
-            port: this._port,
-            socket: {
-                data: (socket, data) => this.socket_data(socket, data, this._port),
-                open: socket => this.socket_open(socket, this._port),
-                close: socket => this.socket_close(socket, this._port),
-                error: (socket, error) => this.socket_error(socket, error, this._port),
-            }
+
+
+
+        // -- Create the socket
+        this._socket = create_server((socket) => {
+
+            // -- Open the socket
+            const email = this.socket_open(socket, this._port);
+            // @ts-ignore
+            socket.data = email;
+
+            // @ts-ignore
+            socket.on('data', data => this.socket_data(socket, data, this._port));
+            // @ts-ignore
+            socket.on('error', error => this.socket_error(socket, error, this._port));
+            // @ts-ignore
+            socket.on('close', () => this.socket_close(socket, this._port));
         });
 
-        this._socket.ref();
+
+
+        // -- Start listening
+        this._socket.listen(
+            this._port, 
+            this._config.get<string>('HOST')
+        );
     }
 }

@@ -3,14 +3,14 @@ import ExtensionManager from '../../extensions/main';
 import { parse_command } from '../../extensions/parser'; 
 import { ICustomCommandData, IParsedParser } from '../../extensions/types';
 import { log } from '../../log';
-import { Socket as BunSocket } from 'bun';
 import SMTP from '../ingress/ingress';
+import { WrappedSocket } from '../types';
 
 
 
 export const parse_custom_ingress_command = (
     email: RecvEmail,
-    socket: BunSocket<RecvEmail>,
+    socket: WrappedSocket,
     command: string,
     words: Array<string>,
     command_name: string,
@@ -48,9 +48,9 @@ export const parse_custom_ingress_command = (
 
 
         // -- Parse the command
-        const parser_start = Bun.nanoseconds();
+        const parser_start = process.hrtime.bigint();
         const parsed = parse_command(command_name, command, cce.paramaters);
-        const parser_end = Bun.nanoseconds();
+        const parser_end = process.hrtime.bigint();
 
         if ((parsed as unknown as any)?.length) {
             log('DEBUG', 'SMTP', 'process', `Custom ingress command '${command_name}' FAILED to parse`);

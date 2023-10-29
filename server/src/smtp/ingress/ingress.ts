@@ -3,8 +3,7 @@ import RecvEmail from '../../email/recv';
 import { log } from '../../log';
 import Socket from './base_socket';
 import NilSocket from './sockets/starttls';
-import { SocketType } from '../types';
-import { Socket as BunSocket } from 'bun';
+import { SocketType, WrappedSocket } from '../types';
 import ExtensionManager from '../../extensions/main';
 import { add_commands, process } from './interpreter';
 import TlsSocket from './sockets/implicit';
@@ -15,7 +14,7 @@ export default class SMTPIngress {
     private static _instance: SMTPIngress;
     private _extensions: ExtensionManager;
     private _commands_map = new Map<string, (
-        socket: BunSocket<RecvEmail>, 
+        socket: WrappedSocket, 
         email: RecvEmail,
         words: Array<string>,
         raw: string,
@@ -103,14 +102,14 @@ export default class SMTPIngress {
      * 
      * @param {string} command - The command sent by the client
      * @param {RecvEmail} email - The email object that the client is connected to
-     * @param {Socket<RecvEmail>} socket - The socket that the client is connected to
+     * @param {WrappedSocket} socket - The socket that the client is connected to
      * 
      * @returns {void} Nothing
      */
     public process(
         command: string,
         email: RecvEmail,
-        socket: BunSocket<RecvEmail>,
+        socket: WrappedSocket,
     ): void {
         try {
             process(command, email, socket, this);

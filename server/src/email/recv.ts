@@ -1,10 +1,10 @@
-import { Socket } from 'bun';
 import { log } from '../log';
-import { IMailFrom, SocketType } from '../smtp/types';
+import { IMailFrom, NodeSocketUnion, SocketType, WrappedSocket } from '../smtp/types';
 import { IAddress, IMessage, MessageStage, MessageType } from './types';
 import evp from 'email-validator-pro';
 import CODE from '../smtp/commands/CODE';
-import { TCPSocketListener, Socket as BunSocket } from 'bun';
+import { Socket as NodeSocket } from 'net';
+import { TLSSocket } from 'tls';
 
 
 
@@ -14,7 +14,7 @@ const user_name_regex = /^(?!.*[._-]{2})[a-zA-Z0-9]+([._-]?[a-zA-Z0-9]+)*$/;
 
 export default class RecvEmail {
 
-    private readonly _id = crypto.randomUUID();
+    private readonly _id = Math.random().toString(36).substr(2, 9);
     private readonly _created_at = new Date();
         
     private _message_sequence: Array<IMessage> = [];
@@ -53,13 +53,13 @@ export default class RecvEmail {
      * @description Represents an email that is being received
      * from a client, for outbound emails, see SendEmail.
      * 
-     * @param {BunSocket} socket - The socket that the client is connected to
+     * @param {NodeSocketUnion} socket - The socket that the client is connected to
      * @param {SocketType} _socket_mode - The mode of the email
      * @param {number} [_timeout=10] - The time betweem messages till the email is closed
      * @param {number} [_total_timeout=90] - The total time till the email is closed
      */
     public constructor(
-        socket: BunSocket<RecvEmail>,
+        socket: NodeSocketUnion,
         private _socket_mode: SocketType,
         private _timeout = 60,
         private _total_timeout = 900,
@@ -78,13 +78,13 @@ export default class RecvEmail {
      * @description Manages the timeout of the email and makes sure
      * that the email is closed if the timeout is reached
      * 
-     * @param {BunSocket} socket - The socket that the client is connected to
+     * @param {NodeSocketUnion} socket - The socket that the client is connected to
      * @param {number} [interval=500] - The interval to check the timeout at (in ms)
      * 
      * @returns {void} Nothing
      */
     private async _timeout_manager(
-        socket: BunSocket<RecvEmail>,
+        socket: NodeSocketUnion,
         interval = 500,
     ) {
         // -- Check if the email is locked
@@ -183,13 +183,13 @@ export default class RecvEmail {
      * @description Closes the email, this is called when the email is finished
      * For now this is just a placeholder
      * 
-     * @param {Socket} socket - The socket to send the message to
+     * @param {NodeSocketUnion} socket - The socket to send the message to
      * @param {boolean} success - Whether the email was successfully sent
      * 
      * @returns {void} Nothing
      */
     public close(
-        socket: Socket<RecvEmail>,
+        socket: NodeSocketUnion,
         success: boolean,
     ): void {
         // // -- If the email is already closed, return
@@ -781,14 +781,14 @@ export default class RecvEmail {
      * @name send_message
      * @description Sends a message to the client
      * 
-     * @param {Socket} socket - The socket to send the message to
+     * @param {NodeSocketUnion} socket - The socket to send the message to
      * @param {number} code - The code of the message
      * @param {string} [message=''] - The message to send with the code
      * 
      * @returns {string} The message that was sent
      */
     public send_message(
-        socket: Socket<RecvEmail>,
+        socket: NodeSocketUnion,
         code: number,
         message = ''
     ): string {

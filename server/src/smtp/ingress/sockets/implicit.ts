@@ -1,7 +1,7 @@
-import { Socket as BunSocket } from 'bun';
+import { Socket as NodeSocket } from 'net';
+import { createServer as create_TLS_server, TlsOptions } from 'tls';
 import Configuration from '../../../config';
 import BaseSocket from '../base_socket';
-import RecvEmail from '../../../email/recv';
 
 
 
@@ -9,23 +9,30 @@ export default class TlsSocket extends BaseSocket {
     public constructor() {
         super('TLS', Configuration.get_instance().get<number>('SMTP_PORTS', 'TLS'));
 
-        this._socket = Bun.listen<RecvEmail>({
-            hostname: this._config.get<string>('HOST'),
-            port: this._port,
 
-            tls: {
-                key: Bun.file(this._config.get<string>('TLS', 'KEY')),
-                cert: Bun.file(this._config.get<string>('TLS', 'CERT')),
-            },
 
-            socket: {
-                data: (socket, data) => this.socket_data(socket, data, this._port),
-                open: socket => this.socket_open(socket, this._port),
-                close: socket => this.socket_close(socket, this._port),
-                error: (socket, error) => this.socket_error(socket, error, this._port),
-            }
+        // -- Create the socket
+        this._socket = create_TLS_server(this.tls_options, (socket: NodeSocket) => {
+
+            // -- Open the socket
+            const email = this.socket_open(socket, this._port);
+            // @ts-ignore
+            socket.data = email;
+
+            // @ts-ignore
+            socket.on('data', data => this.socket_data(socket, data, this._port));
+            // @ts-ignore
+            socket.on('error', error => this.socket_error(socket, error, this._port));
+            // @ts-ignore
+            socket.on('close', () => this.socket_close(socket, this._port));
         });
 
-        this._socket.ref();
+
+
+        // -- Start listening
+        this._socket.listen(
+            this._port, 
+            this._config.get<string>('HOST')
+        );
     }
 }

@@ -1,6 +1,6 @@
 import { log } from '../log';
 import { ConfigKeys, IConfig } from './types';
-
+import fs from 'fs';
 
 export default class Configuration {
 
@@ -46,17 +46,18 @@ export default class Configuration {
             'WARN', 'Configuration', '_load_config', 'Configuration file already loaded');
         
         // -- Attempt to load the configuration file
-        const config = Bun.file(this.CONFIG_FILE, { type: 'application/json' });
+        // const config = Bun.file(this.CONFIG_FILE, { type: 'application/json' });
+        const config = fs.readFileSync(this.CONFIG_FILE, { encoding: 'utf-8' });
 
-        // -- Check if the configuration file exists
-        if (!await config.exists()) return log(
-            'ERROR', 'Configuration', '_load_config', `Configuration file does not exist: ${this.CONFIG_FILE}`);
+        // // -- Check if the configuration file exists
+        // if (!await config.()) return log(
+        //     'ERROR', 'Configuration', '_load_config', `Configuration file does not exist: ${this.CONFIG_FILE}`);
 
 
             
         // -- Load the configuration file
-        this._raw_config = await config.text();
-        this._config = await config.json();
+        this._raw_config = config;
+        this._config = JSON.parse(config);
 
         // -- Merge the configuration file with the default configuration
         this._config = this._merge_config();

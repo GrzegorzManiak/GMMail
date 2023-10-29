@@ -1,6 +1,6 @@
 import RecvEmail from '../email/recv';
 import { LogType } from '../log';
-import { Socket as BunSocket } from 'bun';
+import { Socket as NodeSocket } from 'net';
 import SMTP from '../smtp/ingress/ingress';
 import { DATAResponseCode, IMailFrom, IVRFYResponse, RCPTTOResponseCode, VRFYResponseCode } from '../smtp/types';
 import { IAddress } from '../email/types';
@@ -112,7 +112,7 @@ export interface ICustomCommandData {
     log: (type: LogType, ...args: Array<unknown>) => void,
     email: RecvEmail,
 
-    socket: BunSocket<RecvEmail>,
+    socket: NodeSocket,
     smtp: SMTP,
     raw_data: string,
     words: Array<string>,
@@ -123,9 +123,9 @@ export interface ICustomCommandData {
     _parsed?: boolean,
     _paramaters: ICustomParser,
     performance: {
-        parser_start: number,
-        parser_end: number,
-        parser_time: number,
+        parser_start: BigInt,
+        parser_end: BigInt,
+        parser_time: BigInt,
     }
 }
 
@@ -134,7 +134,7 @@ export type IExtensionDataCallback = (data: IExtensionData) => void;
 export interface IExtensionData {
     log: (type: LogType, ...args: Array<unknown>) => void,
     email: RecvEmail,
-    socket: BunSocket<RecvEmail>,
+    socket: NodeSocket,
     smtp: SMTP,
     raw_data: string,
     words: Array<string>,

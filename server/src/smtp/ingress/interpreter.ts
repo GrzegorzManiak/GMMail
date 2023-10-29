@@ -1,7 +1,7 @@
-import { Socket as BunSocket } from 'bun';
+import { Socket as NodeSocket } from 'net';
 import RecvEmail from '../../email/recv';
 import SMTPIngress from './ingress';
-import { CommandMap } from '../types';
+import { CommandMap, WrappedSocket } from '../types';
 import { log } from '../../log';
 import { I_DATA, I_in_prog_data } from '../commands/DATA';
 import { I_EHLO } from '../commands/EHLO';
@@ -57,7 +57,7 @@ export const add_commands = (
  * 
  * @param {string} command - The command sent by the client
  * @param {RecvEmail} email - The email object that the client is connected to
- * @param {Socket<RecvEmail>} socket - The socket that the client is connected to
+ * @param {WrappedSocket} socket - The socket that the client is connected to
  * @param {SMTPIngress} smtp_ingress - The SMTPIngress class
  * 
  * @returns {void}
@@ -65,7 +65,7 @@ export const add_commands = (
 export const process = (
     command: string,
     email: RecvEmail,
-    socket: BunSocket<RecvEmail>,
+    socket: WrappedSocket,
     smtp_ingress: SMTPIngress
 ) => {
     const commands_map = smtp_ingress.map;

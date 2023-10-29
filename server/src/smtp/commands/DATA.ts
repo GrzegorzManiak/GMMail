@@ -2,9 +2,9 @@ import SMTP from '../ingress/ingress';
 import { log } from '../../log';
 import ExtensionManager from '../../extensions/main';
 import { IDATAExtensionData, IDataExtensionDataCallback } from '../../extensions/types';
-import { CommandMap } from '../types';
+import { CommandMap, WrappedSocket } from '../types';
 import RecvEmail from '../../email/recv';
-import { Socket as BunSocket } from 'bun';
+import { Socket as NodeSocket } from 'net';
 import Configuration from '../../config';
 
 
@@ -105,14 +105,14 @@ export const I_DATA = (commands_map: CommandMap) => commands_map.set('DATA',
  * sent by the client
  * 
  * @param {RecvEmail} email - Current email object
- * @param {Socket<RecvEmail>} socket - Current socket
+ * @param {WrappedSocket} socket - Current socket
  * @param {string} command  - The command sent by the client
  * 
  * @returns 
  */
 export const I_in_prog_data = (
     email: RecvEmail,
-    socket: BunSocket<RecvEmail>,
+    socket: WrappedSocket,
     command: string
 ): void => {
     // -- Ensure that the DATA command was sent

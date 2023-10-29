@@ -1,19 +1,17 @@
 {
-    "compilerOptions": {
-      "module": "ES2022",
-      "target": "ES6",
-      "lib": ["es5", "es6", "dom"],
-      "declaration": false,
-      "noImplicitAny": false,
-      "removeComments": true,
-      "inlineSourceMap": true,
-      "allowJs": true,
-      "moduleResolution": "node",
-      "types": [
-        "bun-types"
-      ]
-    },
-    "include": [
-      "src/**/*"
-    ],
+  "compilerOptions": {
+    "target": "ES6",
+    "module": "commonjs",
+    "lib": ["es5", "es6"],
+    "declaration": false,
+    "noImplicitAny": false,
+    "removeComments": true,
+    "esModuleInterop": true,
+    "sourceMap": false,
+    "allowJs": true,
+    "moduleResolution": "node",
+    "outDir": "./dist", 
+    "strict": false 
+  },
+  "include": ["src/**/*"]
 }

@@ -1,41 +1,41 @@
 import Configuration from '../../../config';
 import RecvEmail from '../../../email/recv';
+import { NodeSocketUnion, WrappedSocket } from '../../types';
 import BaseSocket from '../base_socket';
-import { Socket as BunSocket } from 'bun';
+import { Socket as NodeSocket } from 'net';
+import { connect, createServer as create_TLS_server, TlsOptions, TLSSocket } from 'tls';
 
 
 export default class UpgradeSocket extends BaseSocket {
 
-    public socket: BunSocket<RecvEmail>;
+    public socket: NodeSocketUnion;
 
     public constructor(
-        public existing_socket: BunSocket<RecvEmail>
+        public existing_socket: WrappedSocket
     ) {
 
         // -- The port is NIL as we are upgrading the connection from the NIL socket
         super('STARTTLS', Configuration.get_instance().get<number>('SMTP_PORTS', 'NIL'));
 
-
-        // @ts-ignore // -- This feature is not yet documented in the Bun library
-        const sockets = existing_socket.upgradeTLS<RecvEmail>({
-            data: existing_socket.data,
-            
-            tls: {
-                key: Bun.file(this._config.get<string>('TLS', 'KEY')),
-                cert: Bun.file(this._config.get<string>('TLS', 'CERT')),
-            },
-
-            socket: {
-                data: (socket, data) => this.socket_data(socket, data, this._port),
-                open: socket => this.socket_open(socket, this._port),
-                close: socket => this.socket_close(socket, this._port),
-                error: (socket, error) => this.socket_error(socket, error, this._port),
-            }
+        // -- Create the socket
+        const tls_socket = new TLSSocket(existing_socket, {
+            ...this.tls_options,
+            isServer: true
         });
 
 
-        // -- Set the socket
-        this.socket = sockets[0];
-        this.existing_socket = sockets[1];
+        // @ts-ignore
+        tls_socket.data = existing_socket.data;
+
+        // @ts-ignore
+        this.socket_upgrade(tls_socket, this._port)
+
+
+        // @ts-ignore
+        tls_socket.on('data', data => this.socket_data(tls_socket, data, this._port));
+        // @ts-ignore
+        tls_socket.on('error', error => this.socket_error(tls_socket, error, this._port));
+        // @ts-ignore
+        tls_socket.on('close', () => this.socket_close(tls_socket, this._port));
     }
 }
