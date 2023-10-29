@@ -32,10 +32,10 @@ export default class UpgradeSocket extends BaseSocket {
 
 
         // @ts-ignore
-        tls_socket.on('data', data => this.socket_data(tls_socket, data, this._port));
+        tls_socket.on('data', data => this.socket_data(tls_socket, data));
         // @ts-ignore
-        tls_socket.on('error', error => this.socket_error(tls_socket, error, this._port));
+        tls_socket.on('error', error => this.socket_error(tls_socket, error));
         // @ts-ignore
-        tls_socket.on('close', () => this.socket_close(tls_socket, this._port));
+        tls_socket.on('close', () => this.socket_close(tls_socket));
     }
 }

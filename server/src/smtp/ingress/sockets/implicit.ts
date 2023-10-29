@@ -20,11 +20,11 @@ export default class TlsSocket extends BaseSocket {
             socket.data = email;
 
             // @ts-ignore
-            socket.on('data', data => this.socket_data(socket, data, this._port));
+            socket.on('data', data => this.socket_data(socket, data));
             // @ts-ignore
-            socket.on('error', error => this.socket_error(socket, error, this._port));
+            socket.on('error', error => this.socket_error(socket, error));
             // @ts-ignore
-            socket.on('close', () => this.socket_close(socket, this._port));
+            socket.on('close', () => this.socket_close(socket));
         });
 
 

@@ -49,7 +49,7 @@ export default class BaseSocket {
     protected socket_data = async (
         socket: WrappedSocket, 
         data: Buffer,
-        port: number,
+        port: number = this._port,
         socket_type: SocketType  = this._socket_type
     ) => {
 
@@ -82,7 +82,7 @@ export default class BaseSocket {
 
     protected socket_open = (
         socket: NodeSocketUnion,
-        port: number,
+        port: number = this._port,
         mode: SocketType = this._socket_type
     ): RecvEmail => {
         // -- Get the senders IP 
@@ -101,7 +101,7 @@ export default class BaseSocket {
 
     protected socket_upgrade = (
         socket: WrappedSocket,
-        port: number,
+        port: number = this._port,
         mode: SocketType = this._socket_type
     ) => {
 
@@ -124,7 +124,7 @@ export default class BaseSocket {
 
     protected socket_close = (
         socket: WrappedSocket,
-        port: number,
+        port: number = this._port,
         mode: SocketType = this._socket_type
     ) => {
 
@@ -172,7 +172,7 @@ export default class BaseSocket {
     // -- Not used
     protected socket_drain = (
         socket: WrappedSocket,
-        port: number,
+        port: number = this._port,
     ) => {
         log('DEBUG', 'Socket', 'constructor', `Socket drained on port ${port}`);
     };
@@ -182,7 +182,7 @@ export default class BaseSocket {
     protected socket_error = (
         socket: WrappedSocket,
         error: Error,
-        port: number,
+        port: number = this._port,
         mode: SocketType = this._socket_type
     ) => {
         log('ERROR', 'Socket', 'constructor', `Socket error on port ${port}: ${error}`);

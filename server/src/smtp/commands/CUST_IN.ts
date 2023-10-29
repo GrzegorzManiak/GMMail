@@ -48,9 +48,9 @@ export const parse_custom_ingress_command = (
 
 
         // -- Parse the command
-        const parser_start = process.hrtime.bigint();
+        const parser_start = process.hrtime.bigint() as bigint;
         const parsed = parse_command(command_name, command, cce.paramaters);
-        const parser_end = process.hrtime.bigint();
+        const parser_end = process.hrtime.bigint() as bigint;
 
         if ((parsed as unknown as any)?.length) {
             log('DEBUG', 'SMTP', 'process', `Custom ingress command '${command_name}' FAILED to parse`);
