@@ -94,7 +94,7 @@ const config = Configuration.get_instance(abs_config_path);
      * to controll the DATA command, eg bypass limits
      * or add custom checks
      */
-    extensions.add_command_extension<IDATAExtensionData>('DATA', (data) => {
+    extensions.add_command_extension<IDATAExtensionData>('DATA', async(data) => {
         data.bypass_size_check = false;
         if(data.total_size > 1000) data.action('DENY');
     });
@@ -144,9 +144,10 @@ const config = Configuration.get_instance(abs_config_path);
      * or you can use it for logging, spam prevention, etc
      */
     extensions.add_command_extension<IMailFromExtensionData>('MAIL FROM', (data) => {
-        // if (data.sender.domain === 'example2.com') return 541;
-        // // -- You can return a 250, but thats the default
-        // return 250;
+        // console.log(data.sender);
+        // lookup(data.sender.domain, 'TXT').then((res) => {
+        //     console.log(res);
+        // });
     });
 
 

@@ -27,7 +27,7 @@ export default class ExtensionManager {
      */
     public add_command_extension<T extends ExtensionDataUnion = IExtensionData>(
         extension: T['type'],
-        callback: Extract<CallbackDataMap, { key: T['type'] }>['value'] | IExtensionDataCallback,
+        callback: Extract<CallbackDataMap, { key: T['type'] } > ['value'],
     ): void {
 
         // -- Attempt to get the existing extensions

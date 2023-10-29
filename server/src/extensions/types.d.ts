@@ -241,15 +241,15 @@ export type CommandCallback =
     INoopExtensionDataCallback;
 
 export type CallbackDataMap =
-    { key: 'VRFY', value: IVrfyExtensionDataCallback } |
-    { key: 'DATA', value: IDataExtensionDataCallback } |
-    { key: 'RCPT TO', value: IRcptToExtensionDataCallback } |
-    { key: 'MAIL FROM', value: IMailFromExtensionDataCallback } |
-    { key: 'STARTTLS', value: IStartTlsExtensionDataCallback } |
-    { key: 'QUIT', value: IQuitExtensionDataCallback } |
-    { key: 'RSET', value: IRsetExtensionDataCallback } |
-    { key: 'NOOP', value: INoopExtensionDataCallback } |
-    { key: 'GENERIC', value: IExtensionDataCallback };
+    { key: 'VRFY', value: IVrfyExtensionDataCallback, data: IVRFYExtensionData } |
+    { key: 'DATA', value: IDataExtensionDataCallback, data: IDATAExtensionData } |
+    { key: 'RCPT TO', value: IRcptToExtensionDataCallback, data: IRCPTTOExtensionData } |
+    { key: 'MAIL FROM', value: IMailFromExtensionDataCallback, data: IMailFromExtensionData } |
+    { key: 'STARTTLS', value: IStartTlsExtensionDataCallback, data: IStartTlsExtensionData } |
+    { key: 'QUIT', value: IQuitExtensionDataCallback, data: IQuitExtensionData } |
+    { key: 'RSET', value: IRsetExtensionDataCallback, data: IRsetExtensionData } |
+    { key: 'NOOP', value: INoopExtensionDataCallback, data: INoopExtensionData } |
+    { key: 'GENERIC', value: IExtensionDataCallback, data: IExtensionData };
     
 export type CustomIngressCallback = 
     ICustomCommandDataCallback;
