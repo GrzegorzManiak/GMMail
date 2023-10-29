@@ -15,20 +15,23 @@ export const I_NOOP = (commands_map: CommandMap) => commands_map.set('NOOP',
     (socket, email, words, raw_data) => new Promise(async(resolve, reject) => {
 
 
-    // -- Build the extension data
-    const extension_data: INoopExtensionData = {
-        log, email, socket,
-        words, raw_data,
-        smtp: SMTP.get_instance(),
-        type: 'NOOP',
-    };
-
 
     // -- Get the extensions
     const extensions = ExtensionManager.get_instance();
     const promises = [];
-    extensions._get_command_extension_group('NOOP').forEach((callback: INoopExtensionDataCallback) => 
-        promises.push(callback(extension_data)));
+    extensions._get_command_extension_group('NOOP').forEach((data) =>  {
+        // -- Build the extension data
+        const extension_data: INoopExtensionData = {
+            log, email, socket,
+            words, raw_data,
+            smtp: SMTP.get_instance(),
+            type: 'NOOP',
+            extension_id: data.id,
+            extensions: extensions,
+        };
+        
+        promises.push((data.callback as INoopExtensionDataCallback)(extension_data));
+    });
 
     // -- Wait for all the promises to resolve
     await Promise.all(promises);

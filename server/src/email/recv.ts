@@ -167,7 +167,7 @@ export default class RecvEmail {
             code,
         });
 
-        console.log(`[${type.toUpperCase()}] ${code} ${content}`);
+        // console.log(`[${type.toUpperCase()}] ${code} ${content}`);
 
         // -- Update the last received date
         switch (type) {

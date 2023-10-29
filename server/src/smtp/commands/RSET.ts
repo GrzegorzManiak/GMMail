@@ -29,20 +29,22 @@ export const I_RSET = (commands_map: CommandMap) => commands_map.set('RSET',
     }
 
     
-    // -- Build the extension data
-    const extension_data: IRsetExtensionData = {
-        log, email, socket,
-        words, raw_data,
-        smtp: SMTP.get_instance(),
-        type: 'RSET',
-    };
-
-
     // -- Get the extensions
     const extensions = ExtensionManager.get_instance();
     const promises = [];
-    extensions._get_command_extension_group('RSET').forEach((callback: IRsetExtensionDataCallback) => 
-        promises.push(callback(extension_data)));
+    extensions._get_command_extension_group('RSET').forEach((data) =>  {
+        // -- Build the extension data
+        const extension_data: IRsetExtensionData = {
+            log, email, socket,
+            words, raw_data,
+            smtp: SMTP.get_instance(),
+            type: 'RSET',
+            extension_id: data.id,
+            extensions: extensions,
+        };
+        
+        promises.push((data.callback as IRsetExtensionDataCallback)(extension_data));
+    });
 
     // -- Wait for all the promises to resolve
     await Promise.all(promises);

@@ -13,8 +13,6 @@ import {
     IStartTlsExtensionData, 
     IVRFYExtensionData, 
 } from './extensions/types';
-import { lookup } from 'fetch-dns-lookup';
-
 
 // -- There will be a main class here that will be the entry point for the server
 //    and will be responsible for loading the config, starting the server, etc
@@ -41,6 +39,7 @@ const config = Configuration.get_instance(abs_config_path);
     const smtp = SMTP.get_instance(),
         extensions = ExtensionManager.get_instance();
     smtp.start_listening();
+    extensions.add_defualt_extensions();
 
 
 
@@ -143,11 +142,13 @@ const config = Configuration.get_instance(abs_config_path);
      * 
      * or you can use it for logging, spam prevention, etc
      */
-    extensions.add_command_extension<IMailFromExtensionData>('MAIL FROM', (data) => {
-        // console.log(data.sender);
-        // lookup(data.sender.domain, 'TXT').then((res) => {
-        //     console.log(res);
-        // });
+    extensions.add_command_extension<IMailFromExtensionData>('MAIL FROM', async(data) => {
+
+        // -- Get the domains TXT records
+        // const records: Array<Array<string>> = await new Promise((resolve) => 
+        //     resolveTxt(data.sender.domain, (err, txt_records) => resolve(txt_records)));
+
+        // console.log(records);
     });
 
 

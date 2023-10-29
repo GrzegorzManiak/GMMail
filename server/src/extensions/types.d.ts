@@ -4,6 +4,7 @@ import { Socket as NodeSocket } from 'net';
 import SMTP from '../smtp/ingress/ingress';
 import { DATAResponseCode, IMailFrom, IVRFYResponse, RCPTTOResponseCode, VRFYResponseCode } from '../smtp/types';
 import { IAddress } from '../email/types';
+import ExtensionManager from './main';
 
 
 
@@ -139,6 +140,8 @@ export interface IExtensionData {
     raw_data: string,
     words: Array<string>,
     type: CommandExtension,
+    extensions: ExtensionManager,
+    extension_id: string,
 }
 
 
@@ -254,7 +257,10 @@ export type CallbackDataMap =
 export type CustomIngressCallback = 
     ICustomCommandDataCallback;
 
-export type CommandExtensionMap = Map<string, [CommandCallback]>;
+export type CommandExtensionMap = Map<string, [{
+    callback: CommandCallback,
+    id: string,
+}]>;
 export type CustomCommandEntry = { 
     paramaters: ICustomParser, 
     callback: CustomIngressCallback,
@@ -262,6 +268,7 @@ export type CustomCommandEntry = {
     disallowed_stages: Array<string>,
     mode: 'ESMTP' | 'SMTP' | 'ANY',
     feature_name: string | null,
+    id: string,
 };
 export type CustomIngressMap = Map<string, [CustomCommandEntry]>;
 

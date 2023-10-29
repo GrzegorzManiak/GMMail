@@ -34,6 +34,8 @@ export const I_VRFY = (commands_map: CommandMap) => commands_map.set('VRFY',
             words, raw_data,
             smtp: SMTP.get_instance(),
             type: 'VRFY',
+            extension_id: extension_funcs[i].id,
+            extensions: extensions,
             found_users,
             action: (data) => action(data, found_users)
         };
@@ -43,7 +45,7 @@ export const I_VRFY = (commands_map: CommandMap) => commands_map.set('VRFY',
         // -- Run the callback
         try {
             log('DEBUG', 'SMTP', 'process', `Running VRFY extension`);
-            const extension_func = extension_funcs[i] as IVrfyExtensionDataCallback;
+            const extension_func = extension_funcs[i].callback as IVrfyExtensionDataCallback;
             await extension_func(extension_data);
         }
 

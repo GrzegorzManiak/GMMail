@@ -40,7 +40,7 @@ export const I_MAIL_FROM = (commands_map: CommandMap) => commands_map.set('MAIL 
     const extensions = ExtensionManager.get_instance();
     const extension_funcs = extensions._get_command_extension_group('MAIL FROM');
     for (let i = 0; i < extension_funcs.length; i++) {
-        
+
         // -- Check if the final callback has been called
         if (final) break;
 
@@ -50,6 +50,8 @@ export const I_MAIL_FROM = (commands_map: CommandMap) => commands_map.set('MAIL 
             words, raw_data, sender,
             smtp: SMTP.get_instance(),
             type: 'MAIL FROM',
+            extension_id: extension_funcs[i].id,
+            extensions: extensions,
             action: (action) => {
                 allow_sender = (action === 'ALLOW' || action === 'ALLOW:FINAL');
                 if (action === 'ALLOW:FINAL' || action === 'DENY:FINAL') final = true;
@@ -60,7 +62,7 @@ export const I_MAIL_FROM = (commands_map: CommandMap) => commands_map.set('MAIL 
         // -- Run the callback
         try {
             log('DEBUG', 'SMTP', 'process', `Running RCPT TO extension`);
-            const extension_func = extension_funcs[i] as IMailFromExtensionDataCallback;
+            const extension_func = extension_funcs[i].callback as IMailFromExtensionDataCallback;
             await extension_func(extension_data);
         }
 

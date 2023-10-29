@@ -42,6 +42,8 @@ export const I_STARTTLS = (commands_map: CommandMap) => commands_map.set('STARTT
             words, raw_data,
             smtp: SMTP.get_instance(),
             type: 'STARTTLS',
+            extension_id: extension_funcs[i].id,
+            extensions: extensions,
             current_status: allow_upgrade ? 'ALLOW' : 'DENY',
             action: (action) => {
                 allow_upgrade = (action === 'ALLOW' || action === 'ALLOW:FINAL');
@@ -54,7 +56,7 @@ export const I_STARTTLS = (commands_map: CommandMap) => commands_map.set('STARTT
         // -- Run the callback
         try {
             log('DEBUG', 'SMTP', 'process', `Running STARTTLS extension`);
-            const extension_func = extension_funcs[i] as IStartTlsExtensionDataCallback;
+            const extension_func = extension_funcs[i].callback as IStartTlsExtensionDataCallback;
             await extension_func(extension_data);
         }
 

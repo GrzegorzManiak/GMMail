@@ -1,5 +1,6 @@
 {
   "dependencies": {
-    "fetch-dns-lookup": "^3.0.6"
+    "fetch-dns-lookup": "^3.0.6",
+    "haraka-plugin-spf": "^1.2.3"
   }
 }

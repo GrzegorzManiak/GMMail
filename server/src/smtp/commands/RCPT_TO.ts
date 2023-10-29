@@ -47,6 +47,8 @@ export const I_RCPT_TO = (commands_map: CommandMap) => commands_map.set('RCPT TO
             words, raw_data, recipient,
             smtp: SMTP.get_instance(),
             type: 'RCPT TO',
+            extension_id: extension_funcs[i].id,
+            extensions: extensions,
             action: (action) => {
                 allow_cc = (action === 'ALLOW' || action === 'ALLOW:FINAL');
                 if (action === 'ALLOW:FINAL' || action === 'DENY:FINAL') final = true;
@@ -57,7 +59,7 @@ export const I_RCPT_TO = (commands_map: CommandMap) => commands_map.set('RCPT TO
         // -- Run the callback
         try {
             log('DEBUG', 'SMTP', 'process', `Running RCPT TO extension`);
-            const extension_func = extension_funcs[i] as IRcptToExtensionDataCallback;
+            const extension_func = extension_funcs[i].callback as IRcptToExtensionDataCallback;
             extension_func(extension_data);
         }
 

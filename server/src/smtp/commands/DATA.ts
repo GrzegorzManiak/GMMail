@@ -61,13 +61,15 @@ export const I_DATA = (commands_map: CommandMap) => commands_map.set('DATA',
             current_size: 0,
             total_size: email.data_size,
             bypass_size_check: false,
+            extension_id: extension_funcs[i].id,
+            extensions: extensions,
             action: (action) => allow_continue = action === 'ALLOW'
         };
 
         // -- Run the callback
         try {
             log('DEBUG', 'SMTP', 'process', `Running DATA extension`);
-            const extension_func = extension_funcs[i] as IDataExtensionDataCallback;
+            const extension_func = extension_funcs[i].callback as IDataExtensionDataCallback;
             await extension_func(extension_data);
         }
 
@@ -116,7 +118,7 @@ export const I_in_prog_data = (
     email: RecvEmail,
     socket: WrappedSocket,
     command: string
-): Promise<void> => new Promise((resolve, reject) => {
+): Promise<void> => new Promise(async(resolve, reject) => {
     // -- Ensure that the DATA command was sent
     if (
         !email.has_marker('DATA') ||
@@ -135,26 +137,29 @@ export const I_in_prog_data = (
     // -- Get the extensions
     const extensions = ExtensionManager.get_instance();
     let allow_continue = true, bypass_size_check = false;
-    extensions._get_command_extension_group('DATA').forEach((callback: IDataExtensionDataCallback) => {
+    const extension_funcs = extensions._get_command_extension_group('DATA');
+    for (let i = 0; i < extension_funcs.length; i++) {
 
         // -- Build the extension data
         const extension_data: IDATAExtensionData = {
             email, socket, log,
             words: [], raw_data: command,
+            data_lines: [],
             smtp: SMTP.get_instance(),
             type: 'DATA',
-            current_size,
-            data_lines,
+            current_size: 0,
             total_size: email.data_size,
             bypass_size_check: false,
+            extension_id: extension_funcs[i].id,
+            extensions: extensions,
             action: (action) => allow_continue = action === 'ALLOW'
         };
 
-
-
         // -- Run the callback
         try {
-            callback(extension_data);
+            log('DEBUG', 'SMTP', 'process', `Running DATA extension`);
+            const extension_func = extension_funcs[i].callback as IDataExtensionDataCallback;
+            await extension_func(extension_data);
             bypass_size_check = extension_data.bypass_size_check;
         }
 
@@ -171,11 +176,10 @@ export const I_in_prog_data = (
             delete extension_data.type;
             delete extension_data.data_lines;
             delete extension_data.current_size;
-            delete extension_data.current_size;
             delete extension_data.bypass_size_check;
             delete extension_data.action;
         }
-    });
+    }
 
 
 
