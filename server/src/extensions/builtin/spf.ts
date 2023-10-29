@@ -13,12 +13,18 @@ import { IMailFromExtensionData } from '../types';
 */
 export default (
     extensions: ExtensionManager
-) => extensions.add_command_extension<IMailFromExtensionData>('MAIL FROM', async(data) => {
+) => {
+    // -- Ensure that the 'BUILTIN-MAILFROM-DNS-RECORDS' extension is loaded
+    if (!extensions.command_extension_exists('BUILTIN-MAILFROM-DNS-RECORDS'))
+        throw new Error('BUILTIN-SENDER-SPF-VALIDATOR requires BUILTIN-MAILFROM-DNS-RECORDS to be loaded');
+    
 
-    // -- ADD ANOTHR DEFUALT EXTENSION TO GET DNS RECORDS SO MULTIPLE EXTENSIONS CAN USE IT
-    // -- Get the domains TXT records
-    const records: Array<Array<string>> = await new Promise((resolve) => 
-        resolveTxt(data.sender.domain, (err, txt_records) => resolve(txt_records)));
+    // -- Add the extension
+    extensions.add_command_extension<IMailFromExtensionData>('MAIL FROM', async(data) => {
 
-    console.log(records);
-});
+        // -- Get the domains TXT records
+        const records = data.email.get_extra<string[][]>('dns_records');
+        console.log(records);
+
+    }, 'BUILTIN-SENDER-SPF-VALIDATOR');    
+}

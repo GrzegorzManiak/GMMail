@@ -1,6 +1,6 @@
 import { CallbackDataMap, CommandCallback, CommandExtension, CommandExtensionMap, CustomCommandEntry, CustomIngressCallback, CustomIngressMap, ExtensionDataUnion, ExtensionType, ICustomCommandDataCallback, ICustomCommandParamaters, ICustomParser, IExtensionData, IExtensionDataCallback } from './types';
 import sender_spf_validator from './builtin/spf';
-
+import dns_records from './builtin/dns';
 
 export default class ExtensionManager {
     private static _instance: ExtensionManager;
@@ -36,6 +36,15 @@ export default class ExtensionManager {
             id: id || `${extension}-${Math.random().toString(36).substring(7)}`,
             callback,
         };
+
+        // -- Ensure that no other extension has the same ID
+        this._command_extensions.forEach((extensions) => {
+            extensions.forEach((extension) => {
+                if (extension.id === extension_data.id) 
+                    throw new Error(`Extension ID ${extension_data.id} already exists`);
+            });
+        });
+
         
         // -- Attempt to get the existing extensions
         const extensions = this._command_extensions.get(extension);
@@ -108,6 +117,38 @@ export default class ExtensionManager {
 
 
     /**
+     * @name command_extension_exists
+     * @description Checks if the given command extension exists
+     * 
+     * @param {string | Array<string>} id - the ID/s of the extension to check
+     * 
+     * @returns {boolean} If the extension / group of extensions exists
+     */
+    public command_extension_exists(id: string | Array<string>): boolean {
+       
+        // -- Ensure that the ID is an array
+        if (!Array.isArray(id)) id = [id];
+
+        // -- Check if the extension exists
+        let exists = true;
+
+        // -- Loop through the IDs
+        for (let i = 0; i < id.length; i++) {
+            exists = false;
+            this._command_extensions.forEach((extensions) => {
+                extensions.forEach((extension) => {
+                    if (extension.id === id[i]) exists = true;
+                });
+            });
+        }
+
+        // -- Return if the extension exists
+        return exists;
+    }
+
+
+
+    /**
      * @name _is_custom_ingress_command
      * @description Checks if the given command is a custom ingress command
      * 
@@ -143,6 +184,7 @@ export default class ExtensionManager {
      * @extension sender_spf_validator - Validates the sender tru SPF
      */
     public add_defualt_extensions() {
+        dns_records(this);
         sender_spf_validator(this);
     }
 }
