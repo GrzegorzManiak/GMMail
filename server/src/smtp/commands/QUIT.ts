@@ -11,8 +11,8 @@ import { CommandMap } from '../types';
  * @description Processes the QUIT command
  * QUIT
  */
-export const I_QUIT = (commands_map: CommandMap) => 
-    commands_map.set('QUIT', (socket, email, words, raw_data) => {
+export const I_QUIT = (commands_map: CommandMap) => commands_map.set('QUIT', 
+    (socket, email, words, raw_data) => new Promise((resolve, reject) => {
 
 
     // -- Build the extension data
@@ -32,4 +32,5 @@ export const I_QUIT = (commands_map: CommandMap) =>
 
     // -- Push the quit message
     email.send_message(socket, 221, 'Bye');
-});
+    return resolve();
+}));

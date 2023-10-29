@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "fetch-dns-lookup": "^3.0.6"
+  }
+}

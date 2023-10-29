@@ -14,13 +14,13 @@ import { CommandMap } from '../types';
  * https://www.ibm.com/docs/en/zvm/7.3?topic=commands-rcptto
  */
 export const I_RCPT_TO = (commands_map: CommandMap) => commands_map.set('RCPT TO', 
-    (socket, email, words, raw_data) => {
+    (socket, email, words, raw_data) => new Promise((resolve, reject) => {
 
     // -- This command has to be sent after MAIL FROM
     if (!email.has_marker('MAIL FROM')) {
         email.send_message(socket, 503, 'Bad sequence of commands');
         email.close(socket, false);
-        return;
+        return reject();
     }
 
 
@@ -29,7 +29,7 @@ export const I_RCPT_TO = (commands_map: CommandMap) => commands_map.set('RCPT TO
     if (!recipient) {
         email.send_message(socket, 553, 'Invalid recipient');
         email.close(socket, false);
-        return;
+        return reject();
     }
     
 
@@ -78,11 +78,16 @@ export const I_RCPT_TO = (commands_map: CommandMap) => commands_map.set('RCPT TO
 
 
 
-    // -- If the extension data was returned, don't add the CC
-    if (!allow_cc) email.send_message(socket, 450);
+    // -- If the extension disallowed the CC, return an error
+    if (!allow_cc) {
+        email.send_message(socket, 450);
+        return resolve();
+    }
+
     
     // -- Add the CC to the email
     email.rcpt_recipient = recipient;
     email.marker = 'RCPT TO';
     email.send_message(socket, 250);
-});
+    resolve();
+}));

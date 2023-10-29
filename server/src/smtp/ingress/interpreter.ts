@@ -67,7 +67,7 @@ export const process = (
     email: RecvEmail,
     socket: WrappedSocket,
     smtp_ingress: SMTPIngress
-) => {
+): Promise<void> => {
     const commands_map = smtp_ingress.map;
     email.locked = true;
     

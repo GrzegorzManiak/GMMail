@@ -13,12 +13,15 @@ import { CommandMap } from '../types';
  * @description Processes the STARTTLS command which
  * upgrades the connection to TLS
  */
-export const I_STARTTLS = (commands_map: CommandMap) => 
-    commands_map.set('STARTTLS', (socket, email, words, raw_data) => {
+export const I_STARTTLS = (commands_map: CommandMap) => commands_map.set('STARTTLS',
+    (socket, email, words, raw_data) => new Promise((resolve, reject) => {
 
     // -- Ensure that the current mode is NIL
-    if (email.socket_mode !== 'NIL') 
-        return email.send_message(socket, 454); 
+    if (email.socket_mode !== 'NIL') {
+        email.send_message(socket, 454); 
+        return reject();
+    }
+        
     
     // -- If we should not allow the upgrade, return an error
     let allow_upgrade = true, final = false;
@@ -76,7 +79,7 @@ export const I_STARTTLS = (commands_map: CommandMap) =>
         log('WARN', 'STARTTLS was not allowed by an extension');
         email.marker = 'STARTTLS';
         email.send_message(socket, 454);
-        return;
+        return resolve();
     }
 
 
@@ -89,4 +92,5 @@ export const I_STARTTLS = (commands_map: CommandMap) =>
     email.reset_command();
     email.marker = 'STARTTLS';
     new UpgradeSocket(socket);
-});
+    return resolve();
+}));

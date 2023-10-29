@@ -3,7 +3,7 @@ import RecvEmail from '../../email/recv';
 import { log } from '../../log';
 import Socket from './base_socket';
 import NilSocket from './sockets/starttls';
-import { SocketType, WrappedSocket } from '../types';
+import { CommandMap, SocketType, WrappedSocket } from '../types';
 import ExtensionManager from '../../extensions/main';
 import { add_commands, process } from './interpreter';
 import TlsSocket from './sockets/implicit';
@@ -13,12 +13,7 @@ import TlsSocket from './sockets/implicit';
 export default class SMTPIngress {
     private static _instance: SMTPIngress;
     private _extensions: ExtensionManager;
-    private _commands_map = new Map<string, (
-        socket: WrappedSocket, 
-        email: RecvEmail,
-        words: Array<string>,
-        raw: string,
-    ) => void>();
+    private _commands_map: CommandMap = new Map();
     
     private _sockets: Socket[];
     private _config: Configuration;
@@ -106,20 +101,23 @@ export default class SMTPIngress {
      * 
      * @returns {void} Nothing
      */
-    public process(
+    public process = (
         command: string,
         email: RecvEmail,
         socket: WrappedSocket,
-    ): void {
+    ): Promise<void> => new Promise((resolve, reject) => {
         try {
-            process(command, email, socket, this);
+            process(command, email, socket, this)
+                .then(() => resolve())
+                .catch((err) => reject(err));
         }
 
         catch (error) {
             log('ERROR', 'SMTPIngress', 'process', error);
             socket.end();
+            reject(error);
         }
-    }
+    });
 
 
 

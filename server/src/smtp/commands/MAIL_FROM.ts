@@ -14,13 +14,13 @@ import { CommandMap } from '../types';
  * https://www.ibm.com/docs/en/zvm/7.3?topic=commands-mailfrom
  */
 export const I_MAIL_FROM = (commands_map: CommandMap) => commands_map.set('MAIL FROM', 
-    (socket, email, words, raw_data) => {
+    (socket, email, words, raw_data) => new Promise((resolve, reject) => {
         
     // -- ensure that we are in the VALIDATE stage
     if (email.has_marker('MAIL FROM')) {
         email.send_message(socket, 503, 'Bad sequence of commands');
         email.close(socket, false);
-        return;
+        return reject();
     }
 
 
@@ -29,7 +29,7 @@ export const I_MAIL_FROM = (commands_map: CommandMap) => commands_map.set('MAIL 
     if (sender === null) {
         email.send_message(socket, 553, 'Invalid sender');
         email.close(socket, false);
-        return;
+        return reject();
     }
 
 
@@ -87,11 +87,14 @@ export const I_MAIL_FROM = (commands_map: CommandMap) => commands_map.set('MAIL 
         log('WARN', 'MAIL FROM was not allowed by an extension');
         email.marker = 'MAIL FROM';
         email.send_message(socket, 454);
-        return;
+        return resolve();
     }
+    
+
     
     // -- Else, Set the sender
     email.sender = sender;
     email.marker = 'MAIL FROM';
     email.send_message(socket, 250);
-});
+    return resolve();
+}));

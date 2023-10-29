@@ -20,8 +20,7 @@ function check_ehlo(command: string): boolean {
  * https://www.ibm.com/docs/en/zvm/7.3?topic=commands-ehlo
  */
 export const I_EHLO = (commands_map: CommandMap) => commands_map.set('EHLO', 
-    (socket, email, words, raw) => {
-
+    (socket, email, words, raw_data) => new Promise((resolve, reject) => {
 
         
     // -- ensure that we are in the INIT stage
@@ -31,7 +30,7 @@ export const I_EHLO = (commands_map: CommandMap) => commands_map.set('EHLO',
     ) {
         email.send_message(socket, 503, 'Bad sequence of commands');
         email.close(socket, false);
-        return;
+        return reject();
     }
 
 
@@ -40,10 +39,11 @@ export const I_EHLO = (commands_map: CommandMap) => commands_map.set('EHLO',
     const he = HELO_EHLO(words.join(' '));
     if (
         he.message_type === 'UNKNOWN' ||
-        !check_ehlo(raw)
+        !check_ehlo(raw_data)
     ) {
         email.send_message(socket, 500, 'Unknown command');
         email.close(socket, false);
+        return reject();
     }
 
 
@@ -66,4 +66,5 @@ export const I_EHLO = (commands_map: CommandMap) => commands_map.set('EHLO',
     email.marker = 'EHLO';
     email.mode = 'EHLO';
     email.send_message(socket, 2504, 'HELP');
-});
+    return resolve();
+}));

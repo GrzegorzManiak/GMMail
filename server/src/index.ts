@@ -13,7 +13,7 @@ import {
     IStartTlsExtensionData, 
     IVRFYExtensionData, 
 } from './extensions/types';
-
+import { lookup } from 'fetch-dns-lookup';
 
 
 // -- There will be a main class here that will be the entry point for the server

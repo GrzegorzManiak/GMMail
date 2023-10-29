@@ -14,7 +14,7 @@ import { CommandMap, IVRFYResponse, VRFYResponseCode } from '../types';
  * trough extensions
  */
 export const I_VRFY = (commands_map: CommandMap) => commands_map.set('VRFY', 
-    (socket, email, words, raw_data) => {
+    (socket, email, words, raw_data) => new Promise((resolve, reject) => {
 
 
 
@@ -83,7 +83,10 @@ export const I_VRFY = (commands_map: CommandMap) => commands_map.set('VRFY',
         if (i === l - 1) email.send_message(socket, 2504, message); // -- 2504 is the code for the last line of a multi-line response
         else email.send_message(socket, 2503, message); // -- 2503 is the code for a multi-line response
     }
-});
+
+    // -- Resolve the promise
+    resolve();
+}));
 
 
 

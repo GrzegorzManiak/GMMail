@@ -17,7 +17,7 @@ import Configuration from '../../config';
  * https://www.ibm.com/docs/en/zvm/7.2?topic=commands-data
  */
 export const I_DATA = (commands_map: CommandMap) => commands_map.set('DATA', 
-    (socket, email, words, raw_data) => {
+    (socket, email, words, raw_data) => new Promise((resolve, reject) => {
         
     // -- Ensure that there is only the DATA command
     //    HELO/EHLO and RCPT TO have to be sent before DATA
@@ -32,7 +32,7 @@ export const I_DATA = (commands_map: CommandMap) => commands_map.set('DATA',
     ) {
         email.send_message(socket, 503);
         email.close(socket, false);
-        return;
+        return reject();
     }
 
 
@@ -40,7 +40,7 @@ export const I_DATA = (commands_map: CommandMap) => commands_map.set('DATA',
     if (words.length > 1) {
         email.send_message(socket, 501);
         email.close(socket, false);
-        return;
+        return reject();
     }
 
     
@@ -94,7 +94,8 @@ export const I_DATA = (commands_map: CommandMap) => commands_map.set('DATA',
     email.marker = allow_continue ? 'DATA' : 'DATA:DISALLOWED';
     email.sending_data = allow_continue;
     email.send_message(socket, allow_continue ? 354 : 250);
-});
+    return allow_continue ? resolve() : reject();
+}));
 
 
 
@@ -114,7 +115,7 @@ export const I_in_prog_data = (
     email: RecvEmail,
     socket: WrappedSocket,
     command: string
-): void => {
+): Promise<void> => new Promise((resolve, reject) => {
     // -- Ensure that the DATA command was sent
     if (
         !email.has_marker('DATA') ||
@@ -122,7 +123,7 @@ export const I_in_prog_data = (
     ) {
         email.send_message(socket, 503);
         email.close(socket, false);
-        return;
+        return reject();
     }
 
     // -- Get the size of the data the user is sending
@@ -182,7 +183,7 @@ export const I_in_prog_data = (
         email.sending_data = false;
         email.send_message(socket, 552);
         email.close(socket, false);
-        return;
+        return resolve();
     }
 
 
@@ -197,7 +198,7 @@ export const I_in_prog_data = (
             email.sending_data = false;
             email.send_message(socket, 552);
             email.close(socket, false);
-            return;
+            return resolve();
         }
     }
 
@@ -214,10 +215,10 @@ export const I_in_prog_data = (
         if (line.trim() === SMTP.get_instance().crlf) {
             email.sending_data = false;
             email.send_message(socket, 250);
-            return;
+            return resolve();
         }
 
         // -- Add the data to the email
         email.push_data = line;
     }
-}
+});

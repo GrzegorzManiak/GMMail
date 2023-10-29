@@ -46,7 +46,7 @@ export default class BaseSocket {
 
 
 
-    protected socket_data = (
+    protected socket_data = async (
         socket: WrappedSocket, 
         data: Buffer,
         port: number,
@@ -75,7 +75,7 @@ export default class BaseSocket {
         email.push_message('recv', 250, data_string);
 
         // -- Parse the data based on the stage
-        this._smtp_ingress.process(data_string, email, socket);
+        await this._smtp_ingress.process(data_string, email, socket);
     };
 
 

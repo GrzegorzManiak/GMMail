@@ -42,7 +42,7 @@ export type MAILFROMResponseCode =
     553 | // -- Requested action not taken: mailbox name not allowed
     555;  // -- MAIL FROM/RCPT TO parameters not recognized or not implemented
 
-export type CommandMap = Map<string, (socket: WrappedSocket, email: RecvEmail, words: Array<string>, raw: string) => void>;
+export type CommandMap = Map<string, (socket: WrappedSocket, email: RecvEmail, words: Array<string>, raw: string) => Promise<void>>;
 
 export interface IMailFrom {
     user: string;
