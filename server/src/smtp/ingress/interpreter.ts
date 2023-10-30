@@ -1,7 +1,6 @@
-import { Socket as NodeSocket } from 'net';
 import RecvEmail from '../../email/recv';
 import SMTPIngress from './ingress';
-import { CommandMap, WrappedSocket } from '../types';
+import { CommandMap } from '../types';
 import { log } from '../../log';
 import { I_DATA, I_in_prog_data } from '../commands/DATA';
 import { I_EHLO } from '../commands/EHLO';
@@ -16,7 +15,7 @@ import { parse_custom_ingress_command } from '../commands/CUST_IN';
 import { I_NOOP } from '../commands/NOOP';
 import { I_STARTTLS } from '../commands/STARTLS';
 import Configuration from '../../config';
-
+import { WrappedSocket } from '../../types';
 
 
 

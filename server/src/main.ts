@@ -21,13 +21,22 @@ import {
 //    modules which are not connected.
 
 
+// -- This is a global internal variable that will be used to determine if the
+//    server is running in a BUN environment or a NODE environment, it cant be
+//    changed at runtime.
+export const _runtime: 'BUN' | 'NODE' = (process.env.RUNTIME as 'BUN' | 'NODE' || 'NODE');
+
+
 
 log('INFO', 'Main', 'main', 'Starting server...');
-const abs_config_path = `${__dirname}/../basic_config.json`;
+
+// -- Get the config
+const abs_config_path = `${import.meta.dir}/../basic_config.json`;
 const config = Configuration.get_instance(abs_config_path);
 
-//  https://mailtrap.io/blog/smtp-commands-and-responses/#RSET
 
+
+//  https://mailtrap.io/blog/smtp-commands-and-responses/#RSET
 (async () => {
 
     // -- Await the configuration file

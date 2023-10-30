@@ -1,4 +1,3 @@
-import Configuration from '../../config';
 import SMTP from '../ingress/ingress';
 import { CommandMap } from '../types';
 

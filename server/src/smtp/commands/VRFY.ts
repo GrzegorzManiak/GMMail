@@ -3,7 +3,7 @@ import ExtensionManager from '../../extensions/main';
 import { IVRFYExtensionData, IVrfyExtensionDataCallback } from '../../extensions/types';
 import { log } from '../../log';
 import SMTP from '../ingress/ingress';
-import { CommandMap, IVRFYResponse, VRFYResponseCode } from '../types';
+import { CommandMap, IVRFYResponse } from '../types';
 
 
 

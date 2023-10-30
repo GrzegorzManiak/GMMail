@@ -1,6 +1,9 @@
 import { log } from '../log';
 import { ConfigKeys, IConfig } from './types';
+import { _runtime } from '../main';
+import { BunFile } from 'bun';
 import fs from 'fs';
+
 
 export default class Configuration {
 
@@ -44,20 +47,31 @@ export default class Configuration {
         // -- Ensure that the configuration file is not already loaded
         if (this._config_loaded) return log(
             'WARN', 'Configuration', '_load_config', 'Configuration file already loaded');
-        
-        // -- Attempt to load the configuration file
-        // const config = Bun.file(this.CONFIG_FILE, { type: 'application/json' });
-        const config = fs.readFileSync(this.CONFIG_FILE, { encoding: 'utf-8' });
-
-        // // -- Check if the configuration file exists
-        // if (!await config.()) return log(
-        //     'ERROR', 'Configuration', '_load_config', `Configuration file does not exist: ${this.CONFIG_FILE}`);
-
 
             
+
         // -- Load the configuration file
-        this._raw_config = config;
-        this._config = JSON.parse(config);
+        let temp_config: unknown;
+        switch (_runtime) {
+            case 'BUN': 
+                temp_config = Bun.file(this.CONFIG_FILE, { type: 'application/json' });
+                if (!await (temp_config as BunFile).exists()) return log(
+                    'ERROR', 'Configuration', '_load_config', `Configuration file does not exist: ${this.CONFIG_FILE}`);     
+
+                this._raw_config = await (temp_config as BunFile).text();
+                this._config = await (temp_config as BunFile).json();
+                break;
+
+            case 'NODE':
+                if (!fs.existsSync(this.CONFIG_FILE)) return log(
+                    'ERROR', 'Configuration', '_load_config', `Configuration file does not exist: ${this.CONFIG_FILE}`);
+                
+                this._raw_config = fs.readFileSync(this.CONFIG_FILE).toString();
+                this._config = JSON.parse(this._raw_config);
+                break;
+        }
+        
+    
 
         // -- Merge the configuration file with the default configuration
         this._config = this._merge_config();

@@ -1,20 +1,33 @@
 {
-  "compilerOptions": {
-    "target": "ES6",
-    "module": "commonjs",
-    "lib": ["es5", "es6"],
-    "declaration": false,
-    "noImplicitAny": false,
-    "removeComments": true,
-    "esModuleInterop": true,
-    "sourceMap": false,
-    "allowJs": true,
-    "moduleResolution": "node",
-    "outDir": "./dist", 
-    "strict": false,
-    "types": [
-      "bun-types"
-    ]
-  },
-  "include": ["src/**/*"]
+	"compilerOptions": {
+		"target": "ESNext",
+		"module": "esnext",
+		"lib": [
+			"es5",
+			"es6",
+			"ESNext"
+		],
+		"declaration": false,
+		"noImplicitAny": false,
+		"removeComments": true,
+		"esModuleInterop": true,
+		"isolatedModules": false,
+		"sourceMap": false,
+		"allowJs": false,
+		"moduleResolution": "node",
+		"outDir": "./dist",
+		"strict": false,
+		"types": [
+			"bun-types"
+		]
+	},
+	"include": [
+		"src/**/*"
+	],
+	"ts-node": {
+		"esm": true
+	},
+	"lib": [
+		"esnext"
+	]
 }

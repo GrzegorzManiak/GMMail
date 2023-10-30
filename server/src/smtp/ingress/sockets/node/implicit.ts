@@ -1,7 +1,7 @@
 import { Socket as NodeSocket } from 'net';
-import { createServer as create_TLS_server, TlsOptions } from 'tls';
-import Configuration from '../../../config';
-import BaseSocket from '../base_socket';
+import { createServer as create_TLS_server } from 'tls';
+import Configuration from '../../../../config';
+import BaseSocket from '../../base_socket';
 
 
 
@@ -15,7 +15,7 @@ export default class TlsSocket extends BaseSocket {
         this._socket = create_TLS_server(this.tls_options, (socket: NodeSocket) => {
 
             // -- Open the socket
-            const email = this.socket_open(socket, this._port);
+            const email = this.socket_open(socket);
             // @ts-ignore
             socket.data = email;
 

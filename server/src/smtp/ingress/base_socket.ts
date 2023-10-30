@@ -1,18 +1,17 @@
-import { Socket as NodeSocket, Server } from 'net';
 import { log } from '../../log';
-import { NodeSocketUnion, SocketType, WrappedSocket } from '../types';
 import Configuration from '../../config';
 import CODE from '../commands/CODE';
 import RecvEmail from '../../email/recv';
 import SMTPIngress from './ingress';
 import fs from 'fs';
 import { TlsOptions } from 'tls';
+import { JointServer, JointSocket, SocketType, WrappedSocket } from '../../types';
 
 
 
 export default class BaseSocket {
     protected _socket_type: SocketType;
-    protected _socket: Server;
+    protected _socket: JointServer;
     protected _port: number;
 
     protected _config: Configuration;
@@ -81,7 +80,7 @@ export default class BaseSocket {
 
 
     protected socket_open = (
-        socket: NodeSocketUnion,
+        socket: JointSocket,
         port: number = this._port,
         mode: SocketType = this._socket_type
     ): RecvEmail => {

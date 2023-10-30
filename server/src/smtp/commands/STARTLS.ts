@@ -1,10 +1,12 @@
-import Configuration from '../../config';
 import ExtensionManager from '../../extensions/main';
-import { IExtensionData, IExtensionDataCallback, IStartTlsExtensionData, IStartTlsExtensionDataCallback } from '../../extensions/types';
+import { IStartTlsExtensionData, IStartTlsExtensionDataCallback } from '../../extensions/types';
 import { log } from '../../log';
 import SMTP from '../ingress/ingress';
-import UpgradeSocket from '../ingress/sockets/upgrade';
 import { CommandMap } from '../types';
+
+import { _runtime } from '../../main';
+import NodeUpgradeSocket from '../ingress/sockets/node/upgrade';
+import BunUpgradeSocket from '../ingress/sockets/bun/upgrade';
 
 
 
@@ -96,6 +98,11 @@ export const I_STARTTLS = (commands_map: CommandMap) => commands_map.set('STARTT
     email.send_message(socket, 2201);
     email.reset_command();
     email.marker = 'STARTTLS';
-    new UpgradeSocket(socket);
+    
+    switch (_runtime) {
+        case 'BUN': new BunUpgradeSocket(socket); break;
+        case 'NODE': new NodeUpgradeSocket(socket); break;
+    }
+    
     return resolve();
 }));

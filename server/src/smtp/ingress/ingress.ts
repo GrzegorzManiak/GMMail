@@ -2,11 +2,16 @@ import Configuration from '../../config';
 import RecvEmail from '../../email/recv';
 import { log } from '../../log';
 import Socket from './base_socket';
-import NilSocket from './sockets/starttls';
-import { CommandMap, SocketType, WrappedSocket } from '../types';
+import { CommandMap } from '../types';
 import ExtensionManager from '../../extensions/main';
 import { add_commands, process } from './interpreter';
-import TlsSocket from './sockets/implicit';
+import { SocketType, WrappedSocket } from '../../types';
+
+import { _runtime } from '../../main';
+import NodeTlsSocket from './sockets/node/implicit';
+import NodeNilSocket from './sockets/node/starttls';
+import BunTlsSocket from './sockets/bun/implicit';
+import BunNilSocket from './sockets/bun/starttls';
 
 
 
@@ -137,9 +142,16 @@ export default class SMTPIngress {
         if (this._sockets.find(socket => socket.socket_type === socket_type)) return log(
             'WARN', 'SMTPIngress', 'load_socket', `Socket already loaded: ${socket_type}`);
             
-        switch (socket_type) {
-            case 'NIL': this._sockets.push(new NilSocket()); break;
-            case 'TLS': this._sockets.push(new TlsSocket()); break;
+        switch (_runtime) {
+            case 'BUN': switch (socket_type) {
+                case 'NIL': this._sockets.push(new BunNilSocket()); break;
+                case 'TLS': this._sockets.push(new BunTlsSocket()); break;
+            }; break;
+
+            case 'NODE': switch (socket_type) {
+                case 'NIL': this._sockets.push(new NodeNilSocket()); break;
+                case 'TLS': this._sockets.push(new NodeTlsSocket()); break;
+            }; break;
         }
     }
 

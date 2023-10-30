@@ -4,7 +4,7 @@ import { parse_command } from '../../extensions/parser';
 import { ICustomCommandData, IParsedParser } from '../../extensions/types';
 import { log } from '../../log';
 import SMTP from '../ingress/ingress';
-import { WrappedSocket } from '../types';
+import { WrappedSocket } from '../../types';
 
 
 

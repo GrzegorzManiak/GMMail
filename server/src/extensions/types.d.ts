@@ -1,11 +1,11 @@
 import RecvEmail from '../email/recv';
 import { LogType } from '../log';
-import { Socket as NodeSocket } from 'net';
 import SMTP from '../smtp/ingress/ingress';
-import { DATAResponseCode, IMailFrom, IVRFYResponse, RCPTTOResponseCode, VRFYResponseCode } from '../smtp/types';
+import { IMailFrom, IVRFYResponse } from '../smtp/types';
 import { IAddress } from '../email/types';
 import ExtensionManager from './main';
 import Configuration from '../config';
+import { JointSocket } from '../types';
 
 
 
@@ -114,7 +114,7 @@ export interface ICustomCommandData {
     log: (type: LogType, ...args: Array<unknown>) => void,
     email: RecvEmail,
 
-    socket: NodeSocket,
+    socket: JointSocket,
     smtp: SMTP,
     raw_data: string,
     words: Array<string>,
@@ -136,7 +136,7 @@ export type IExtensionDataCallback = (data: IExtensionData) => void | Promise<vo
 export interface IExtensionData {
     log: (type: LogType, ...args: Array<unknown>) => void,
     email: RecvEmail,
-    socket: NodeSocket,
+    socket: JointSocket,
     smtp: SMTP,
     raw_data: string,
     words: Array<string>,

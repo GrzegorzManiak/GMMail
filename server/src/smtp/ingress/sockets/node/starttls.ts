@@ -1,6 +1,6 @@
-import { Socket as NodeSocket, createServer as create_server } from 'net';
-import Configuration from '../../../config';
-import BaseSocket from '../base_socket';
+import { createServer as create_server } from 'net';
+import Configuration from '../../../../config';
+import BaseSocket from '../../base_socket';
 
 
 
@@ -14,7 +14,7 @@ export default class NilSocket extends BaseSocket {
         this._socket = create_server((socket) => {
 
             // -- Open the socket
-            const email = this.socket_open(socket, this._port);
+            const email = this.socket_open(socket);
             // @ts-ignore
             socket.data = email;
 

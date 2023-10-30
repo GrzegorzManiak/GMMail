@@ -2,10 +2,11 @@ import SMTP from '../ingress/ingress';
 import { log } from '../../log';
 import ExtensionManager from '../../extensions/main';
 import { IDATAExtensionData, IDataExtensionDataCallback } from '../../extensions/types';
-import { CommandMap, WrappedSocket } from '../types';
 import RecvEmail from '../../email/recv';
-import { Socket as NodeSocket } from 'net';
 import Configuration from '../../config';
+
+import { WrappedSocket } from '../../types';
+import { CommandMap } from '../types';
 
 
 

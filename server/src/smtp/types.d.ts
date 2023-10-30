@@ -1,8 +1,6 @@
-export type SocketType = 'TLS' | 'STARTTLS' | 'NIL';
-import { Socket as NodeSocket } from 'net';
 import RecvEmail from '../email/recv';
-import { TLSSocket } from 'tls';
 import Configuration from '../config';
+import { WrappedSocket } from '../types';
 
 export type VRFYResponseCode = 
     251 | // -- User not local; will forward to <forward-path>
@@ -69,14 +67,3 @@ export interface IVRFYResponse {
 
 
 export type SMTPAuthType = 'PLAIN' | 'LOGIN' | 'CRAM-MD5' | 'DIGEST-MD5';
-
-
-
-// export type WrappedSocket = (NodeSocket | TLSSocket) & {
-//     data: RecvEmail | null;
-// };
-
-export type NodeSocketUnion = NodeSocket | TLSSocket;
-export type WrappedSocket = NodeSocketUnion & {
-    data: RecvEmail | null;
-};

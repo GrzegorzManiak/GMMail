@@ -1,4 +1,3 @@
-import RecvEmail from '../../email/recv';
 import ExtensionManager from '../../extensions/main';
 import { IRsetExtensionData, IRsetExtensionDataCallback } from '../../extensions/types';
 import { log } from '../../log';

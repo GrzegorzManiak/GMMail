@@ -1,6 +1,19 @@
-import { CallbackDataMap, CommandCallback, CommandExtension, CommandExtensionMap, CustomCommandEntry, CustomIngressCallback, CustomIngressMap, ExtensionDataUnion, ExtensionType, ICustomCommandDataCallback, ICustomCommandParamaters, ICustomParser, IExtensionData, IExtensionDataCallback } from './types';
+import { 
+    CallbackDataMap, 
+    CommandCallback, 
+    CommandExtension, 
+    CommandExtensionMap, 
+    CustomCommandEntry, 
+    CustomIngressCallback, 
+    CustomIngressMap, 
+    ExtensionDataUnion, 
+    ICustomCommandParamaters, 
+    IExtensionData 
+} from './types';
 import sender_spf_validator from './builtin/spf';
 import dns_records from './builtin/dns';
+
+
 
 export default class ExtensionManager {
     private static _instance: ExtensionManager;
