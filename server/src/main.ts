@@ -24,8 +24,7 @@ import {
 // -- This is a global internal variable that will be used to determine if the
 //    server is running in a BUN environment or a NODE environment, it cant be
 //    changed at runtime.
-export const _runtime: 'BUN' | 'NODE' = (process.env.RUNTIME as 'BUN' | 'NODE' || 'NODE');
-
+export const _runtime: 'BUN' | 'NODE' = process?.title === 'node' ? 'NODE' : 'BUN';
 
 
 log('INFO', 'Main', 'main', 'Starting server...');
