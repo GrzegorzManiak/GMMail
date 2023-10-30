@@ -14,13 +14,13 @@ import { CommandMap } from '../types';
  * https://www.ibm.com/docs/en/zvm/7.3?topic=commands-mailfrom
  */
 export const I_MAIL_FROM = (commands_map: CommandMap) => commands_map.set('MAIL FROM', 
-    (socket, email, words, raw_data) => {
+    (socket, email, words, raw_data, configuration) => new Promise(async(resolve, reject) => {
         
     // -- ensure that we are in the VALIDATE stage
     if (email.has_marker('MAIL FROM')) {
         email.send_message(socket, 503, 'Bad sequence of commands');
         email.close(socket, false);
-        return;
+        return reject();
     }
 
 
@@ -29,19 +29,20 @@ export const I_MAIL_FROM = (commands_map: CommandMap) => commands_map.set('MAIL 
     if (sender === null) {
         email.send_message(socket, 553, 'Invalid sender');
         email.close(socket, false);
-        return;
+        return reject();
     }
 
 
 
 
     // -- Get the extensions
-    let allow_sender = true, final = false;
+    let allow_sender = true, final = false, spf_fail = false;
     const extensions = ExtensionManager.get_instance();
-    extensions._get_command_extension_group('MAIL FROM').forEach((callback: IMailFromExtensionDataCallback) => {
+    const extension_funcs = extensions._get_command_extension_group('MAIL FROM');
+    for (let i = 0; i < extension_funcs.length; i++) {
 
         // -- Check if the final callback has been called
-        if (final) return;
+        if (final) break;
 
         // -- Prepare the extension data
         const extension_data: IMailFromExtensionData = {
@@ -49,19 +50,31 @@ export const I_MAIL_FROM = (commands_map: CommandMap) => commands_map.set('MAIL 
             words, raw_data, sender,
             smtp: SMTP.get_instance(),
             type: 'MAIL FROM',
-            action: (action) => {
-                allow_sender = (action === 'ALLOW' || action === 'ALLOW:FINAL');
-                if (action === 'ALLOW:FINAL' || action === 'DENY:FINAL') final = true;
+            extension_id: extension_funcs[i].id,
+            configuration,
+            extensions: extensions,
+            action: (raw_action) => {
+                // -- Split the action
+                const split_action = raw_action.split(':'),
+                    action = split_action[0],
+                    action_type = split_action[1];
+
+                // -- Process the action
+                if (action === 'SPF') spf_fail = true;
+                if (action === 'ALLOW') allow_sender = true;
+                if (action === 'DENY') allow_sender = false;
+
+                // -- Check if this is the final action
+                if (action_type === 'FINAL') final = true;
             }
         };
-
-
 
 
         // -- Run the callback
         try {
             log('DEBUG', 'SMTP', 'process', `Running RCPT TO extension`);
-            callback(extension_data);
+            const extension_func = extension_funcs[i].callback as IMailFromExtensionDataCallback;
+            await extension_func(extension_data);
         }
 
         // -- If there was an error, log it
@@ -78,20 +91,26 @@ export const I_MAIL_FROM = (commands_map: CommandMap) => commands_map.set('MAIL 
             delete extension_data.action;
             delete extension_data.sender;
         }
-    });
+    }   
 
-    
+
 
     // -- Check if the extensions allowed the sender
-    if (!allow_sender) {
+    if (!allow_sender && spf_fail) {
         log('WARN', 'MAIL FROM was not allowed by an extension');
         email.marker = 'MAIL FROM';
-        email.send_message(socket, 454);
-        return;
+
+        if (spf_fail) email.send_message(socket, 550, 'SPF failed');
+        else email.send_message(socket, 454);
+
+        return resolve();
     }
     
+
+
     // -- Else, Set the sender
     email.sender = sender;
     email.marker = 'MAIL FROM';
     email.send_message(socket, 250);
-});
+    return resolve();
+}));

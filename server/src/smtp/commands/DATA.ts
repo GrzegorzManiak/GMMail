@@ -2,10 +2,11 @@ import SMTP from '../ingress/ingress';
 import { log } from '../../log';
 import ExtensionManager from '../../extensions/main';
 import { IDATAExtensionData, IDataExtensionDataCallback } from '../../extensions/types';
-import { CommandMap } from '../types';
 import RecvEmail from '../../email/recv';
-import { Socket as BunSocket } from 'bun';
 import Configuration from '../../config';
+
+import { WrappedSocket } from '../../types';
+import { CommandMap } from '../types';
 
 
 
@@ -17,7 +18,7 @@ import Configuration from '../../config';
  * https://www.ibm.com/docs/en/zvm/7.2?topic=commands-data
  */
 export const I_DATA = (commands_map: CommandMap) => commands_map.set('DATA', 
-    (socket, email, words, raw_data) => {
+    (socket, email, words, raw_data, configuration) => new Promise(async(resolve, reject) => {
         
     // -- Ensure that there is only the DATA command
     //    HELO/EHLO and RCPT TO have to be sent before DATA
@@ -32,7 +33,7 @@ export const I_DATA = (commands_map: CommandMap) => commands_map.set('DATA',
     ) {
         email.send_message(socket, 503);
         email.close(socket, false);
-        return;
+        return reject();
     }
 
 
@@ -40,7 +41,7 @@ export const I_DATA = (commands_map: CommandMap) => commands_map.set('DATA',
     if (words.length > 1) {
         email.send_message(socket, 501);
         email.close(socket, false);
-        return;
+        return reject();
     }
 
     
@@ -48,7 +49,8 @@ export const I_DATA = (commands_map: CommandMap) => commands_map.set('DATA',
     // -- Get the extensions
     const extensions = ExtensionManager.get_instance();
     let allow_continue = true;
-    extensions._get_command_extension_group('DATA').forEach((callback: IDataExtensionDataCallback) => {
+    const extension_funcs = extensions._get_command_extension_group('DATA');
+    for (let i = 0; i < extension_funcs.length; i++) {
 
         // -- Build the extension data
         const extension_data: IDATAExtensionData = {
@@ -58,15 +60,19 @@ export const I_DATA = (commands_map: CommandMap) => commands_map.set('DATA',
             smtp: SMTP.get_instance(),
             type: 'DATA',
             current_size: 0,
+            configuration,
             total_size: email.data_size,
             bypass_size_check: false,
+            extension_id: extension_funcs[i].id,
+            extensions: extensions,
             action: (action) => allow_continue = action === 'ALLOW'
         };
 
         // -- Run the callback
         try {
             log('DEBUG', 'SMTP', 'process', `Running DATA extension`);
-            callback(extension_data);
+            const extension_func = extension_funcs[i].callback as IDataExtensionDataCallback;
+            await extension_func(extension_data);
         }
 
         // -- If there was an error, log it
@@ -76,7 +82,6 @@ export const I_DATA = (commands_map: CommandMap) => commands_map.set('DATA',
 
         // -- Finally, delete the extension data
         finally {
-
             delete extension_data.log;
             delete extension_data.words;
             delete extension_data.raw_data;
@@ -86,7 +91,7 @@ export const I_DATA = (commands_map: CommandMap) => commands_map.set('DATA',
             delete extension_data.bypass_size_check;
             delete extension_data.action;
         }
-    });
+    }
 
 
 
@@ -94,7 +99,8 @@ export const I_DATA = (commands_map: CommandMap) => commands_map.set('DATA',
     email.marker = allow_continue ? 'DATA' : 'DATA:DISALLOWED';
     email.sending_data = allow_continue;
     email.send_message(socket, allow_continue ? 354 : 250);
-});
+    return allow_continue ? resolve() : reject();
+}));
 
 
 
@@ -105,16 +111,18 @@ export const I_DATA = (commands_map: CommandMap) => commands_map.set('DATA',
  * sent by the client
  * 
  * @param {RecvEmail} email - Current email object
- * @param {Socket<RecvEmail>} socket - Current socket
+ * @param {WrappedSocket} socket - Current socket
  * @param {string} command  - The command sent by the client
+ * @param {Configuration} configuration - The current configuration
  * 
  * @returns 
  */
 export const I_in_prog_data = (
     email: RecvEmail,
-    socket: BunSocket<RecvEmail>,
-    command: string
-): void => {
+    socket: WrappedSocket,
+    command: string,
+    configuration: Configuration
+): Promise<void> => new Promise(async(resolve, reject) => {
     // -- Ensure that the DATA command was sent
     if (
         !email.has_marker('DATA') ||
@@ -122,7 +130,7 @@ export const I_in_prog_data = (
     ) {
         email.send_message(socket, 503);
         email.close(socket, false);
-        return;
+        return reject();
     }
 
     // -- Get the size of the data the user is sending
@@ -133,26 +141,30 @@ export const I_in_prog_data = (
     // -- Get the extensions
     const extensions = ExtensionManager.get_instance();
     let allow_continue = true, bypass_size_check = false;
-    extensions._get_command_extension_group('DATA').forEach((callback: IDataExtensionDataCallback) => {
+    const extension_funcs = extensions._get_command_extension_group('DATA');
+    for (let i = 0; i < extension_funcs.length; i++) {
 
         // -- Build the extension data
         const extension_data: IDATAExtensionData = {
             email, socket, log,
             words: [], raw_data: command,
+            data_lines: [],
             smtp: SMTP.get_instance(),
             type: 'DATA',
-            current_size,
-            data_lines,
+            current_size: 0,
             total_size: email.data_size,
             bypass_size_check: false,
+            extension_id: extension_funcs[i].id,
+            extensions: extensions,
+            configuration,
             action: (action) => allow_continue = action === 'ALLOW'
         };
 
-
-
         // -- Run the callback
         try {
-            callback(extension_data);
+            log('DEBUG', 'SMTP', 'process', `Running DATA extension`);
+            const extension_func = extension_funcs[i].callback as IDataExtensionDataCallback;
+            await extension_func(extension_data);
             bypass_size_check = extension_data.bypass_size_check;
         }
 
@@ -169,11 +181,10 @@ export const I_in_prog_data = (
             delete extension_data.type;
             delete extension_data.data_lines;
             delete extension_data.current_size;
-            delete extension_data.current_size;
             delete extension_data.bypass_size_check;
             delete extension_data.action;
         }
-    });
+    }
 
 
 
@@ -182,7 +193,7 @@ export const I_in_prog_data = (
         email.sending_data = false;
         email.send_message(socket, 552);
         email.close(socket, false);
-        return;
+        return resolve();
     }
 
 
@@ -197,7 +208,7 @@ export const I_in_prog_data = (
             email.sending_data = false;
             email.send_message(socket, 552);
             email.close(socket, false);
-            return;
+            return resolve();
         }
     }
 
@@ -214,10 +225,10 @@ export const I_in_prog_data = (
         if (line.trim() === SMTP.get_instance().crlf) {
             email.sending_data = false;
             email.send_message(socket, 250);
-            return;
+            return resolve();
         }
 
         // -- Add the data to the email
         email.push_data = line;
     }
-}
+});

@@ -2,24 +2,23 @@ import Configuration from '../../config';
 import RecvEmail from '../../email/recv';
 import { log } from '../../log';
 import Socket from './base_socket';
-import NilSocket from './sockets/starttls';
-import { SocketType } from '../types';
-import { Socket as BunSocket } from 'bun';
+import { CommandMap } from '../types';
 import ExtensionManager from '../../extensions/main';
 import { add_commands, process } from './interpreter';
-import TlsSocket from './sockets/implicit';
+import { SocketType, WrappedSocket } from '../../types';
+
+import { _runtime } from '../../main';
+import NodeTlsSocket from './sockets/node/implicit';
+import NodeNilSocket from './sockets/node/starttls';
+import BunTlsSocket from './sockets/bun/implicit';
+import BunNilSocket from './sockets/bun/starttls';
 
 
 
 export default class SMTPIngress {
     private static _instance: SMTPIngress;
     private _extensions: ExtensionManager;
-    private _commands_map = new Map<string, (
-        socket: BunSocket<RecvEmail>, 
-        email: RecvEmail,
-        words: Array<string>,
-        raw: string,
-    ) => void>();
+    private _commands_map: CommandMap = new Map();
     
     private _sockets: Socket[];
     private _config: Configuration;
@@ -103,24 +102,27 @@ export default class SMTPIngress {
      * 
      * @param {string} command - The command sent by the client
      * @param {RecvEmail} email - The email object that the client is connected to
-     * @param {Socket<RecvEmail>} socket - The socket that the client is connected to
+     * @param {WrappedSocket} socket - The socket that the client is connected to
      * 
      * @returns {void} Nothing
      */
-    public process(
+    public process = (
         command: string,
         email: RecvEmail,
-        socket: BunSocket<RecvEmail>,
-    ): void {
+        socket: WrappedSocket,
+    ): Promise<void> => new Promise((resolve, reject) => {
         try {
-            process(command, email, socket, this);
+            process(command, email, socket, this, this._config)
+                .then(() => resolve())
+                .catch((err) => reject(err));
         }
 
         catch (error) {
             log('ERROR', 'SMTPIngress', 'process', error);
             socket.end();
+            reject(error);
         }
-    }
+    });
 
 
 
@@ -140,9 +142,16 @@ export default class SMTPIngress {
         if (this._sockets.find(socket => socket.socket_type === socket_type)) return log(
             'WARN', 'SMTPIngress', 'load_socket', `Socket already loaded: ${socket_type}`);
             
-        switch (socket_type) {
-            case 'NIL': this._sockets.push(new NilSocket()); break;
-            case 'TLS': this._sockets.push(new TlsSocket()); break;
+        switch (_runtime) {
+            case 'BUN': switch (socket_type) {
+                case 'NIL': this._sockets.push(new BunNilSocket()); break;
+                case 'TLS': this._sockets.push(new BunTlsSocket()); break;
+            }; break;
+
+            case 'NODE': switch (socket_type) {
+                case 'NIL': this._sockets.push(new NodeNilSocket()); break;
+                case 'TLS': this._sockets.push(new NodeTlsSocket()); break;
+            }; break;
         }
     }
 

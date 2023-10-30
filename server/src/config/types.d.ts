@@ -1,5 +1,3 @@
-import * as exp from "constants";
-
 export interface ISMTPPorts {
     TLS: number;
     SSL: number;
@@ -33,6 +31,12 @@ export interface ITLS {
     CERT: string;
 }
 
+
+export type SPFActions = 'DROP' | 'MARK';
+export interface ISecurity {
+    SPF: SPFActions
+}
+
 export interface IConfig {
     HOST: string;
     VENDOR: string;
@@ -42,6 +46,7 @@ export interface IConfig {
     MAIL: IMail;
     SMTP_MODE: ISMTPMode;
     TLS: ITLS;
+    SECURITY: ISecurity
 }
 
 export type ConfigKeys = 
@@ -50,4 +55,5 @@ export type ConfigKeys =
     keyof IMail |
     keyof ITLS |
     keyof ISMTPMode |
-    keyof ISMTPPorts;
+    keyof ISMTPPorts |
+    keyof ISecurity;

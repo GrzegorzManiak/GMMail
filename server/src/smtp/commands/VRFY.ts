@@ -3,7 +3,7 @@ import ExtensionManager from '../../extensions/main';
 import { IVRFYExtensionData, IVrfyExtensionDataCallback } from '../../extensions/types';
 import { log } from '../../log';
 import SMTP from '../ingress/ingress';
-import { CommandMap, IVRFYResponse, VRFYResponseCode } from '../types';
+import { CommandMap, IVRFYResponse } from '../types';
 
 
 
@@ -14,7 +14,7 @@ import { CommandMap, IVRFYResponse, VRFYResponseCode } from '../types';
  * trough extensions
  */
 export const I_VRFY = (commands_map: CommandMap) => commands_map.set('VRFY', 
-    (socket, email, words, raw_data) => {
+    (socket, email, words, raw_data, configuration) => new Promise(async(resolve, reject) => {
 
 
 
@@ -25,9 +25,8 @@ export const I_VRFY = (commands_map: CommandMap) => commands_map.set('VRFY',
 
     // -- Construct the extension data and call the callbacks
     const extensions = ExtensionManager.get_instance();
-    extensions._get_command_extension_group('VRFY').forEach((callback: IVrfyExtensionDataCallback) => {
-
-
+    const extension_funcs = extensions._get_command_extension_group('VRFY');
+    for (let i = 0; i < extension_funcs.length; i++) {
 
         // -- Build the extension data object
         const extension_data: IVRFYExtensionData = {
@@ -35,7 +34,10 @@ export const I_VRFY = (commands_map: CommandMap) => commands_map.set('VRFY',
             words, raw_data,
             smtp: SMTP.get_instance(),
             type: 'VRFY',
+            extension_id: extension_funcs[i].id,
+            extensions: extensions,
             found_users,
+            configuration,
             action: (data) => action(data, found_users)
         };
 
@@ -44,7 +46,8 @@ export const I_VRFY = (commands_map: CommandMap) => commands_map.set('VRFY',
         // -- Run the callback
         try {
             log('DEBUG', 'SMTP', 'process', `Running VRFY extension`);
-            callback(extension_data);
+            const extension_func = extension_funcs[i].callback as IVrfyExtensionDataCallback;
+            await extension_func(extension_data);
         }
 
         // -- If there was an error, log it
@@ -61,7 +64,7 @@ export const I_VRFY = (commands_map: CommandMap) => commands_map.set('VRFY',
             delete extension_data.found_users;
             delete extension_data.action;
         }
-    });
+    }
 
    
 
@@ -83,7 +86,10 @@ export const I_VRFY = (commands_map: CommandMap) => commands_map.set('VRFY',
         if (i === l - 1) email.send_message(socket, 2504, message); // -- 2504 is the code for the last line of a multi-line response
         else email.send_message(socket, 2503, message); // -- 2503 is the code for a multi-line response
     }
-});
+
+    // -- Resolve the promise
+    return resolve();
+}));
 
 
 

@@ -14,8 +14,6 @@ import {
     IVRFYExtensionData, 
 } from './extensions/types';
 
-
-
 // -- There will be a main class here that will be the entry point for the server
 //    and will be responsible for loading the config, starting the server, etc
 // 
@@ -23,12 +21,22 @@ import {
 //    modules which are not connected.
 
 
+// -- This is a global internal variable that will be used to determine if the
+//    server is running in a BUN environment or a NODE environment, it cant be
+//    changed at runtime.
+export const _runtime: 'BUN' | 'NODE' = (process.env.RUNTIME as 'BUN' | 'NODE' || 'NODE');
+
+
 
 log('INFO', 'Main', 'main', 'Starting server...');
-const config = Configuration.get_instance(import.meta.dir + '/../basic_config.json');
+
+// -- Get the config
+const abs_config_path = `${import.meta.dir}/../basic_config.json`;
+const config = Configuration.get_instance(abs_config_path);
+
+
 
 //  https://mailtrap.io/blog/smtp-commands-and-responses/#RSET
-
 (async () => {
 
     // -- Await the configuration file
@@ -40,6 +48,7 @@ const config = Configuration.get_instance(import.meta.dir + '/../basic_config.js
     const smtp = SMTP.get_instance(),
         extensions = ExtensionManager.get_instance();
     smtp.start_listening();
+    extensions.add_defualt_extensions();
 
 
 
@@ -93,7 +102,7 @@ const config = Configuration.get_instance(import.meta.dir + '/../basic_config.js
      * to controll the DATA command, eg bypass limits
      * or add custom checks
      */
-    extensions.add_command_extension<IDATAExtensionData>('DATA', (data) => {
+    extensions.add_command_extension<IDATAExtensionData>('DATA', async(data) => {
         data.bypass_size_check = false;
         if(data.total_size > 1000) data.action('DENY');
     });
@@ -142,10 +151,13 @@ const config = Configuration.get_instance(import.meta.dir + '/../basic_config.js
      * 
      * or you can use it for logging, spam prevention, etc
      */
-    extensions.add_command_extension<IMailFromExtensionData>('MAIL FROM', (data) => {
-        if (data.sender.domain === 'example2.com') return 541;
-        // -- You can return a 250, but thats the default
-        return 250;
+    extensions.add_command_extension<IMailFromExtensionData>('MAIL FROM', async(data) => {
+
+        // -- Get the domains TXT records
+        // const records: Array<Array<string>> = await new Promise((resolve) => 
+        //     resolveTxt(data.sender.domain, (err, txt_records) => resolve(txt_records)));
+
+        // console.log(records);
     });
 
 

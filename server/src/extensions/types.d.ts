@@ -1,9 +1,11 @@
 import RecvEmail from '../email/recv';
 import { LogType } from '../log';
-import { Socket as BunSocket } from 'bun';
 import SMTP from '../smtp/ingress/ingress';
-import { DATAResponseCode, IMailFrom, IVRFYResponse, RCPTTOResponseCode, VRFYResponseCode } from '../smtp/types';
+import { IMailFrom, IVRFYResponse } from '../smtp/types';
 import { IAddress } from '../email/types';
+import ExtensionManager from './main';
+import Configuration from '../config';
+import { JointSocket } from '../types';
 
 
 
@@ -112,7 +114,7 @@ export interface ICustomCommandData {
     log: (type: LogType, ...args: Array<unknown>) => void,
     email: RecvEmail,
 
-    socket: BunSocket<RecvEmail>,
+    socket: JointSocket,
     smtp: SMTP,
     raw_data: string,
     words: Array<string>,
@@ -123,28 +125,31 @@ export interface ICustomCommandData {
     _parsed?: boolean,
     _paramaters: ICustomParser,
     performance: {
-        parser_start: number,
-        parser_end: number,
-        parser_time: number,
+        parser_start: BigInt,
+        parser_end: BigInt,
+        parser_time: BigInt,
     }
 }
 
 
-export type IExtensionDataCallback = (data: IExtensionData) => void;
+export type IExtensionDataCallback = (data: IExtensionData) => void | Promise<void>;
 export interface IExtensionData {
     log: (type: LogType, ...args: Array<unknown>) => void,
     email: RecvEmail,
-    socket: BunSocket<RecvEmail>,
+    socket: JointSocket,
     smtp: SMTP,
     raw_data: string,
     words: Array<string>,
     type: CommandExtension,
+    extensions: ExtensionManager,
+    extension_id: string,
+    configuration: Configuration
 }
 
 
 // -- VRFY
 // http://www.smtp-server.com/simple_mail_verifying.htm
-export type IVrfyExtensionDataCallback = (data: IVRFYExtensionData) => void;
+export type IVrfyExtensionDataCallback = (data: IVRFYExtensionData) => void | Promise<void>;
 export interface IVRFYExtensionData extends IExtensionData {
     type: 'VRFY',
     found_users: Array<IVRFYResponse>,
@@ -153,7 +158,7 @@ export interface IVRFYExtensionData extends IExtensionData {
 
 
 // -- STARTTLS
-export type IStartTlsExtensionDataCallback = (data: IStartTlsExtensionData) => void;
+export type IStartTlsExtensionDataCallback = (data: IStartTlsExtensionData) => void | Promise<void>;
 export type StartTlsActions = `${'ALLOW' | 'DENY'}${':FINAL' | ''}`;
 export interface IStartTlsExtensionData extends IExtensionData {
     type: 'STARTTLS',
@@ -163,7 +168,7 @@ export interface IStartTlsExtensionData extends IExtensionData {
 
 
 // -- DATA
-export type IDataExtensionDataCallback = (data: IDATAExtensionData) => void;
+export type IDataExtensionDataCallback = (data: IDATAExtensionData) => void | Promise<void>;
 export type DataActions = 'ALLOW' | 'DENY';
 export interface IDATAExtensionData extends IExtensionData {
     type: 'DATA',
@@ -176,7 +181,7 @@ export interface IDATAExtensionData extends IExtensionData {
 
 
 // -- RCPT TO
-export type IRcptToExtensionDataCallback = (data: IRCPTTOExtensionData) => void;
+export type IRcptToExtensionDataCallback = (data: IRCPTTOExtensionData) => void | Promise<void>;
 export type RcptToActions = `${'ALLOW' | 'DENY'}${':FINAL' | ''}`;
 export interface IRCPTTOExtensionData extends IExtensionData {
     type: 'RCPT TO',
@@ -186,8 +191,8 @@ export interface IRCPTTOExtensionData extends IExtensionData {
 
 
 // -- MAIL FROM
-export type IMailFromExtensionDataCallback = (data: IMailFromExtensionData) => void;
-export type MailFromActions = `${'ALLOW' | 'DENY'}${':FINAL' | ''}`;
+export type IMailFromExtensionDataCallback = (data: IMailFromExtensionData) => void | Promise<void>;
+export type MailFromActions = `${'ALLOW' | 'DENY' | 'SPF'}${':FINAL' | ''}`;
 export interface IMailFromExtensionData extends IExtensionData {
     type: 'MAIL FROM',
     sender: IMailFrom,
@@ -195,19 +200,19 @@ export interface IMailFromExtensionData extends IExtensionData {
 }
 
 
-export type IQuitExtensionDataCallback = (data: IQuitExtensionData) => void;
+export type IQuitExtensionDataCallback = (data: IQuitExtensionData) => void | Promise<void>;
 export interface IQuitExtensionData extends IExtensionData {
     type: 'QUIT',
 }
 
 
-export type IRsetExtensionDataCallback = (data: IRsetExtensionData) => void;
+export type IRsetExtensionDataCallback = (data: IRsetExtensionData) => void | Promise<void>;
 export interface IRsetExtensionData extends IExtensionData {
     type: 'RSET',
 }
 
 
-export type INoopExtensionDataCallback = (data: INoopExtensionData) => void;
+export type INoopExtensionDataCallback = (data: INoopExtensionData) => void | Promise<void>;
 export interface INoopExtensionData extends IExtensionData {
     type: 'NOOP',
 }
@@ -241,20 +246,23 @@ export type CommandCallback =
     INoopExtensionDataCallback;
 
 export type CallbackDataMap =
-    { key: 'VRFY', value: IVrfyExtensionDataCallback } |
-    { key: 'DATA', value: IDataExtensionDataCallback } |
-    { key: 'RCPT TO', value: IRcptToExtensionDataCallback } |
-    { key: 'MAIL FROM', value: IMailFromExtensionDataCallback } |
-    { key: 'STARTTLS', value: IStartTlsExtensionDataCallback } |
-    { key: 'QUIT', value: IQuitExtensionDataCallback } |
-    { key: 'RSET', value: IRsetExtensionDataCallback } |
-    { key: 'NOOP', value: INoopExtensionDataCallback } |
-    { key: 'GENERIC', value: IExtensionDataCallback };
+    { key: 'VRFY', value: IVrfyExtensionDataCallback, data: IVRFYExtensionData } |
+    { key: 'DATA', value: IDataExtensionDataCallback, data: IDATAExtensionData } |
+    { key: 'RCPT TO', value: IRcptToExtensionDataCallback, data: IRCPTTOExtensionData } |
+    { key: 'MAIL FROM', value: IMailFromExtensionDataCallback, data: IMailFromExtensionData } |
+    { key: 'STARTTLS', value: IStartTlsExtensionDataCallback, data: IStartTlsExtensionData } |
+    { key: 'QUIT', value: IQuitExtensionDataCallback, data: IQuitExtensionData } |
+    { key: 'RSET', value: IRsetExtensionDataCallback, data: IRsetExtensionData } |
+    { key: 'NOOP', value: INoopExtensionDataCallback, data: INoopExtensionData } |
+    { key: 'GENERIC', value: IExtensionDataCallback, data: IExtensionData };
     
 export type CustomIngressCallback = 
     ICustomCommandDataCallback;
 
-export type CommandExtensionMap = Map<string, [CommandCallback]>;
+export type CommandExtensionMap = Map<string, [{
+    callback: CommandCallback,
+    id: string,
+}]>;
 export type CustomCommandEntry = { 
     paramaters: ICustomParser, 
     callback: CustomIngressCallback,
@@ -262,6 +270,7 @@ export type CustomCommandEntry = {
     disallowed_stages: Array<string>,
     mode: 'ESMTP' | 'SMTP' | 'ANY',
     feature_name: string | null,
+    id: string,
 };
 export type CustomIngressMap = Map<string, [CustomCommandEntry]>;
 

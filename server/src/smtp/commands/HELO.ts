@@ -19,7 +19,7 @@ function check_helo(command: string): boolean {
  * https://www.ibm.com/docs/en/zvm/7.3?topic=commands-helo
  */
 export const I_HELO = (commands_map: CommandMap) =>  commands_map.set('HELO',
-    (socket, email, words, raw) => {
+    (socket, email, words, raw_data, configuration) => new Promise((resolve, reject) => {
 
     // -- ensure that we are in the INIT stage
     if (
@@ -28,7 +28,7 @@ export const I_HELO = (commands_map: CommandMap) =>  commands_map.set('HELO',
     ) {
         email.send_message(socket, 503, 'Bad sequence of commands')
         email.close(socket, false);
-        return;
+        return reject();
     }
 
 
@@ -37,11 +37,11 @@ export const I_HELO = (commands_map: CommandMap) =>  commands_map.set('HELO',
     const he = HELO_EHLO(words.join(' '));
     if (
         he.message_type === 'UNKNOWN' ||
-        !check_helo(raw)
+        !check_helo(raw_data)
     ) {
         email.send_message(socket, 500, 'Unknown command');
         email.close(socket, false);
-        return;
+        return reject();
     }
 
 
@@ -50,4 +50,5 @@ export const I_HELO = (commands_map: CommandMap) =>  commands_map.set('HELO',
     email.marker = 'HELO';
     email.mode = 'HELO';
     email.send_message(socket, 2502);
-});
+    return resolve();
+}));

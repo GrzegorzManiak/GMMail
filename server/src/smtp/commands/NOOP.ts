@@ -11,25 +11,34 @@ import { CommandMap } from '../types';
  * @description Processes the NOOP command, Which 
  * dose a whole lot of nothing
  */
-export const I_NOOP = (commands_map: CommandMap) => 
-    commands_map.set('NOOP', (socket, email, words, raw_data) => {
+export const I_NOOP = (commands_map: CommandMap) => commands_map.set('NOOP', 
+    (socket, email, words, raw_data, configuration) => new Promise(async(resolve, reject) => {
 
-
-    // -- Build the extension data
-    const extension_data: INoopExtensionData = {
-        log, email, socket,
-        words, raw_data,
-        smtp: SMTP.get_instance(),
-        type: 'NOOP',
-    };
 
 
     // -- Get the extensions
     const extensions = ExtensionManager.get_instance();
-    extensions._get_command_extension_group('NOOP').forEach((callback: INoopExtensionDataCallback) => 
-        callback(extension_data));
+    const promises = [];
+    extensions._get_command_extension_group('NOOP').forEach((data) =>  {
+        // -- Build the extension data
+        const extension_data: INoopExtensionData = {
+            log, email, socket,
+            words, raw_data,
+            smtp: SMTP.get_instance(),
+            type: 'NOOP',
+            extension_id: data.id,
+            configuration,
+            extensions: extensions,
+        };
+        
+        promises.push((data.callback as INoopExtensionDataCallback)(extension_data));
+    });
+
+    // -- Wait for all the promises to resolve
+    await Promise.all(promises);
 
 
     // -- Push the quit message
     email.send_message(socket, 250);
-});
+    return resolve();
+}));
