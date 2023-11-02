@@ -13,6 +13,7 @@ import {
     IStartTlsExtensionData, 
     IVRFYExtensionData, 
 } from './extensions/types';
+import path from 'path';
 
 // -- There will be a main class here that will be the entry point for the server
 //    and will be responsible for loading the config, starting the server, etc
@@ -33,7 +34,7 @@ log('INFO', 'Main', 'main', 'Starting server...');
 // -- Get the config
 const abs_config_path = _runtime === 'BUN' ?
     `${import.meta.dir}/../basic_config.json` :
-    `${__dirname}/../basic_config.json`;
+    path.resolve('../basic_config.json');
 const config = Configuration.get_instance(abs_config_path);
 
 
