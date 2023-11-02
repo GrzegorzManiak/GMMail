@@ -175,3 +175,6 @@ dist
 .DS_Store
 
 certs/
+
+
+server/basic_config.json
