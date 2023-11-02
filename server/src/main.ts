@@ -32,7 +32,7 @@ log('INFO', 'Main', 'main', 'Starting server...');
 // -- Get the config
 const abs_config_path = _runtime === 'BUN' ?
     `${import.meta.dir}/../basic_config.json` :
-    `${__dirname}/../basic_config.json`;
+    `../basic_config.json`;
 
 const config = Configuration.get_instance(abs_config_path);
 
