@@ -74,8 +74,9 @@ export default class SMTPIngress {
      */
     public start_listening(): void {
         // -- Load the SMTP sockets
-        this._config.get<boolean>('SMTP', 'NIL') && this._load_socket('NIL');
-        this._config.get<boolean>('SMTP', 'TLS') && this._load_socket('TLS');
+        this._config.get<boolean>('SMTP', 'STARTTLS') && this._load_socket('STARTTLS');
+        this._config.get<boolean>('SMTP', 'PLAIN') && this._load_socket('PLAIN');
+        this._config.get<boolean>('SMTP', 'SSL') && this._load_socket('SSL');
     }   
 
 
@@ -144,13 +145,15 @@ export default class SMTPIngress {
             
         switch (_runtime) {
             case 'BUN': switch (socket_type) {
-                case 'NIL': this._sockets.push(new BunNilSocket()); break;
-                case 'TLS': this._sockets.push(new BunTlsSocket()); break;
+                case 'STARTTLS': this._sockets.push(new BunNilSocket('STARTTLS')); break;
+                case 'PLAIN': this._sockets.push(new BunNilSocket('PLAIN')); break;
+                case 'SSL': this._sockets.push(new BunTlsSocket()); break;
             }; break;
 
             case 'NODE': switch (socket_type) {
-                case 'NIL': this._sockets.push(new NodeNilSocket()); break;
-                case 'TLS': this._sockets.push(new NodeTlsSocket()); break;
+                case 'STARTTLS': this._sockets.push(new NodeNilSocket('STARTTLS')); break;
+                case 'PLAIN': this._sockets.push(new NodeNilSocket('PLAIN')); break;
+                case 'SSL': this._sockets.push(new NodeTlsSocket()); break;
             }; break;
         }
     }

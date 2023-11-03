@@ -114,22 +114,22 @@ export default class Configuration {
         DOMAIN: 'localhost',
         VENDOR: 'GMMail',
         SMTP_PORTS: {
-            TLS: 587,
+            PLAIN: 25,
             SSL: 465,
-            NIL: 25
+            STARTTLS: 587
         },
         SMTP: {
-            TLS: true,
+            PLAIN: true,
             SSL: true,
-            NIL: true
+            STARTTLS: true
         },
         MAIL: {
             MAX_SIZE: 1024 * 1024 * 10, // -- 10MB
         },
         SMTP_MODE: {
-            TLS: [ 'SEND', 'RECEIVE' ],
+            PLAIN: [ 'SEND', 'RECEIVE' ],
             SSL: [ 'SEND', 'RECEIVE' ],
-            NIL: [ 'SEND', 'RECEIVE' ]
+            STARTTLS: [ 'SEND', 'RECEIVE' ]
         },
         TLS: {
             KEY: '../certs/gmmail_key.pem',

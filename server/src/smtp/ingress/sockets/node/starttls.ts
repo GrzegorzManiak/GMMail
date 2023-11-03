@@ -1,12 +1,15 @@
 import { createServer as create_server } from 'net';
 import Configuration from '../../../../config';
 import BaseSocket from '../../base_socket';
+import { IConfig } from '../../../../config/types';
 
 
 
 export default class NilSocket extends BaseSocket {
-    public constructor() {
-        super('NIL', Configuration.get_instance().get<number>('SMTP_PORTS', 'NIL'));
+    public constructor(
+        port_key: keyof IConfig['SMTP_MODE']
+    ) {
+        super(port_key, Configuration.get_instance().get<number>('SMTP_PORTS', port_key));
 
 
 

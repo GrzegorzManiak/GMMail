@@ -143,8 +143,8 @@ export default class BaseSocket {
             active_mode = email.socket_mode === mode ? mode : null;
 
         switch (active_mode) {
-            case 'NIL':
-            case 'TLS': {
+            case 'PLAIN':
+            case 'SSL': {
                 log('DEBUG', 'Socket', 'constructor', `Socket closed on port ${port} with mode ${active_mode}`);
                 // email.close(socket, true);
                 break;

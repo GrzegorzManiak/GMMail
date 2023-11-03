@@ -9,7 +9,7 @@
 import RecvEmail from './email/recv';
 
 export type RuntimeType = 'NODE' | 'BUN';
-export type SocketType = 'TLS' | 'STARTTLS' | 'NIL';
+export type SocketType = 'SSL' | 'STARTTLS' | 'PLAIN';
 
 
 

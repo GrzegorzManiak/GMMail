@@ -1,13 +1,13 @@
 export interface ISMTPPorts {
-    TLS: number;
+    PLAIN: number;
     SSL: number;
-    NIL: number;
+    STARTTLS: number;
 }
 
 export interface ISMTP {
-    TLS: boolean;
+    PLAIN: boolean;
     SSL: boolean;
-    NIL: boolean;
+    STARTTLS: boolean;
 }
 
 export interface IMail {
@@ -21,9 +21,9 @@ export type SMTPBoth = [ 'SEND', 'RECEIVE' ];
 export type SMTPModeUnion = SMTPSend | SMTPReceive | SMTPBoth;
 
 export interface ISMTPMode {
-    TLS: SMTPModeUnion;
+    PLAIN: SMTPModeUnion;
     SSL: SMTPModeUnion;
-    NIL: SMTPModeUnion;
+    STARTTLS: SMTPModeUnion;
 }
 
 export interface ITLS {

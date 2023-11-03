@@ -1,13 +1,14 @@
-import { Socket as BunSocket } from 'bun';
 import Configuration from '../../../../config';
 import BaseSocket from '../../base_socket';
 import RecvEmail from '../../../../email/recv';
-import { JointSocket, WrappedSocket } from '../../../../types';
+import { IConfig } from '../../../../config/types';
 
 
 export default class NilSocket extends BaseSocket {
-    public constructor() {
-        super('NIL', Configuration.get_instance().get<number>('SMTP_PORTS', 'NIL'));
+    public constructor(
+        port_key: keyof IConfig['SMTP_MODE']
+    ) {
+        super(port_key, Configuration.get_instance().get<number>('SMTP_PORTS', port_key));
         
         this._socket = Bun.listen<RecvEmail>({
             hostname: this._config.get<string>('HOST'),

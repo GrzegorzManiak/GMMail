@@ -8,7 +8,7 @@ import { JointSocket } from '../../../../types';
 
 export default class TlsSocket extends BaseSocket {
     public constructor() {
-        super('TLS', Configuration.get_instance().get<number>('SMTP_PORTS', 'TLS'));
+        super('SSL', Configuration.get_instance().get<number>('SMTP_PORTS', 'SSL'));
 
         this._socket = Bun.listen<RecvEmail>({
             hostname: this._config.get<string>('HOST'),

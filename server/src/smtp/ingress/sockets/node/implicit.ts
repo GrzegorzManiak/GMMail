@@ -7,7 +7,7 @@ import BaseSocket from '../../base_socket';
 
 export default class TlsSocket extends BaseSocket {
     public constructor() {
-        super('TLS', Configuration.get_instance().get<number>('SMTP_PORTS', 'TLS'));
+        super('SSL', Configuration.get_instance().get<number>('SMTP_PORTS', 'SSL'));
 
 
 

@@ -6,22 +6,9 @@
 		"MAX_SIZE": 10000
 	},
 	"SMTP_PORTS": {
-		"TLS": 1465,
-		"NIL": 1587
-	},
-	"SMTP": {
-		"TLS": true,
-		"NIL": true
-	},
-	"SMTP_MODE": {
-		"TLS": [
-			"SEND",
-			"RECEIVE"
-		],
-		"NIL": [
-			"SEND",
-			"RECEIVE"
-		]
+		"PLAIN": 25,
+		"SSL": 465,
+		"STARTTLS": 587
 	},
 	"TLS": {
 		"KEY": "../certs/private.key",
