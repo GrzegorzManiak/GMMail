@@ -106,8 +106,8 @@ config.await_config().then(async () => {
      * or add custom checks
      */
     extensions.add_command_extension<IDATAExtensionData>('DATA', async(data) => {
-        data.bypass_size_check = false;
-        if(data.total_size > 1000) data.action('DENY');
+        data.bypass_size_check = true;
+        // if(data.total_size > 1000) data.action('DENY');
     });
 
 
