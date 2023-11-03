@@ -11,8 +11,8 @@ export default class NilSocket extends BaseSocket {
         port_key: keyof IConfig['SMTP_MODE']
     ) {
         super(port_key, Configuration.get_instance().get<number>('SMTP_PORTS', port_key));
-        log('DEBUG', 'SMTP', `Starting ${port_key} socket on port ${this._port}`);
 
+        
 
         // -- Create the socket
         this._socket = create_server((socket) => {

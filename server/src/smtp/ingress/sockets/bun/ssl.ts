@@ -10,6 +10,8 @@ export default class TlsSocket extends BaseSocket {
     public constructor() {
         super('SSL', Configuration.get_instance().get<number>('SMTP_PORTS', 'SSL'));
 
+
+        
         this._socket = Bun.listen<RecvEmail>({
             hostname: this._config.get<string>('HOST'),
             port: this._port,

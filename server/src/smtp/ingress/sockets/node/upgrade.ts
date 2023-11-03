@@ -18,6 +18,8 @@ export default class UpgradeSocket extends BaseSocket {
         // -- The port is NIL as we are upgrading the connection from the NIL socket
         super('UPGRADE', Configuration.get_instance().get<number>('SMTP_PORTS', 'STARTTLS'));
 
+
+        
         // -- Ensure that the existing socker is of instance NodeSocket
         if (!existing_socket || !(existing_socket instanceof NodeSocket)
         ) throw new Error('Cannot upgrade socket. Existing socket is not a NodeSocket');
