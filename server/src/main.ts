@@ -23,19 +23,22 @@ import { env } from 'process';
 //    modules which are not connected.
 
 
+
 // -- This is a global internal variable that will be used to determine if the
 //    server is running in a BUN environment or a NODE environment, it cant be
 //    changed at runtime.
 
 const def_runtime: 'BUN' | 'NODE' = 'BUN';
 export const _runtime = env.RUNTIME || def_runtime;
-
 log('INFO', 'Main', 'main', 'Starting server in', _runtime, 'mode');
+
 
 // -- Get the config
 const abs_config_path = _runtime === 'BUN' ?
     `${import.meta.dir}/../basic_config.json` :
     path.resolve('./basic_config.json');
+
+log('INFO', 'Main', 'main', 'Using config file', abs_config_path);
 const config = Configuration.get_instance(abs_config_path);
 
 
