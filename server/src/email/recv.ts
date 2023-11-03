@@ -519,7 +519,7 @@ export default class RecvEmail {
      * @returns {'PLAIN' | 'SSL' | 'STARTTLS'} The socket mode of the email
      */
     public get socket_mode(
-    ): 'PLAIN' | 'SSL' | 'STARTTLS' { 
+    ): SocketType { 
         return this._socket_mode; 
     }
 
@@ -539,7 +539,7 @@ export default class RecvEmail {
             return log('ERROR', 'RecvEmail', 'upgrade_socket_mode', 'Cannot upgrade socket mode');
 
         // -- Set the socket mode to STARTTLS
-        this._socket_mode = 'STARTTLS';
+        this._socket_mode = 'UPGRADE';
     }
     
 

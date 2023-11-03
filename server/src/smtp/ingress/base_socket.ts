@@ -144,6 +144,7 @@ export default class BaseSocket {
 
         switch (active_mode) {
             case 'PLAIN':
+            case 'STARTTLS':
             case 'SSL': {
                 log('DEBUG', 'Socket', 'constructor', `Socket closed on port ${port} with mode ${active_mode}`);
                 // email.close(socket, true);
@@ -151,8 +152,8 @@ export default class BaseSocket {
             };
 
 
-            case 'STARTTLS': {
-                log('DEBUG', 'Socket', 'constructor', `Completed STARTTLS on port ${port}, closing socket`);
+            case 'UPGRADE': {
+                log('DEBUG', 'Socket', 'constructor', `Completed UPGRADE on port ${port}, closing socket`);
                 // email.close(socket, true);
                 break;
             }

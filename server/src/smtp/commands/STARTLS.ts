@@ -19,7 +19,9 @@ export const I_STARTTLS = (commands_map: CommandMap) => commands_map.set('STARTT
     (socket, email, words, raw_data, configuration) => new Promise(async(resolve, reject) => {
 
     // -- Ensure that the current mode is NIL
-    if (!(email.socket_mode === 'STARTTLS' || email.socket_mode === 'PLAIN')) {
+    if (
+        !(email.socket_mode === 'STARTTLS' || email.socket_mode === 'PLAIN') 
+    ) {
         email.send_message(socket, 454); 
         return reject();
     }
