@@ -8,10 +8,10 @@ import { add_commands, process } from './interpreter';
 import { SocketType, WrappedSocket } from '../../types';
 
 import { _runtime } from '../../main';
-import NodeTlsSocket from './sockets/node/implicit';
-import NodeNilSocket from './sockets/node/starttls';
-import BunTlsSocket from './sockets/bun/implicit';
-import BunNilSocket from './sockets/bun/starttls';
+import NodeSSLSocket from './sockets/node/ssl';
+import NodePlainSocket from './sockets/node/plain';
+import BunSSLSocket from './sockets/bun/ssl';
+import BunPlainSocket from './sockets/bun/plain';
 
 
 
@@ -145,15 +145,15 @@ export default class SMTPIngress {
             
         switch (_runtime) {
             case 'BUN': switch (socket_type) {
-                case 'STARTTLS': this._sockets.push(new BunNilSocket('STARTTLS')); break;
-                case 'PLAIN': this._sockets.push(new BunNilSocket('PLAIN')); break;
-                case 'SSL': this._sockets.push(new BunTlsSocket()); break;
+                case 'STARTTLS': this._sockets.push(new BunPlainSocket('STARTTLS')); break;
+                case 'PLAIN': this._sockets.push(new BunPlainSocket('PLAIN')); break;
+                case 'SSL': this._sockets.push(new BunSSLSocket()); break;
             }; break;
 
             case 'NODE': switch (socket_type) {
-                case 'STARTTLS': this._sockets.push(new NodeNilSocket('STARTTLS')); break;
-                case 'PLAIN': this._sockets.push(new NodeNilSocket('PLAIN')); break;
-                case 'SSL': this._sockets.push(new NodeTlsSocket()); break;
+                case 'STARTTLS': this._sockets.push(new NodePlainSocket('STARTTLS')); break;
+                case 'PLAIN': this._sockets.push(new NodePlainSocket('PLAIN')); break;
+                case 'SSL': this._sockets.push(new NodeSSLSocket()); break;
             }; break;
         }
     }
