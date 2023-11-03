@@ -27,27 +27,23 @@ import { env } from 'process';
 // -- This is a global internal variable that will be used to determine if the
 //    server is running in a BUN environment or a NODE environment, it cant be
 //    changed at runtime.
-
 const def_runtime: 'BUN' | 'NODE' = 'BUN';
 export const _runtime = env.RUNTIME || def_runtime;
 log('INFO', 'Main', 'main', 'Starting server in', _runtime, 'mode');
 
 
-// -- Get the config
-const abs_config_path = _runtime === 'BUN' ?
-    `${import.meta.dir}/../basic_config.json` :
-    path.resolve('./basic_config.json');
 
-log('INFO', 'Main', 'main', 'Using config file', abs_config_path);
+// -- Get the config
+const abs_config_path = path.resolve('./basic_config.json')
 const config = Configuration.get_instance(abs_config_path);
+log('INFO', 'Main', 'main', 'Using config file', abs_config_path);
 
 
 
 //  https://mailtrap.io/blog/smtp-commands-and-responses/#RSET
-(async () => {
+config.await_config().then(async () => {
 
     // -- Await the configuration file
-    await config.await_config();
     log('INFO', 'Main', 'main', 'Server started');
 
 
@@ -239,4 +235,4 @@ const config = Configuration.get_instance(abs_config_path);
     // });
 
     // https://www.samlogic.net/articles/smtp-commands-reference.htm
-})();
+});
