@@ -47,3 +47,12 @@ export type JointServer =
     NodeTLSServer |
     NodeTCPServer;
 
+
+
+
+
+export interface IConfig {
+    path: string;
+    load_defaults?: boolean;
+    runtime?: RuntimeType;
+}

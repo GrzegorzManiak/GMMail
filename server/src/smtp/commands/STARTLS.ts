@@ -3,10 +3,9 @@ import { IStartTlsExtensionData, IStartTlsExtensionDataCallback } from '../../ex
 import { log } from '../../log';
 import SMTP from '../ingress/ingress';
 import { CommandMap } from '../types';
-
-import { _runtime } from '../../main';
 import NodeUpgradeSocket from '../ingress/sockets/node/upgrade';
 import BunUpgradeSocket from '../ingress/sockets/bun/upgrade';
+import GMMail from '../../main';
 
 
 
@@ -102,8 +101,7 @@ export const I_STARTTLS = (commands_map: CommandMap) => commands_map.set('STARTT
     email.reset_command();
     email.marker = 'STARTTLS';
 
-    console.log(_runtime);
-    switch (_runtime) {
+    switch (GMMail.runtime) {
         case 'BUN': new BunUpgradeSocket(socket); break;
         case 'NODE': new NodeUpgradeSocket(socket); break;
     }

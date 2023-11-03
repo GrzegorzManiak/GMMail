@@ -1,6 +1,6 @@
 import { log } from '../log';
+import GMMail from '../main';
 import { ConfigKeys, IConfig } from './types';
-import { _runtime } from '../main';
 import { BunFile } from 'bun';
 import fs from 'fs';
 
@@ -52,7 +52,7 @@ export default class Configuration {
 
         // -- Load the configuration file
         let temp_config: unknown;
-        switch (_runtime) {
+        switch (GMMail.runtime) {
             case 'BUN': 
                 temp_config = Bun.file(this.CONFIG_FILE, { type: 'application/json' });
                 if (!await (temp_config as BunFile).exists()) return log(

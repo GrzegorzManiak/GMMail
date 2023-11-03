@@ -7,7 +7,7 @@ import ExtensionManager from '../../extensions/main';
 import { add_commands, process } from './interpreter';
 import { SocketType, WrappedSocket } from '../../types';
 
-import { _runtime } from '../../main';
+import GMMail from '../../main';
 import NodeSSLSocket from './sockets/node/ssl';
 import NodePlainSocket from './sockets/node/plain';
 import BunSSLSocket from './sockets/bun/ssl';
@@ -19,7 +19,8 @@ export default class SMTPIngress {
     private static _instance: SMTPIngress;
     private _extensions: ExtensionManager;
     private _commands_map: CommandMap = new Map();
-    
+    private _gmmail: GMMail;
+
     private _sockets: Socket[];
     private _config: Configuration;
     private _crlf = '.';
@@ -143,7 +144,7 @@ export default class SMTPIngress {
         if (this._sockets.find(socket => socket.socket_type === socket_type)) return log(
             'WARN', 'SMTPIngress', 'load_socket', `Socket already loaded: ${socket_type}`);
             
-        switch (_runtime) {
+        switch (GMMail.runtime) {
             case 'BUN': switch (socket_type) {
                 case 'STARTTLS': this._sockets.push(new BunPlainSocket('STARTTLS')); break;
                 case 'PLAIN': this._sockets.push(new BunPlainSocket('PLAIN')); break;
