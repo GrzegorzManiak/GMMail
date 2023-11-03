@@ -17,7 +17,7 @@ export const I_HELP = (commands_map: CommandMap) => commands_map.set('HELP',
 
     // -- Get the supported features
     const smtp = SMTP.get_instance(),
-        features = smtp.supported_features(email.socket_mode === 'NIL');
+        features = smtp.supported_features(email.socket_mode === 'PLAIN');
 
     // -- Send the features
     features.forEach(feature => {
