@@ -13,9 +13,9 @@ export default class UpgradeSocket extends BaseSocket {
     ) {
 
         // -- The port is NIL as we are upgrading the connection from the NIL socket
-        super('UPGRADE', Configuration.get_instance().get<number>('SMTP_PORTS', 'STARTTLS'));
+        super('UPGRADE', existing_socket.localPort);
 
-
+        
                 
         // @ts-ignore // -- This feature is not yet documented in the Bun library
         const sockets = existing_socket.upgradeTLS<RecvEmail>({
@@ -28,7 +28,7 @@ export default class UpgradeSocket extends BaseSocket {
 
             socket: {
                 data: (socket, data) => this.socket_data(socket, data),
-                open: socket => this.socket_open(socket),
+                open: socket => this.socket_upgrade(socket),
                 close: socket => this.socket_close(socket),
                 error: (socket, error) => this.socket_error(socket, error),
             }

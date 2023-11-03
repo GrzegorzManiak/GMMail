@@ -6,9 +6,9 @@
 		"MAX_SIZE": 10000
 	},
 	"SMTP_PORTS": {
-		"PLAIN": 25,
-		"SSL": 465,
-		"STARTTLS": 587
+		"PLAIN": 2525,
+		"SSL": 1465,
+		"STARTTLS": 1587
 	},
 	"TLS": {
 		"KEY": "../certs/private.key",

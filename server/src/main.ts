@@ -14,6 +14,7 @@ import {
     IVRFYExtensionData, 
 } from './extensions/types';
 import path from 'path';
+import { env } from 'process';
 
 // -- There will be a main class here that will be the entry point for the server
 //    and will be responsible for loading the config, starting the server, etc
@@ -25,11 +26,11 @@ import path from 'path';
 // -- This is a global internal variable that will be used to determine if the
 //    server is running in a BUN environment or a NODE environment, it cant be
 //    changed at runtime.
-export const _runtime: 'BUN' | 'NODE' = (process.env.RUNTIME as 'BUN' | 'NODE' || 'NODE');
 
+const def_runtime: 'BUN' | 'NODE' = 'BUN';
+export const _runtime = env.RUNTIME || def_runtime;
 
-
-log('INFO', 'Main', 'main', 'Starting server...');
+log('INFO', 'Main', 'main', 'Starting server in', _runtime, 'mode');
 
 // -- Get the config
 const abs_config_path = _runtime === 'BUN' ?

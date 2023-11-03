@@ -133,7 +133,7 @@ export default class RecvEmail {
         this.locked = false;
         this._markers.clear();
         this.marker = 'RSET';
-        this.mode = null;
+        this._mode = null;
     }
 
 
@@ -535,8 +535,10 @@ export default class RecvEmail {
     public upgrade_socket_mode(
     ): void {
         // -- Check if the socket mode is STARTTLS | PLAIN
-        if (this._socket_mode !== 'PLAIN' && this._socket_mode !== 'STARTTLS')
-            return log('ERROR', 'RecvEmail', 'upgrade_socket_mode', 'Cannot upgrade socket mode');
+        if (
+            this._socket_mode !== 'PLAIN' && 
+            this._socket_mode !== 'STARTTLS'
+        ) return log('ERROR', 'RecvEmail', 'upgrade_socket_mode', 'Cannot upgrade socket mode');
 
         // -- Set the socket mode to STARTTLS
         this._socket_mode = 'UPGRADE';

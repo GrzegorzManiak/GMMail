@@ -18,9 +18,10 @@ import BunUpgradeSocket from '../ingress/sockets/bun/upgrade';
 export const I_STARTTLS = (commands_map: CommandMap) => commands_map.set('STARTTLS',
     (socket, email, words, raw_data, configuration) => new Promise(async(resolve, reject) => {
 
-    // -- Ensure that the current mode is NIL
+    // -- Ensure the socket is in mode PLAIN or STARTTLS
     if (
-        !(email.socket_mode === 'STARTTLS' || email.socket_mode === 'PLAIN') 
+        email.socket_mode !== 'PLAIN' &&
+        email.socket_mode !== 'STARTTLS'
     ) {
         email.send_message(socket, 454); 
         return reject();
@@ -100,7 +101,8 @@ export const I_STARTTLS = (commands_map: CommandMap) => commands_map.set('STARTT
     email.send_message(socket, 2201);
     email.reset_command();
     email.marker = 'STARTTLS';
-    
+
+    console.log(_runtime);
     switch (_runtime) {
         case 'BUN': new BunUpgradeSocket(socket); break;
         case 'NODE': new NodeUpgradeSocket(socket); break;

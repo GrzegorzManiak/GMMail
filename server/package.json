@@ -4,11 +4,11 @@
 	"type": "module",
 	"main": "index.ts",
 	"scripts": {
-		"node": "node --experimental-specifier-resolution=node --loader ts-node/esm ./src/main.ts",
+		"node": "RUNTIME=NODE node --experimental-specifier-resolution=node --loader ts-node/esm ./src/main.ts",
 		"node:dev": "nodemon --exec \"npm run node\" --watch ./src --ext ts",
 
-		"bun": "bun ./src/main.ts",
-		"bun:dev": "bun --watch ./src/main.ts"
+		"bun": "RUNTIME=BUN bun ./src/main.ts",
+		"bun:dev": "RUNTIME=BUN bun --watch ./src/main.ts"
 	},
 	"devDependencies": {
 		"@types/node": "^20.8.9",
