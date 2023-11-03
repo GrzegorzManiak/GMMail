@@ -1,7 +1,7 @@
 import Configuration from './config';
 import SMTP from './smtp/ingress/ingress';
 import ExtensionManager from './extensions/main';
-import { log } from './log';
+import { LogType, log } from './log';
 import path from 'path';
 import { env } from 'process';
 import { IConfig, RuntimeType } from './types';
@@ -109,5 +109,20 @@ export default class GMMail {
      */
     public get smtp(): SMTP {
         return this._smtp;
+    }
+
+
+
+    /**
+     * @name log
+     * @description Logs a message to the console
+     * 
+     * @param {LogType} type - The type of log
+     * @param {Array<unknown>} args - The arguments to log
+     * 
+     * @returns {void} - Nothing, it just logs
+     */
+    public log(type: LogType, ...args: Array<unknown>): void {
+        log(type, ...args);
     }
 }
