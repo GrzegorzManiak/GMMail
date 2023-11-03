@@ -66,7 +66,6 @@ export default class BaseSocket {
 
         // -- Get the email object, and make sure the socket mode is correct
         const email = socket.data as RecvEmail;
-        console.log(email.socket_mode, socket_type);
         if (email.socket_mode !== socket_type) return;
 
 
