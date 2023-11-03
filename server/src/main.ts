@@ -34,7 +34,6 @@ export default class GMMail {
     // -- Constructor
     private constructor(config: IConfig) {
 
-        // 
         
         // -- Fill the config
         const filled_config: IConfig = {
@@ -50,12 +49,13 @@ export default class GMMail {
         log('DEBUG', 'GMMail', 'constructor', 'Creating GMMail instance');
         this._config = Configuration.get_instance(abs_config_path);
 
-
+        
         // -- Wait for the config to load
         this._config.await_config().then(() => {
             log('DEBUG', 'GMMail', 'constructor', 'Config loaded, creating SMTP instance');
             this._smtp = SMTP.get_instance();
             this._extensions = ExtensionManager.get_instance();
+            this._smtp.start_listening();
         });
     }
 

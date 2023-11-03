@@ -74,6 +74,8 @@ export default class SMTPIngress {
      * @returns {void}
      */
     public start_listening(): void {
+        log('DEBUG', 'SMTPIngress', 'start_listening', 'Creating SMTP sockets');
+
         // -- Load the SMTP sockets
         this._config.get<boolean>('SMTP', 'STARTTLS') && this._load_socket('STARTTLS');
         this._config.get<boolean>('SMTP', 'PLAIN') && this._load_socket('PLAIN');
